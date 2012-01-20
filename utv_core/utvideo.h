@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: utvideo.h 848 2012-01-07 13:13:26Z umezawa $ */
+/* $Id: utvideo.h 858 2012-01-19 09:28:09Z umezawa $ */
 
 #pragma once
 
@@ -19,8 +19,8 @@
 
 
 #define UTVIDEO_VERSION_MASK                      0xffffff00
-#define UTVIDEO_VERSION                           0x0a020300
-#define UTVIDEO_VERSION_STR                       "10.2.3"
+#define UTVIDEO_VERSION                           0x0a020400
+#define UTVIDEO_VERSION_STR                       "10.2.4"
 
 /*
  * NOTE:

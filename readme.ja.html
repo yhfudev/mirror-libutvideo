@@ -1,11 +1,11 @@
 <html>
-<!-- $Id: readme.ja.html 849 2012-01-07 13:32:43Z umezawa $ -->
+<!-- $Id: readme.ja.html 859 2012-01-19 09:32:54Z umezawa $ -->
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=shift_jis">
-<title>Ut Video Codec Suite 10.2.3 readme （日本語）</title>
+<title>Ut Video Codec Suite 10.2.4 readme （日本語）</title>
 </head>
 <body>
-<h1>Ut Video Codec Suite 10.2.3 readme （日本語）</h1>
+<h1>Ut Video Codec Suite 10.2.4 readme （日本語）</h1>
 <hr>
 <h2 id="copyright_notice">著作権表示</h2>
 <h3>英語</h3>
@@ -67,8 +67,8 @@ Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA)。</p>
 <tr><th>VCM / DMO</th><th>QT</th></tr>
 <tr><td>ULRA</td><td>RGBA 4:4:4:4 8bit フルレンジ</td><td><strong>RGBA</strong></td><td><strong>ARGB</strong></td></tr>
 <tr><td>ULRG</td><td>RGB 4:4:4 8bit フルレンジ</td><td><strong>RGB24<br>RGB32</strong></td><td><strong>RGB<br>ARGB</strong></td></tr>
-<tr><td>ULY2</td><td>YCbCr 4:2:2 8bit リミテッド</td><td><strong>YUY2 (YUYV YUNV)</strong><br><strong>UYVY (UYNV)</strong><br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
-<tr><td>ULY0</td><td>YCbCr 4:2:0 8bit リミテッド</td><td><strong>YV12</strong><br>YUY2 (YUYV YUNV)<br>UYVY (UYNV)<br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
+<tr><td>ULY2</td><td>YCbCr (BT.601) 4:2:2 8bit リミテッド</td><td><strong>YUY2 (YUYV YUNV)</strong><br><strong>UYVY (UYNV)</strong><br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
+<tr><td>ULY0</td><td>YCbCr (BT.601) 4:2:0 8bit リミテッド</td><td><strong>YV12</strong><br>YUY2 (YUYV YUNV)<br>UYVY (UYNV)<br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
 </table>
 <ul>
 <li>VCM と DMO では、対応入力フォーマットと対応出力フォーマットは同じです。</li>
@@ -79,6 +79,8 @@ Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA)。</p>
 </ul>
 <h2 id="donations">寄付について</h2>
 <p>Ut Video Codec Suite はフリーソフトウェアです。開発を支援するための寄付は常に歓迎しております。詳細は作者のblogの<a href="http://umezawa.dyndns.info/wordpress/?page_id=1565">「寄付について」ページ</a>をご覧ください。</p>
+<h2 id="nicovideo">ニコニコ動画のコンテンツツリーについて</h2>
+<p>ニコニコ動画において、コンテンツツリーの親作品として指定するために、<a href="http://seiga.nicovideo.jp/seiga/im1642183">静画</a>を投稿してあります。Ut Video Codec Suite を使用して作成された動画を投稿の際は、親作品として指定していただけると励みになります。</p>
 <h2 id="devenv">開発環境</h2>
 <h3>Windows</h3>
 <dl>
@@ -102,6 +104,13 @@ Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA)。</p>
 <dd>NASM 2.9.10</dd>
 </dl>
 <h2 id="history">改版履歴</h2>
+<h3>バージョン 10.2.4</h3>
+<dl>
+<dt>その他</dt><dd><ul>
+<li>Windows のインストーラで、インストール前の注意を表示するようにした。</li>
+<li>Mac で、コーデック名をより適切に報告するようにした。</li>
+</ul></dd>
+</dl>
 <h3>バージョン 10.2.3</h3>
 <dl>
 <dt>バグ修正</dt><dd><ul>

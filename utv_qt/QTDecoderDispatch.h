@@ -1,5 +1,5 @@
 /*  */
-/* $Id: QTDecoderDispatch.h 738 2011-09-03 10:22:57Z umezawa $ */
+/* $Id: QTDecoderDispatch.h 853 2012-01-15 13:23:39Z umezawa $ */
 
 ComponentSelectorOffset(8)
 	ComponentRangeCount(3)
@@ -17,9 +17,9 @@ ComponentSelectorOffset(8)
 		StdComponentCall(Open)
 	ComponentRangeEnd(0)
 
-	ComponentRangeBegin (1)
-		ComponentCall (GetCodecInfo)
-	ComponentRangeEnd (1)
+	ComponentRangeBegin(1)
+		ComponentCall(GetCodecInfo)
+	ComponentRangeEnd(1)
 
 	ComponentRangeUnused(2)
 

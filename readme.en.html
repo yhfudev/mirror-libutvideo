@@ -1,11 +1,11 @@
 <html>
-<!-- $Id: readme.en.html 849 2012-01-07 13:32:43Z umezawa $ -->
+<!-- $Id: readme.en.html 859 2012-01-19 09:32:54Z umezawa $ -->
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
-<title>Ut Video Codec Suite 10.2.3 readme (English)</title>
+<title>Ut Video Codec Suite 10.2.4 readme (English)</title>
 </head>
 <body>
-<h1>Ut Video Codec Suite 10.2.3 readme (English)</h1>
+<h1>Ut Video Codec Suite 10.2.4 readme (English)</h1>
 <hr>
 <h2 id="copyright_notice">Copyright Notice</h2>
 <p>Ut Video Codec Suite<br>Copyright &copy; 2008-2012  UMEZAWA Takeshi</p>
@@ -52,8 +52,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA</p>
 <tr><th>VCM / DMO</th><th>QT</th></tr>
 <tr><td>ULRA</td><td>RGBA 4:4:4:4 8bit full-range</td><td><strong>RGBA</strong></td><td><strong>ARGB</strong></td></tr>
 <tr><td>ULRG</td><td>RGB 4:4:4 8bit full-range</td><td><strong>RGB24<br>RGB32</strong></td><td><strong>RGB<br>ARGB</strong></td></tr>
-<tr><td>ULY2</td><td>YCbCr 4:2:2 8bit limited</td><td><strong>YUY2 (YUYV YUNV)</strong><br><strong>UYVY (UYNV)</strong><br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
-<tr><td>ULY0</td><td>YCbCr 4:2:0 8bit limited</td><td><strong>YV12</strong><br>YUY2 (YUYV YUNV)<br>UYVY (UYNV)<br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
+<tr><td>ULY2</td><td>YCbCr (BT.601) 4:2:2 8bit limited</td><td><strong>YUY2 (YUYV YUNV)</strong><br><strong>UYVY (UYNV)</strong><br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
+<tr><td>ULY0</td><td>YCbCr (BT.601) 4:2:0 8bit limited</td><td><strong>YV12</strong><br>YUY2 (YUYV YUNV)<br>UYVY (UYNV)<br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
 </table>
 <ul>
 <li>For VCM and DMO interface, supported input formats and supported output formats are same.</li>
@@ -87,6 +87,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA</p>
 <dd>NASM 2.9.10</dd>
 </dl>
 <h2 id="history">Version history</h2>
+<h3>Version 10.2.4</h3>
+<dl>
+<dt>Others</dt><dd><ul>
+<li>(Windows) Installer now displays "before-install" notice.</li>
+<li>(Mac) Report more apropreate codec name to QuickTime.</li>
+</ul></dd>
+</dl>
 <h3>Version 10.2.3</h3>
 <dl>
 <dt>Bug fixes</dt><dd><ul>

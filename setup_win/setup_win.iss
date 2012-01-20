@@ -1,10 +1,10 @@
 ; •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e
-; $Id: setup_win.iss 850 2012-01-07 13:37:09Z umezawa $
+; $Id: setup_win.iss 860 2012-01-19 09:33:38Z umezawa $
 
 [Setup]
 AppName=Ut Video Codec Suite
 AppId=utvideo
-AppVersion=10.2.3
+AppVersion=10.2.4
 AppCopyright=Copyright (c) 2008-2012 UMEZAWA Takeshi
 AppPublisher=UMEZAWA Takeshi
 AppPublisherURL=http://umezawa.dyndns.info/
@@ -15,11 +15,12 @@ SolidCompression=yes
 OutputBaseFilename=utvideo-win
 ArchitecturesInstallIn64BitMode=x64
 LicenseFile=..\gplv2.rtf
+InfoBeforeFile=before.en.rtf
 InfoAfterFile=info.en.rtf
 
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl";
-Name: "ja"; MessagesFile: "compiler:Languages\Japanese.isl"; InfoAfterFile: "info.ja.rtf"
+Name: "ja"; MessagesFile: "compiler:Languages\Japanese.isl"; InfoBeforeFile: "before.ja.rtf"; InfoAfterFile: "info.ja.rtf"
 
 [Files]
 Source: "..\Release\utv_core.dll";     DestDir: "{sys}"; Flags: ignoreversion 32bit;

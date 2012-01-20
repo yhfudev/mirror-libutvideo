@@ -1,5 +1,5 @@
 /*  */
-/* $Id: QTDecoder.cpp 831 2011-12-16 17:20:28Z umezawa $ */
+/* $Id: QTDecoder.cpp 854 2012-01-15 14:29:06Z umezawa $ */
 
 
 #include "stdafx.h"
@@ -109,13 +109,26 @@ pascal ComponentResult QTDecoderGetCodecInfo(CQTDecoder *glob, CodecInfo *info)
 
 	ComponentResult err;
 	CodecInfo **tempCodecInfo;
+	char name[sizeof(info->typeName)];
 
 	err = GetComponentResource((Component)glob->self, codecInfoResourceType, 256, (Handle *)&tempCodecInfo);
-	if (err == noErr)
+	if (err != noErr)
+		return err;
+
+	*info = **tempCodecInfo;
+	DisposeHandle((Handle)tempCodecInfo);
+
+	glob->codec->GetShortFriendlyName(name, sizeof(name));
 	{
-		*((CodecInfo *)info) = **tempCodecInfo;
-		DisposeHandle((Handle)tempCodecInfo);
+		char *src;
+		unsigned char *dst;
+		info->typeName[0] = (unsigned char)strlen(name);
+		src = name;
+		dst = info->typeName + 1;
+		for (; *src; src++, dst++)
+			*dst = *src;
 	}
+
 	return noErr;
 }
 
