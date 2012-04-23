@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: ULRACodec.cpp 810 2011-11-29 14:00:05Z umezawa $ */
+/* $Id: ULRACodec.cpp 866 2012-04-18 13:26:00Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -9,6 +9,7 @@
 const utvf_t CULRACodec::m_utvfEncoderInput[] = {
 	UTVF_ARGB32_WIN,
 	UTVF_RGB32_WIN,
+	UTVF_ARGB32_QT,
 	UTVF_INVALID,
 };
 
@@ -85,6 +86,19 @@ void CULRACodec::ConvertToPlanar(uint32_t nBandIndex)
 				*b++ = *(p+0) - *(p+1) + 0x80;
 				*r++ = *(p+2) - *(p+1) + 0x80;
 				*a++ = *(p+3);
+			}
+		}
+		break;
+	case UTVF_ARGB32_QT:
+		for (pStrideBegin = pSrcBegin; pStrideBegin < pSrcEnd; pStrideBegin += m_dwRawGrossWidth)
+		{
+			const uint8_t *pStrideEnd = pStrideBegin + m_nWidth * 4;
+			for (p = pStrideBegin; p < pStrideEnd; p += 4)
+			{
+				*g++ = *(p+2);
+				*b++ = *(p+3) - *(p+2) + 0x80;
+				*r++ = *(p+1) - *(p+2) + 0x80;
+				*a++ = *(p+0);
 			}
 		}
 		break;

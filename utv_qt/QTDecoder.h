@@ -1,19 +1,14 @@
 /*  */
-/* $Id: QTDecoder.h 748 2011-09-07 14:57:13Z umezawa $ */
+/* $Id: QTDecoder.h 862 2012-01-23 10:17:30Z umezawa $ */
 
 #pragma once
 
+#include "QTCodec.h"
 #include "Codec.h"
 #include "Mutex.h"
 
-struct CQTDecoder
+struct CQTDecoder : public CQTCodec
 {
-	ComponentInstance self;
-	ComponentInstance delegateComponent;
-	ComponentInstance target;
-	OSType componentSubType;
-	CCodec *codec;
 	OSType **wantedDestinationPixelTypes;
 	int beginBandDone;
-	CMutex *mutex;
 };

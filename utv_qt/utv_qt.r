@@ -1,5 +1,5 @@
 /*  */
-/* $Id: utv_qt.r 852 2012-01-07 18:38:32Z umezawa $ */
+/* $Id: utv_qt.r 866 2012-04-18 13:26:00Z umezawa $ */
 
 #define TARGET_REZ_CARBON_MACHO 1
 #define thng_RezTemplateVersion 1
@@ -31,6 +31,10 @@ resource 'cdci' (256) {
 
 resource 'dlle' (256) {
 	"QTDecoderComponentDispatch"
+};
+
+resource 'dlle' (257) {
+	"QTEncoderComponentDispatch"
 };
 
 #define SUBTYPE      ULRA

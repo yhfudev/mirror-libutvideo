@@ -1,5 +1,5 @@
 /*  */
-/* $Id: QTDecoder.cpp 854 2012-01-15 14:29:06Z umezawa $ */
+/* $Id: QTDecoder.cpp 863 2012-01-23 14:50:08Z umezawa $ */
 
 
 #include "stdafx.h"
@@ -27,22 +27,20 @@ extern "C" pascal ComponentResult QTDecoderComponentDispatch(ComponentParameters
 
 pascal ComponentResult QTDecoderOpen(CQTDecoder *glob, ComponentInstance self)
 {
-	ComponentDescription descout;
-	utvf_t utvf;
-
-	GetComponentInfo((Component)self, &descout, 0, 0, 0);
+	OSErr err;
 
 	glob = (CQTDecoder *)NewPtrClear(sizeof(CQTDecoder));
-	SetComponentInstanceStorage(self, (Handle)glob);
-	glob->self = self;
-	glob->target = self;
-	glob->componentSubType = descout.componentSubType;
-	QuickTimeFormatToUtVideoFormat(&utvf, glob->componentSubType);
+	if (glob == NULL)
+		return memFullErr;
+
+	err = QTCodecOpen(glob, self);
+	if (err != noErr)
+	{
+		DisposePtr((Ptr)glob);
+		return err;
+	}
+
 	glob->beginBandDone = false;
-	glob->codec = CCodec::CreateInstance(utvf, "QT");
-	glob->mutex = new CMutex;
-	OpenADefaultComponent(decompressorComponentType, kBaseCodecType, &glob->delegateComponent);
-	ComponentSetTarget(glob->delegateComponent, self);
 
 	{
 		const utvf_t *p;
@@ -74,12 +72,11 @@ pascal ComponentResult QTDecoderClose(CQTDecoder *glob, ComponentInstance self)
 {
 	if (glob != NULL)
 	{
-		delete glob->mutex;
-		CCodec::DeleteInstance(glob->codec);
 		if (glob->wantedDestinationPixelTypes != NULL)
 			DisposeHandle((Handle)glob->wantedDestinationPixelTypes);
-		if (glob->delegateComponent != NULL)
-			CloseComponent(glob->delegateComponent);
+
+		QTCodecClose(glob, self);
+
 		DisposePtr((Ptr)glob);
 	}
 
@@ -88,55 +85,22 @@ pascal ComponentResult QTDecoderClose(CQTDecoder *glob, ComponentInstance self)
 
 pascal ComponentResult QTDecoderVersion(CQTDecoder *glob)
 {
-	CMutexLock lock(glob->mutex);
-
-	return 0x1000000;
+	return QTCodecVersion(glob);
 }
 
 pascal ComponentResult QTDecoderTarget(CQTDecoder *glob, ComponentInstance target)
 {
-	CMutexLock lock(glob->mutex);
-
-	glob->target = target;
-
-	return noErr;
+	return QTCodecTarget(glob, target);
 }
-
 
 pascal ComponentResult QTDecoderGetCodecInfo(CQTDecoder *glob, CodecInfo *info)
 {
-	CMutexLock lock(glob->mutex);
-
-	ComponentResult err;
-	CodecInfo **tempCodecInfo;
-	char name[sizeof(info->typeName)];
-
-	err = GetComponentResource((Component)glob->self, codecInfoResourceType, 256, (Handle *)&tempCodecInfo);
-	if (err != noErr)
-		return err;
-
-	*info = **tempCodecInfo;
-	DisposeHandle((Handle)tempCodecInfo);
-
-	glob->codec->GetShortFriendlyName(name, sizeof(name));
-	{
-		char *src;
-		unsigned char *dst;
-		info->typeName[0] = (unsigned char)strlen(name);
-		src = name;
-		dst = info->typeName + 1;
-		for (; *src; src++, dst++)
-			*dst = *src;
-	}
-
-	return noErr;
+	return QTCodecGetCodecInfo(glob, info);
 }
 
 pascal ComponentResult QTDecoderPreflight(CQTDecoder *glob, CodecDecompressParams *param)
 {
 	CMutexLock lock(glob->mutex);
-
-	CodecCapabilities *cap = param->capabilities;
 
 	param->wantedDestinationPixelTypes = glob->wantedDestinationPixelTypes;
 

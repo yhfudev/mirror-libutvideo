@@ -1,5 +1,5 @@
 /*  */
-/* $Id: utv_qt.in.r 852 2012-01-07 18:38:32Z umezawa $ */
+/* $Id: utv_qt.in.r 866 2012-04-18 13:26:00Z umezawa $ */
 
 #define SUBTYPE_FMTN "Ut Video Codec " SUBTYPE_INFO " (" SUBTYPE_STR ")"
 
@@ -33,6 +33,34 @@ resource 'thng' (SUBTYPE_RID) {
 		platformIA32NativeEntryPoint,
 	};
 };
+
+resource 'stri' (SUBTYPE_RID + 256) {
+	"Decompresses video stored in " SUBTYPE_FMTN " format."
+};
+
+resource 'thng' (SUBTYPE_RID + 256) {
+	compressorComponentType,			// Type                 
+	SUBTYPE_VAL,						// SubType
+	'Umzw',								// Manufacturer
+	0,									// - use componentHasMultiplePlatforms
+	0,
+	0,
+	0,
+	'strn', SUBTYPE_RID,				// Name Type & ID
+	'stri', SUBTYPE_RID + 256,			// Info Type & ID
+	0, 0,								// Icon Type & ID
+	0x1000000,							// Version
+	componentHasMultiplePlatforms +		// Registration Flags 
+	componentDoAutoVersion,				// Registration Flags
+	0,									// Resource ID of Icon Family
+	{
+		codecInfoDoes32,
+		'dlle',
+		257,
+		platformIA32NativeEntryPoint,
+	};
+};
+
 
 #undef SUBTYPE_FMTN
 

@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: ULY2Codec.cpp 757 2011-09-12 12:00:17Z umezawa $ */
+/* $Id: ULY2Codec.cpp 868 2012-04-21 13:00:33Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -8,10 +8,14 @@
 #include "Convert.h"
 
 const utvf_t CULY2Codec::m_utvfEncoderInput[] = {
+#ifndef __APPLE__
 	UTVF_YUY2, UTVF_YUYV, UTVF_YUNV,
 	UTVF_UYVY, UTVF_UYNV,
+#endif
 	UTVF_RGB24_WIN,
 	UTVF_RGB32_WIN,
+	UTVF_RGB24_QT,
+	UTVF_ARGB32_QT,
 	UTVF_INVALID,
 };
 
@@ -103,6 +107,12 @@ void CULY2Codec::ConvertToPlanar(uint32_t nBandIndex)
 		break;
 	case UTVF_RGB32_WIN:
 		ConvertBottomupRGB32ToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
+		break;
+	case UTVF_RGB24_QT:
+		ConvertTopdownRGB24ToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
+		break;
+	case UTVF_ARGB32_QT:
+		ConvertTopdownRGB32ToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
 		break;
 	}
 }
