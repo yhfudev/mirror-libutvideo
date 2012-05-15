@@ -1,5 +1,5 @@
 ; 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ
-; $Id: Convert_asm_x86.asm 869 2012-04-21 13:21:54Z umezawa $
+; $Id: Convert_asm_x86.asm 889 2012-05-10 10:15:34Z umezawa $
 
 
 %include "Common_asm_x86.mac"
@@ -30,19 +30,19 @@ uv2b	dq	00000408D0000408Dh
 
 global %$procname
 %$procname:
-	SIMPLE_PROLOGUE 0, pDstBegin, pDstEnd, pYBegin, pUBegin, pVBegin, dwStride, dwDataStride
+	SIMPLE_PROLOGUE 0, pDstBegin, pDstEnd, pYBegin, pUBegin, pVBegin, cbGrossWidth, cbNetWidth
 
 	mov			ebp, dword [esp + %$pYBegin]
 	mov			ebx, dword [esp + %$pUBegin]
 	mov			ecx, dword [esp + %$pVBegin]
-	mov			edx, dword [esp + %$dwStride]
+	mov			edx, dword [esp + %$cbGrossWidth]
 %if %$bottomup
 	mov			esi, dword [esp + %$pDstEnd]			; esi なのに dst のポインタを保持するのは気持ちが悪いが。
 	sub			esi, edx
-	add			esi, dword [esp + %$dwDataStride]
+	add			esi, dword [esp + %$cbNetWidth]
 %else
 	mov			esi, dword [esp + %$pDstBegin]			; esi なのに dst のポインタを保持するのは気持ちが悪いが。
-	add			esi, dword [esp + %$dwDataStride]
+	add			esi, dword [esp + %$cbNetWidth]
 %endif
 
 	pxor		xmm7, xmm7				; xmm7 = 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -52,7 +52,7 @@ global %$procname
 	align	64
 .label0:
 	mov			edi, esi
-	sub			edi, dword [esp + %$dwDataStride]
+	sub			edi, dword [esp + %$cbNetWidth]
 
 	; align	64	; さすがに入れすぎな気がするのでコメントアウト。
 .label1:
@@ -138,36 +138,31 @@ global %$procname
 	mov			word [edi], ax
 	shr			eax, 16
 	mov			byte [edi+2], al
-	add			edi, 3
+	movd		eax, xmm2
+	psrldq		xmm2, 4
+	mov			word [edi+3], ax
+	shr			eax, 16
+	mov			byte [edi+5], al
+	add			edi, 6
 	add			ebp, 2
 	add			ebx, 1
 	add			ecx, 1
 	cmp			edi, esi
 	jae			.label3
+
 	movd		eax, xmm2
 	psrldq		xmm2, 4
 	mov			word [edi], ax
 	shr			eax, 16
 	mov			byte [edi+2], al
-	add			edi, 3
-	cmp			edi, esi
-	jae			.label3
 	movd		eax, xmm2
-	psrldq		xmm2, 4
-	mov			word [edi], ax
+	mov			word [edi+3], ax
 	shr			eax, 16
-	mov			byte [edi+2], al
-	add			edi, 3
+	mov			byte [edi+5], al
+	add			edi, 6
 	add			ebp, 2
 	add			ebx, 1
 	add			ecx, 1
-	cmp			edi, esi
-	jae			.label3
-	movd		eax, xmm2
-	mov			word [edi], ax
-	shr			eax, 16
-	mov			byte [edi+2], al
-	add			edi, 3
 	cmp			edi, esi
 	jb			.label1
 %endif
@@ -219,25 +214,30 @@ r2yuv	dq	01073000000001073h
 yuvoff	dq	00004200000042000h
 		dq	00020200000202000h
 
-%macro CONVERT_BOTTOMUP_RGB_TO_ULY2 2
+%macro CONVERT_RGB_TO_ULY2 4
 %push
-	MULTI_CONTEXT_XDEFINE procname, %1, rgb32, %2
+	MULTI_CONTEXT_XDEFINE procname, %1, bottomup, %2, littleendian, %3, rgb32, %4
 
 global %$procname
 %$procname:
-	SIMPLE_PROLOGUE 0, pYBegin, pUBegin, pVBegin, pSrcBegin, pSrcEnd, dwStride, dwDataStride
+	SIMPLE_PROLOGUE 0, pYBegin, pUBegin, pVBegin, pSrcBegin, pSrcEnd, cbGrossWidth, cbNetWidth
 
 	mov			edi, dword [esp + %$pYBegin]
 	mov			ebx, dword [esp + %$pUBegin]
 	mov			ecx, dword [esp + %$pVBegin]
+%if %$bottomup
 	mov			ebp, dword [esp + %$pSrcEnd]
-	sub			ebp, dword [esp + %$dwStride]
-	add			ebp, dword [esp + %$dwDataStride]
+	sub			ebp, dword [esp + %$cbGrossWidth]
+	add			ebp, dword [esp + %$cbNetWidth]
+%else
+	mov			ebp, dword [esp + %$pSrcBegin]
+	add			ebp, dword [esp + %$cbNetWidth]
+%endif
 
 	align	64
 .label0:
 	mov			esi, ebp
-	sub			esi, dword [esp + %$dwDataStride]
+	sub			esi, dword [esp + %$cbNetWidth]
 %if %$rgb32
 	add			esi, 4
 %else
@@ -247,22 +247,35 @@ global %$procname
 	;align	64
 .label1:
 %if %$rgb32
-	movd		xmm0, dword [esi-4]					; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0
-	movd		xmm1, dword [esi]					; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R1 G1 B1
+	movd		xmm0, dword [esi-4]					; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0 / B0 G0 R0 XX
+	movd		xmm1, dword [esi]					; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R1 G1 B1 / B1 G1 R1 XX
 %else
-	movd		xmm0, dword [esi-3]					; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0
-	movd		xmm1, dword [esi-1]					; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 R1 G1 B1 XX
-	psrld		xmm1, 8								; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 00 R1 G1 B1
+	movd		xmm0, dword [esi-3]					; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0 / XX B0 G0 R0
+	movd		xmm1, dword [esi-1]					; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 R1 G1 B1 XX / B1 G1 R1 XX
+	psrld		xmm1, 8								; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 00 R1 G1 B1 / 00 B1 G1 R1
 %endif
 
-	punpcklbw	xmm0, xmm1							; xmm0 = 00 00 00 00 00 00 00 00 00 XX R1 R0 G1 G0 B1 B0
+	punpcklbw	xmm0, xmm1							; xmm0 = 00 00 00 00 00 00 00 00 00 XX R1 R0 G1 G0 B1 B0 / B1 B0 G1 G0 R1 R0 XX XX
+													;                                                        / XX XX B1 B0 G1 G0 R1 R0 (rgb24be)
 .label3:
 	pxor		xmm1, xmm1
 	punpcklbw	xmm0, xmm1							; xmm0 = 00 00 00 XX 00 R1 00 R0 00 G1 00 G0 00 B1 00 B0
 
+%if %$littleendian
 	pshufd		xmm1, xmm0, 055h					; xmm1 = 00 G1 00 G0 00 G1 00 G0 00 G1 00 G0 00 G1 00 G0
 	pshufd		xmm2, xmm0, 0aah					; xmm2 = 00 R1 00 R0 00 R1 00 R0 00 R1 00 R0 00 R1 00 R0
 	pshufd		xmm0, xmm0, 000h					; xmm0 = 00 B1 00 B0 00 B1 00 B0 00 B1 00 B0 00 B1 00 B0
+%else
+ %if %$rgb32
+	pshufd		xmm1, xmm0, 0aah					; xmm1 = 00 G1 00 G0 00 G1 00 G0 00 G1 00 G0 00 G1 00 G0
+	pshufd		xmm2, xmm0, 055h					; xmm2 = 00 R1 00 R0 00 R1 00 R0 00 R1 00 R0 00 R1 00 R0
+	pshufd		xmm0, xmm0, 0ffh					; xmm0 = 00 B1 00 B0 00 B1 00 B0 00 B1 00 B0 00 B1 00 B0
+ %else
+	pshufd		xmm1, xmm0, 055h					; xmm1 = 00 G1 00 G0 00 G1 00 G0 00 G1 00 G0 00 G1 00 G0
+	pshufd		xmm2, xmm0, 000h					; xmm2 = 00 R1 00 R0 00 R1 00 R0 00 R1 00 R0 00 R1 00 R0
+	pshufd		xmm0, xmm0, 0aah					; xmm0 = 00 B1 00 B0 00 B1 00 B0 00 B1 00 B0 00 B1 00 B0
+ %endif
+%endif
 
 	pmaddwd		xmm0, oword [b2yuv]					; xmm0 = ----B2V---- ----B2U---- ----B2Y1--- ----B2Y0---
 	pmaddwd		xmm1, oword [g2yuv]					; xmm1 = ----G2V---- ----G2U---- ----G2Y1--- ----G2Y0---
@@ -303,14 +316,22 @@ global %$procname
 	jmp			.label3
 
 .label2:
-	sub			ebp, dword [esp + %$dwStride]
+%if %$bottomup
+	sub			ebp, dword [esp + %$cbGrossWidth]
 	cmp			ebp, dword [esp + %$pSrcBegin]
 	ja			.label0
+%else
+	add			ebp, dword [esp + %$cbGrossWidth]
+	cmp			ebp, dword [esp + %$pSrcEnd]
+	jbe			.label0
+%endif
 
 	SIMPLE_EPILOGUE
 
 %pop
 %endmacro
 
-CONVERT_BOTTOMUP_RGB_TO_ULY2	_x86_sse2_ConvertBottomupRGB24ToULY2, 0
-CONVERT_BOTTOMUP_RGB_TO_ULY2	_x86_sse2_ConvertBottomupRGB32ToULY2, 1
+CONVERT_RGB_TO_ULY2	_x86_sse2_ConvertBottomupRGB24ToULY2, 1, 1, 0
+CONVERT_RGB_TO_ULY2	_x86_sse2_ConvertBottomupRGB32ToULY2, 1, 1, 1
+CONVERT_RGB_TO_ULY2	_x86_sse2_ConvertTopdownRGB24ToULY2,  0, 0, 0
+CONVERT_RGB_TO_ULY2	_x86_sse2_ConvertTopdownRGB32ToULY2,  0, 0, 1

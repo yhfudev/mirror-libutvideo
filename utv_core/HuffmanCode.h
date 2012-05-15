@@ -1,12 +1,24 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: HuffmanCode.h 821 2011-12-06 13:57:52Z umezawa $ */
+/* $Id: HuffmanCode.h 889 2012-05-10 10:15:34Z umezawa $ */
 
 #pragma once
 #include "TunedFunc.h"
 
+#if defined(__x86_64__)
+typedef uint64_t uintenc_t;
+#define UINTENC_BITS 64
+#define UINTENC_MSB  0x8000000000000000ULL
+#define UINTENC_MASK 0xffffffffffffff00ULL
+#else
+typedef uint32_t uintenc_t;
+#define UINTENC_BITS 32
+#define UINTENC_MSB  0x80000000U
+#define UINTENC_MASK 0xffffff00U
+#endif
+
 struct HUFFMAN_ENCODE_TABLE
 {
-	uint32_t dwTableMux[256];
+	uintenc_t dwTableMux[256];
 };
 
 #define HUFFMAN_DECODE_TABLELOOKUP_BITS 12
@@ -56,20 +68,20 @@ void cpp_HuffmanDecode(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrc
 void cpp_HuffmanDecodeAndAccum(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable);
 void cpp_HuffmanDecodeAndAccumStep2(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable);
 void cpp_HuffmanDecodeAndAccumStep4(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable);
-void cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep3ForBottomupRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep3ForBottomupRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep3ForBottomupRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep3ForTopdownRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep3ForTopdownRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-void cpp_HuffmanDecodeAndAccumStep3ForTopdownRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep3ForBottomupRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep3ForBottomupRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep3ForBottomupRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep3ForTopdownRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep3ForTopdownRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+void cpp_HuffmanDecodeAndAccumStep3ForTopdownRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
 
 #ifdef __i386__
 extern "C" size_t x86_i686_HuffmanEncode(uint8_t *pDstBegin, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, const HUFFMAN_ENCODE_TABLE *pEncodeTable);
@@ -77,20 +89,20 @@ extern "C" void x86_i686_HuffmanDecode(uint8_t *pDstBegin, uint8_t *pDstEnd, con
 extern "C" void x86_i686_HuffmanDecodeAndAccum(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable);
 extern "C" void x86_i686_HuffmanDecodeAndAccumStep2(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable);
 extern "C" void x86_i686_HuffmanDecodeAndAccumStep4(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x86_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
 #endif
 
 #ifdef __x86_64__
@@ -99,18 +111,18 @@ extern "C" void x64_i686_HuffmanDecode(uint8_t *pDstBegin, uint8_t *pDstEnd, con
 extern "C" void x64_i686_HuffmanDecodeAndAccum(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable);
 extern "C" void x64_i686_HuffmanDecodeAndAccumStep2(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable);
 extern "C" void x64_i686_HuffmanDecodeAndAccumStep4(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
-extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t dwNetWidth, size_t dwGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForBottomupRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForBottomupRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep4ForTopdownRGB32RedAndDummyAlpha(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Green(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Blue(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
+extern "C" void x64_i686_HuffmanDecodeAndAccumStep3ForTopdownRGB24Red(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbNetWidth, size_t cbGrossWidth);
 #endif

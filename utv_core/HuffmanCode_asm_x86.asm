@@ -1,5 +1,5 @@
 ; •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e
-; $Id: HuffmanCode_asm_x86.asm 810 2011-11-29 14:00:05Z umezawa $
+; $Id: HuffmanCode_asm_x86.asm 889 2012-05-10 10:15:34Z umezawa $
 
 
 %include "Common_asm_x86.mac"
@@ -65,7 +65,7 @@ _x86_i686_HuffmanEncode:
 
 global %$procname
 %$procname:
-	SIMPLE_PROLOGUE 12, pDstBegin, pDstEnd, pSrcBegin, pDecodeTable, dwNetWidth, dwGrossWidth
+	SIMPLE_PROLOGUE 12, pDstBegin, pDstEnd, pSrcBegin, pDecodeTable, cbNetWidth, cbGrossWidth
 
 %define %$byCorrBuf     0
 %define %$pLineEnd      4
@@ -76,20 +76,20 @@ global %$procname
 %if %$multiscan
  %if %$bottomup
 	mov			edi, dword [esp + %$pDstEnd]
-	sub			edi, dword [esp + %$dwGrossWidth]
+	sub			edi, dword [esp + %$cbGrossWidth]
 	mov			eax, edi
-	add			eax, dword [esp + %$dwNetWidth]
+	add			eax, dword [esp + %$cbNetWidth]
 	mov			dword [esp + %$pLineEnd], eax
-	mov			eax, dword [esp + %$dwGrossWidth]
-	add			eax, dword [esp + %$dwNetWidth]
+	mov			eax, dword [esp + %$cbGrossWidth]
+	add			eax, dword [esp + %$cbNetWidth]
 	mov			dword [esp + %$dwLineOffset], eax
  %else
 	mov			edi, dword [esp + %$pDstBegin]
 	mov			eax, edi
-	add			eax, dword [esp + %$dwNetWidth]
+	add			eax, dword [esp + %$cbNetWidth]
 	mov			dword [esp + %$pLineEnd], eax
-	mov			eax, dword [esp + %$dwGrossWidth]
-	sub			eax, dword [esp + %$dwNetWidth]
+	mov			eax, dword [esp + %$cbGrossWidth]
+	sub			eax, dword [esp + %$cbNetWidth]
 	mov			dword [esp + %$dwLineOffset], eax
  %endif
 %else
@@ -128,9 +128,9 @@ global %$procname
 	add			cl, ah
 	jnc			%%label4
 	sub			cl, 32
-	add			esi, 4
 	mov			ebp, edx
-	mov			edx, dword [esi+4]
+	mov			edx, dword [esi+4+4]
+	add			esi, 4
 
 %%label4:
 	mov			eax, ebp
@@ -148,9 +148,8 @@ global %$procname
 	mov			cl, byte [ebx + 8192 + ebp]					; pDecodeTable->nCodeShift[ebp]
 	shr			eax, cl
 	mov			cl, ch
-	mov			ebp, dword [ebx + 8192+32 + ebp*4]			; pDecodeTable->dwSymbolBase[ebp]
-	add			ebp, eax
-	mov			eax, dword [ebx + 8192+32+4*32 + ebp*2]		; pDecodeTable->SymbolAndCodeLength[ebp]
+	add			eax, dword [ebx + 8192+32 + ebp*4]			; pDecodeTable->dwSymbolBase[ebp]
+	mov			eax, dword [ebx + 8192+32+4*32 + eax*2]		; pDecodeTable->SymbolAndCodeLength[eax]
 	mov			ebp, dword [esi]
 
 %%label0:
@@ -180,7 +179,7 @@ global %$procname
 %if %$$multiscan
  %if %$$bottomup
 	mov			edx, dword [esp + %$$pLineEnd]
-	sub			edx, dword [esp + %$$dwGrossWidth]
+	sub			edx, dword [esp + %$$cbGrossWidth]
 	cmp			edx, dword [esp + %$$pDstBegin]
 	jbe			%%label3
 	mov			dword [esp + %$$pLineEnd], edx
@@ -190,7 +189,7 @@ global %$procname
 	sub			edi, dword [esp + %$$dwLineOffset]
  %else
 	mov			edx, dword [esp + %$$pLineEnd]
-	add			edx, dword [esp + %$$dwGrossWidth]
+	add			edx, dword [esp + %$$cbGrossWidth]
 	cmp			edx, dword [esp + %$$pDstEnd]
 	jae			%%label3
 	mov			dword [esp + %$$pLineEnd], edx

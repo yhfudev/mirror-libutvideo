@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: TunedFunc.cpp 814 2011-11-30 12:50:19Z umezawa $ */
+/* $Id: TunedFunc.cpp 887 2012-05-09 12:03:08Z umezawa $ */
 
 #include "stdafx.h"
 #include "TunedFunc.h"
@@ -37,6 +37,8 @@ const TUNEDFUNC tfnCPP = {
 	cpp_ConvertULY2ToTopdownRGB32,
 	cpp_ConvertBottomupRGB24ToULY2,
 	cpp_ConvertBottomupRGB32ToULY2,
+	cpp_ConvertTopdownRGB24ToULY2,
+	cpp_ConvertTopdownRGB32ToULY2,
 };
 
 TUNEDFUNC tfn = tfnCPP;

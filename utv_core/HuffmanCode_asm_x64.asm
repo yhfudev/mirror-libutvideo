@@ -1,5 +1,5 @@
 ; ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe
-; $Id: HuffmanCode_asm_x64.asm 821 2011-12-06 13:57:52Z umezawa $
+; $Id: HuffmanCode_asm_x64.asm 889 2012-05-10 10:15:34Z umezawa $
 
 
 %include "Common_asm_x64.mac"
@@ -21,33 +21,40 @@ x64_i686_HuffmanEncode:
 	cmp			qword [rdx], 0
 	je			.label3
 
-	mov			bl, -32
+	mov			bl, -64
 	mov			cl, 0
 
 	align		64
 .label1:
-	shld		eax, ecx, cl
+	shld		rax, rcx, cl
 	cmp			rsi, r8
 	jnb			.label4
 	movzx		rcx, byte [rsi]
 	inc			rsi
-	mov			ecx, dword [rdx+rcx*4]
+	mov			rcx, qword [rdx+rcx*8]
 	add			bl, cl
 	jnc			.label1
 	sub			cl, bl
-	shld		eax, ecx, cl
-	mov			dword [rdi], eax
-	add			rdi, 4
+	shld		rax, rcx, cl
+	rol			rax, 32
+	mov			qword [rdi], rax
+	add			rdi, 8
 	add			cl, bl
-	sub			bl, 32
+	sub			bl, 64
 	jmp			.label1
 
 .label4:
-	test		bl, 1fh
+	test		bl, 3fh
 	jz			.label3
 	neg			bl
 	mov			cl, bl
-	shl			eax, cl
+	shl			rax, cl
+	rol			rax, 32
+	mov			dword [rdi], eax
+	add			rdi, 4
+	cmp			bl, 32
+	jae			.label3
+	rol			rax, 32
 	mov			dword [rdi], eax
 	add			rdi, 4
 .label3:
@@ -65,24 +72,24 @@ x64_i686_HuffmanEncode:
 
 global %$procname
 %$procname:
-	SIMPLE_PROLOGUE 0, pDstBegin, pDstEnd, pSrcBegin, pDecodeTable, dwNetWidth, dwGrossWidth
+	SIMPLE_PROLOGUE 0, pDstBegin, pDstEnd, pSrcBegin, pDecodeTable, cbNetWidth, cbGrossWidth
 
 	mov			rsi, qword [rsp + %$pSrcBegin]
 	mov			rbx, qword [rsp + %$pDecodeTable]
 %if %$multiscan
  %if %$bottomup
 	mov			rdi, qword [rsp + %$pDstEnd]
-	sub			rdi, qword [rsp + %$dwGrossWidth]
+	sub			rdi, qword [rsp + %$cbGrossWidth]
 	mov			r8,  rdi
-	add			r8,  qword [rsp + %$dwNetWidth]
-	mov			r12, qword [rsp + %$dwGrossWidth]
-	add			r12, qword [rsp + %$dwNetWidth]
+	add			r8,  qword [rsp + %$cbNetWidth]
+	mov			r12, qword [rsp + %$cbGrossWidth]
+	add			r12, qword [rsp + %$cbNetWidth]
  %else
 	mov			rdi, qword [rsp + %$pDstBegin]
 	mov			r8,  rdi
-	add			r8,  qword [rsp + %$dwNetWidth]
-	mov			r12, qword [rsp + %$dwGrossWidth]
-	sub			r12, qword [rsp + %$dwNetWidth]
+	add			r8,  qword [rsp + %$cbNetWidth]
+	mov			r12, qword [rsp + %$cbGrossWidth]
+	sub			r12, qword [rsp + %$cbNetWidth]
  %endif
 %else
 	mov			rdi, qword [rsp + %$pDstBegin]
@@ -119,9 +126,9 @@ global %$procname
 	add			cl, ah
 	jnc			%%label4
 	sub			cl, 32
-	add			rsi, 4
 	mov			r9d, edx
-	mov			edx, dword [rsi+4]
+	mov			edx, dword [rsi+4+4]
+	add			rsi, 4
 
 %%label4:
 	mov			eax, r9d
@@ -169,13 +176,13 @@ global %$procname
 %%label2:
 %if %$$multiscan
  %if %$$bottomup
-	sub			r8, qword [rsp + %$$dwGrossWidth]
+	sub			r8, qword [rsp + %$$cbGrossWidth]
 	cmp			r8, qword [rsp + %$$pDstBegin]
 	jbe			%%label3
 
 	sub			rdi, r12
  %else
-	add			r8, qword [rsp + %$$dwGrossWidth]
+	add			r8, qword [rsp + %$$cbGrossWidth]
 	cmp			r8, qword [rsp + %$$pDstEnd]
 	jae			%%label3
 

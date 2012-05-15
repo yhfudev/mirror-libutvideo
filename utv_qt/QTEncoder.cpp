@@ -1,5 +1,5 @@
 /*  */
-/* $Id: QTEncoder.cpp 871 2012-04-22 15:48:14Z umezawa $ */
+/* $Id: QTEncoder.cpp 878 2012-04-23 16:12:50Z umezawa $ */
 
 
 #include "stdafx.h"
@@ -229,9 +229,7 @@ pascal ComponentResult QTEncoderEncodeFrame(CQTEncoder *glob, ICMCompressorSourc
 	err = ICMEncodedFrameSetDataSize(encoded, encodedSize);
 //	fprintf(fp, "c %ld\n", err);
 	mediaSampleFlags = 0;
-	if (keyFrame)
-		mediaSampleFlags |= mediaSampleDoesNotDependOnOthers;
-	else
+	if (!keyFrame)
 		mediaSampleFlags |= mediaSampleNotSync;
 
 	err = ICMEncodedFrameSetMediaSampleFlags(encoded, mediaSampleFlags);

@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: UL00Codec.cpp 801 2011-11-07 18:32:09Z umezawa $ */
+/* $Id: UL00Codec.cpp 890 2012-05-10 10:33:13Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -151,17 +151,14 @@ INT_PTR CUL00Codec::Configure(HWND hwnd)
 
 INT_PTR CALLBACK CUL00Codec::DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	// ˆê’U LONG_PTR ‚ÉƒLƒƒƒXƒg‚·‚é‚Ì‚ÍA/Wp64 ŠÂ‹«‰º‚ÅŒë‚Á‚Ä ŒxC4312 ‚ª”­¶‚·‚é‚½‚ßB
-	CUL00Codec *pThis = (CUL00Codec *)(LONG_PTR)GetWindowLongPtr(hwnd, DWLP_USER);
+	CUL00Codec *pThis = (CUL00Codec *)GetWindowLongPtr(hwnd, DWLP_USER);
 	char buf[256];
 	int	n;
 
 	switch(uMsg)
 	{
 	case WM_INITDIALOG:
-		// ˆê’U __int3264 ‚ÉƒLƒƒƒXƒg‚·‚é‚Ì‚ÍA/Wp64 ŠÂ‹«‰º‚ÅŒë‚Á‚Ä ŒxC4244 ‚ª”­¶‚·‚é‚½‚ßB
-		// LONG_PTR ‚ÉƒLƒƒƒXƒg‚·‚é‚Ì‚Å‚Íƒ_ƒ‚ç‚µ‚¢B
-		SetWindowLongPtr(hwnd, DWLP_USER, (__int3264)lParam);
+		SetWindowLongPtr(hwnd, DWLP_USER, lParam);
 		pThis = (CUL00Codec *)lParam;
 		pThis->GetLongFriendlyName(buf, _countof(buf));
 		SetWindowText(hwnd, buf);
