@@ -1,0 +1,55 @@
+#!/bin/bash
+
+if [ "$1" = "-h" -o "$1" = "--help" ]; then
+echo "Usage: ./crosscomp [options]"
+echo ""
+echo "available options:"
+echo ""
+echo "  --help               print this message"
+echo "  --arch=mingwarch     Select which MinGW to target [32, 64] (32)"
+echo ""
+exit 1
+fi
+
+for opt do
+    optarg="${opt#*=}"
+    case "$opt" in
+        --arch=*)
+            BITTAGE="$optarg"
+            ;;
+        *)
+            echo "Unknown option $opt, ignored"
+            ;;
+    esac
+done
+
+mingwarch=$BITTAGE
+BITTAGE=32
+
+if [ "$BITTAGE" = "32" ] ; then
+    CROSS_PREFIX="i686-w64-mingw32-"
+    CPPFLAGS="-I/usr/i686-w64-mingw32/include"
+    archreport="i686-w64-mingw32 (32-bit)"
+fi
+
+if [ "$BITTAGE" = "64" ] ; then
+    CROSS_PREFIX="x86_64-w64-mingw32-"
+    CPPFLAGS="-I/usr/x86_64-w64-mingw32/include"
+    archreport="x86_64-w64-mingw32 (64-bit)"
+fi
+
+cat > config.mak << EOF
+CROSS_PREFIX=$CROSS_PREFIX
+CPPFLAGS=$CPPFLAGS
+EOF
+
+cat > conftest.log << EOF
+target:        $archreport
+EOF
+
+cat conftest.log > config.log
+cat conftest.log
+rm conftest.log
+
+echo
+echo "You can run make now."

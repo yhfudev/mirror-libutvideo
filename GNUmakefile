@@ -6,13 +6,14 @@
 #        make install prefix=/some/dir/here
 #        make uninstall prefix=/some/dir/here
 
+include config.mak
+
 DESTDIR=
 
 prefix=/usr/local
 libdir=$(DESTDIR)$(prefix)/lib
 includedir=$(DESTDIR)$(prefix)/include
 
-CROSS_PREFIX=
 CXX=$(CROSS_PREFIX)g++
 AR=$(CROSS_PREFIX)ar
 RANLIB=$(CROSS_PREFIX)ranlib
@@ -20,10 +21,6 @@ RANLIB=$(CROSS_PREFIX)ranlib
 UTV_CORE_DIR=utv_core
 
 CXXFLAGS=-g -O2 -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare
-
-# on MinGW env, uncomment following lines and set proper value to WINSDK_ROOT.
-#WINSDK_ROOT="/c/Program Files/Microsoft SDKs/Windows/v6.1"
-#CPPFLAGS=-I/usr/include/w32api -I$(WINSDK_ROOT)/Include
 
 # Pretty-ify Building
 ifndef V
@@ -59,6 +56,10 @@ $(UTV_CORE_DIR)/libutvideo.a: $(OBJ)
 static-lib: $(UTV_CORE_DIR)/libutvideo.a
 
 clean:
+	@printf " RM\t*.log\n";
+	@rm -f *.log
+	@printf " RM\t*.mak\n";
+	@rm -f *.mak
 	@printf " RM\t$(UTV_CORE_DIR)/*.o\n";
 	@rm -f $(UTV_CORE_DIR)/*.o
 	@printf " RM\t$(UTV_CORE_DIR)/libutvideo.a\n";
