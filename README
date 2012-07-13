@@ -9,6 +9,6 @@ For cross-compiling using MinGW on Linux, and possibly Cygwin (assuming the MinG
 make
 make install PREFIX=/usr/i686-w64-mingw32
 
-crosscomp handles setting the CROSS_PREFIX and CPPFLAGS arguments for the target machine.  By default, it assumes a 32-bit target (i686-w64-mingw32), but 64-bit builds (x86_64-w64-mingw32) can be done by using the --arch=64 parameter (also remember to change the PREFIX accordingly).  The 64-bit functionality is untested on my part since I have no 64-bit Windows installs to test on.
+crosscomp handles setting the CROSS_PREFIX and CPPFLAGS arguments for the target machine.  By default, it assumes a 32-bit target (i686-w64-mingw32), but 64-bit builds (x86_64-w64-mingw32) can be done by using the --bits=64 parameter (also remember to change the PREFIX accordingly).  The 64-bit functionality is untested on my part since I have no 64-bit Windows installs to test on.
 
 crosscomp isn't really an adequate solution compared to a regular configure script, but it works for its purpose.

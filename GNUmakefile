@@ -20,7 +20,7 @@ RANLIB=$(CROSS_PREFIX)ranlib
 
 UTV_CORE_DIR=utv_core
 
-CXXFLAGS=-g -O2 -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare
+CXXFLAGS=-g -O2 -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare $(PICON)
 
 # Pretty-ify Building
 ifndef V

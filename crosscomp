@@ -6,7 +6,7 @@ echo ""
 echo "available options:"
 echo ""
 echo "  --help               print this message"
-echo "  --arch=mingwarch     Select which MinGW to target [32, 64] (32)"
+echo "  --bits=number        Select which MinGW to target [32, 64] (32)"
 echo ""
 exit 1
 fi
@@ -14,8 +14,11 @@ fi
 for opt do
     optarg="${opt#*=}"
     case "$opt" in
-        --arch=*)
+        --bits=*)
             BITTAGE="$optarg"
+            ;;
+        --enable-pic)
+            pic="yes"
             ;;
         *)
             echo "Unknown option $opt, ignored"
@@ -23,24 +26,26 @@ for opt do
     esac
 done
 
-mingwarch=$BITTAGE
-BITTAGE=32
-
-if [ "$BITTAGE" = "32" ] ; then
+if [ "$BITTAGE" = "64" ] ; then
+    CROSS_PREFIX="x86_64-w64-mingw32-"
+    CPPFLAGS="-I/usr/x86_64-w64-mingw32/include"
+    archreport="x86_64-w64-mingw32 (64-bit)"
+else
     CROSS_PREFIX="i686-w64-mingw32-"
     CPPFLAGS="-I/usr/i686-w64-mingw32/include"
     archreport="i686-w64-mingw32 (32-bit)"
 fi
 
-if [ "$BITTAGE" = "64" ] ; then
-    CROSS_PREFIX="x86_64-w64-mingw32-"
-    CPPFLAGS="-I/usr/x86_64-w64-mingw32/include"
-    archreport="x86_64-w64-mingw32 (64-bit)"
+if [ "$pic" = "yes" ] ; then
+    PICON=-fPIC
+else
+    PICON=
 fi
 
 cat > config.mak << EOF
 CROSS_PREFIX=$CROSS_PREFIX
 CPPFLAGS=$CPPFLAGS
+PICON=$PICON
 EOF
 
 cat > conftest.log << EOF
