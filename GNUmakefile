@@ -12,7 +12,12 @@ prefix=/usr/local
 libdir=$(DESTDIR)$(prefix)/lib
 includedir=$(DESTDIR)$(prefix)/include
 
+# Default to no assembly
+ARCH=
+OS=linux
+
 CROSS_PREFIX=
+ASM=nasm
 CXX=$(CROSS_PREFIX)g++
 AR=$(CROSS_PREFIX)ar
 RANLIB=$(CROSS_PREFIX)ranlib
@@ -20,6 +25,7 @@ RANLIB=$(CROSS_PREFIX)ranlib
 UTV_CORE_DIR=utv_core
 
 CXXFLAGS=-g -O2 -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare
+ASMFLAGS=-g -Xgnu
 
 # on MinGW env, uncomment following lines and set proper value to WINSDK_ROOT.
 #WINSDK_ROOT="/c/Program Files/Microsoft SDKs/Windows/v6.1"
@@ -27,9 +33,43 @@ CXXFLAGS=-g -O2 -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-com
 
 # Pretty-ify Building
 ifndef V
-$(foreach VAR,CXX AR RANLIB,\
+$(foreach VAR,CXX ASM AR RANLIB,\
     $(eval override $(VAR) = @printf " %s\t%s\n" $(VAR) "$$@"; $($(VAR))))
 endif
+
+# Set the proper nasm output format
+ifeq ($(ARCH),x86)
+  ifeq ($(OS),windows)
+    ASMFORMAT=win32
+  else
+    ASMFORMAT=elf32
+  endif
+else
+  ifeq ($(ARCH),x64)
+    ifeq ($(OS),windows)
+      ASMFORMAT=win64
+    else
+      ASMFORMAT=elf64
+    endif
+  endif
+endif
+
+# Only build if we want to build asm
+ifneq ($(ARCH),)
+CXXFLAGS += -DSTATIC_LIB_WITH_ASM
+ASM_OBJECTS = $(UTV_CORE_DIR)/Convert_asm_$(ARCH).o \
+              $(UTV_CORE_DIR)/HuffmanCode_asm_$(ARCH).o \
+              $(UTV_CORE_DIR)/Predict_asm_$(ARCH).o
+else
+ASM_OBJECTS=
+endif
+
+%.o: %.asm
+	$(ASM) $(ASMFLAGS) -f $(ASMFORMAT) -I$(UTV_CORE_DIR)/ -o $@ $^
+
+%.a:
+	$(AR) rcu $@ $^
+	$(RANLIB) $@
 
 OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/Convert.o \
@@ -46,13 +86,17 @@ OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/ULRGCodec.o \
       $(UTV_CORE_DIR)/ULY0Codec.o \
       $(UTV_CORE_DIR)/ULY2Codec.o \
-      $(UTV_CORE_DIR)/utv_core.o
+      $(UTV_CORE_DIR)/utv_core.o \
+      $(ASM_OBJECTS)
 
-%.a:
-	$(AR) rcu $@ $^
-	$(RANLIB) $@
-
+ifneq ($(ARCH),)
+  ifeq ($(ASMFORMAT),)
+all:
+	@echo "Invalid ARCH specified. Use x86 or x64, or none at all."
+  endif
+else
 all: static-lib
+endif
 
 $(UTV_CORE_DIR)/libutvideo.a: $(OBJ)
 

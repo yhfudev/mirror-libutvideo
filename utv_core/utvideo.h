@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifdef _WIN32
+# include <windows.h>
+#endif
+
 #ifndef FCC
 #define FCC(fcc) ( \
 	(((uint32_t)(fcc) & 0x000000ff) << 24) | \
