@@ -14,6 +14,11 @@ prefix=/usr/local
 libdir=$(DESTDIR)$(prefix)/lib
 includedir=$(DESTDIR)$(prefix)/include
 
+# Default to no assembly
+ARCH=
+OS=linux
+
+ASM=nasm
 CXX=$(CROSS_PREFIX)g++
 AR=$(CROSS_PREFIX)ar
 RANLIB=$(CROSS_PREFIX)ranlib
@@ -21,6 +26,8 @@ RANLIB=$(CROSS_PREFIX)ranlib
 UTV_CORE_DIR=utv_core
 
 CXXFLAGS=-g -O2 -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare $(PICON)
+ASMFLAGS=-g -Xgnu
+
 
 # Pretty-ify Building
 ifndef V
@@ -43,13 +50,17 @@ OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/ULRGCodec.o \
       $(UTV_CORE_DIR)/ULY0Codec.o \
       $(UTV_CORE_DIR)/ULY2Codec.o \
-      $(UTV_CORE_DIR)/utv_core.o
+      $(UTV_CORE_DIR)/utv_core.o \
+      $(ASM_OBJECTS)
 
-%.a:
-	$(AR) rcu $@ $^
-	$(RANLIB) $@
-
+ifneq ($(ARCH),)
+  ifeq ($(ASMFORMAT),)
+all:
+	@echo "Invalid ARCH specified. Use x86 or x64, or none at all."
+  endif
+else
 all: static-lib
+endif
 
 $(UTV_CORE_DIR)/libutvideo.a: $(OBJ)
 
