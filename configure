@@ -145,12 +145,12 @@ pic="no"
 shared="no"
 postproc="no"
 
-CXXFLAGS="$CXXFLAGS -Wall -g -O2 -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare"
+CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare"
 LDFLAGS="$LDFLAGS"
 ASMFLAGS="-g -Xgnu"
 SOFLAGS="$SOFLAGS"
 HAVE_GETOPT_LONG=1
-olev="0"
+olev="2"
 cross_prefix=""
 
 # parse options
