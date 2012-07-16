@@ -1,15 +1,3 @@
-MinGW-w64 is required.
+Refer to ./configure -h for help.
 
-On a 32-bit Windows system using MSys,
-./configure --msys
-make
-make install
-
-For cross-compiling using MinGW on Linux, and possibly Cygwin (assuming the MinGW install is beneath /usr):
-./configure
-make
-make install PREFIX=/usr/i686-w64-mingw32
-
-configure handles setting the CROSS_PREFIX, CPPFLAGS, and PIC arguments for the target machine (PIC is really only useful for 64-bit static builds; use --enable-pic to turn it on).  By default, it assumes a 32-bit target (i686-w64-mingw32), but 64-bit builds (x86_64-w64-mingw32) can be done by using the --bits=64 parameter (also remember to change the PREFIX accordingly).  The 64-bit functionality is untested on my part since I have no 64-bit Windows installs to test on.
-
-In its current state, this configure isn't really an adequate solution compared to a standard configure script, but it works for its purpose.
+Most common wisdom regarding configure-make-make install applies here.
