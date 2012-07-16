@@ -8,47 +8,32 @@
 
 include config.mak
 
+DESTDIR=
+
+prefix=/usr/local
+libdir=$(DESTDIR)$(prefix)/lib
+includedir=$(DESTDIR)$(prefix)/include
+
+# Default to no assembly
+ARCH=
+OS=linux
+
+ASM=nasm
+CXX=$(CROSS_PREFIX)g++
+AR=$(CROSS_PREFIX)ar
+RANLIB=$(CROSS_PREFIX)ranlib
+
 UTV_CORE_DIR=utv_core
+
+CXXFLAGS=-g -O2 -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare $(PICON)
+ASMFLAGS=-g -Xgnu
+
 
 # Pretty-ify Building
 ifndef V
-$(foreach VAR,CXX ASM AR RANLIB,\
+$(foreach VAR,CXX AR RANLIB,\
     $(eval override $(VAR) = @printf " %s\t%s\n" $(VAR) "$$@"; $($(VAR))))
 endif
-
-# Set the proper nasm output format
-ifeq ($(ARCH),x86)
-  ifeq ($(SYS),windows)
-    ASMFORMAT=win32
-  else
-    ASMFORMAT=elf32
-  endif
-else
-  ifeq ($(ARCH),x64)
-    ifeq ($(SYS),windows)
-      ASMFORMAT=win64
-    else
-      ASMFORMAT=elf64
-    endif
-  endif
-endif
-
-# Only build if we want to build asm
-ifneq ($(ARCH),)
-CXXFLAGS += -DSTATIC_LIB_WITH_ASM
-ASM_OBJECTS = $(UTV_CORE_DIR)/Convert_asm_$(ARCH).o \
-              $(UTV_CORE_DIR)/HuffmanCode_asm_$(ARCH).o \
-              $(UTV_CORE_DIR)/Predict_asm_$(ARCH).o
-else
-ASM_OBJECTS=
-endif
-
-%.o: %.asm
-	$(ASM) $(ASMFLAGS) -f $(ASMFORMAT) -I$(UTV_CORE_DIR)/ -o $@ $^
-
-%.a:
-	$(AR) rcu $@ $^
-	$(RANLIB) $@
 
 OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/Convert.o \
@@ -82,6 +67,10 @@ $(UTV_CORE_DIR)/libutvideo.a: $(OBJ)
 static-lib: $(UTV_CORE_DIR)/libutvideo.a
 
 clean:
+	@printf " RM\t*.log\n";
+	@rm -f *.log
+	@printf " RM\t*.mak\n";
+	@rm -f *.mak
 	@printf " RM\t$(UTV_CORE_DIR)/*.o\n";
 	@rm -f $(UTV_CORE_DIR)/*.o
 	@printf " RM\t$(UTV_CORE_DIR)/libutvideo.a\n";
@@ -108,15 +97,5 @@ uninstall:
 	  fi
 	@printf " RM\t$(libdir)/libutvideo.a\n";
 	@rm -f $(libdir)/libutvideo.a
-
-distclean:
-	@printf " RM\t*.log\n";
-	@rm -f *.log
-	@printf " RM\t*.mak\n";
-	@rm -f *.mak
-	@printf " RM\t$(UTV_CORE_DIR)/*.o\n";
-	@rm -f $(UTV_CORE_DIR)/*.o
-	@printf " RM\t$(UTV_CORE_DIR)/libutvideo.a\n";
-	@rm -f $(UTV_CORE_DIR)/libutvideo.a
 
 .PHONY: all static-lib clean install uninstall

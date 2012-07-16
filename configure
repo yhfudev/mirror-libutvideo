@@ -1,29 +1,219 @@
 #!/bin/bash
 
 if [ "$1" = "-h" -o "$1" = "--help" ]; then
-echo "Usage: ./crosscomp [options]"
+echo "Usage: ./configure [options]"
 echo ""
 echo "available options:"
 echo ""
-echo "  --help               print this message"
-echo "  --bits=number        Select which MinGW to target [32, 64] (32)"
-echo "  --enable-pic         Enable platform-independent code"
-echo "  --msys               Compile under MSYS"
+echo "  --help                   print this message"
+echo "  --enable-debug           adds -g, doesn't strip"
+echo "  --enable-gprof           adds -pg, doesn't strip"
+echo "  --enable-pic             build position-independent code"
+echo "  --enable-shared          build libutvideo.so"
+echo "  --optlevel=olev          GCC optimization level [0-3, s, fast] (0)"
+echo "  --extra-cppflags=EFLAGS  add EFLAGS to CPPFLAGS"
+echo "  --extra-cflags=ECFLAGS   add ECFLAGS to CFLAGS"
+echo "  --extra-cxxflags=EFLAGS  add EFLAGS to CXXFLAGS"
+echo "  --extra-ldflags=ELDFLAGS add ELDFLAGS to LDFLAGS"
+echo "  --extra-soflags=ESOFLAGS add ESOFLAGS to SOFLAGS"
+echo "  --host=HOST              build programs to run on HOST"
+echo "  --cross-prefix=PREFIX    use PREFIX for compilation tools"
+echo "  --sysroot=SYSROOT        root of cross-build tree"
 echo ""
 exit 1
 fi
 
+log_check() {
+    echo -n "checking $1... " >> config.log
+}
+
+log_ok() {
+    echo "yes" >> config.log
+}
+
+log_fail() {
+    echo "no" >> config.log
+}
+
+log_msg() {
+    echo "$1" >> config.log
+}
+
+cpp_check() {
+    log_check "whether $3 is true"
+    rm -f conftest.c
+    [ -n "$1" ] && echo "#include <$1>" > conftest.c
+    echo -e "#if !($3) \n#error $4 \n#endif " >> conftest.c
+
+    if $CC conftest.c $CPPFLAGS $2 -E -o conftest >conftest.log 2>&1; then
+        res=$?
+        log_ok
+    else
+        res=$?
+        log_fail
+        log_msg "--------------------------------------------------"
+        cat conftest.log >> config.log
+        log_msg "--------------------------------------------------"
+    fi
+    return $res
+}
+
+cc_check() {
+    if [ -z "$3" ]; then
+        if [ -z "$1$2" ]; then
+            log_check "whether $CC works"
+        elif [ -z "$1" ]; then
+            log_check "for $2"
+        else
+            log_check "for $1"
+        fi
+    elif [ -z "$1" ]; then
+        log_check "whether $CC supports $3"
+    else
+        log_check "for $3 in $1";
+    fi
+    rm -f conftest.c
+    [ -n "$1" ] && echo "#include <$1>" > conftest.c
+    echo "int main () { $3 return 0; }" >> conftest.c
+    if $CC conftest.c $CPPFLAGS $CFLAGS $2 $LDFLAGS -o conftest >conftest.log 2>&1; then
+        res=$?
+        log_ok
+    else
+        res=$?
+        log_fail
+        log_msg "Failed commandline was:"
+        log_msg "--------------------------------------------------"
+        log_msg "$CC conftest.c $CFLAGS $LDFLAGS $2"
+        cat conftest.log >> config.log
+        log_msg "--------------------------------------------------"
+    fi
+    return $res
+}
+
+cxx_check() {
+    if [ -z "$3" ]; then
+        if [ -z "$1$2" ]; then
+            log_check "whether $CXX works"
+        elif [ -z "$1" ]; then
+            log_check "for $2"
+        else
+            log_check "for $1"
+        fi
+    elif [ -z "$1" ]; then
+        log_check "whether $CXX supports $3"
+    else
+        log_check "for $3 in $1";
+    fi
+    rm -f conftest.c
+    [ -n "$1" ] && echo "#include <$1>" > conftest.c
+    echo "int main () { $3 return 0; }" >> conftest.c
+    if $CXX conftest.c $CPPFLAGS $CXXFLAGS $2 $LDFLAGS -o conftest >conftest.log 2>&1; then
+        res=$?
+        log_ok
+    else
+        res=$?
+        log_fail
+        log_msg "Failed commandline was:"
+        log_msg "--------------------------------------------------"
+        log_msg "$CXX conftest.c $CXXFLAGS $LDFLAGS $2"
+        cat conftest.log >> config.log
+        log_msg "--------------------------------------------------"
+    fi
+    return $res
+}
+
+define() {
+    echo "#define $1$([ -n "$2" ] && echo " $2" || echo " 1")" >> config.h
+}
+
+die() {
+    log_msg "DIED: $@"
+    echo "$@"
+    exit 1
+}
+
+prefix='/usr/local'
+exec_prefix='${prefix}'
+bindir='${exec_prefix}/bin'
+libdir='${exec_prefix}/lib'
+includedir='${prefix}/include'
+DEVNULL='/dev/null'
+
+debug="no"
+gprof="no"
+pic="no"
+shared="no"
+postproc="no"
+
+CXXFLAGS="$CXXFLAGS -Wall -g -O2 -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare"
+LDFLAGS="$LDFLAGS"
+ASMFLAGS="-g -Xgnu"
+SOFLAGS="$SOFLAGS"
+HAVE_GETOPT_LONG=1
+olev="0"
+cross_prefix=""
+
+# parse options
+
 for opt do
     optarg="${opt#*=}"
     case "$opt" in
-        --bits=*)
-            BITTAGE="$optarg"
+        --prefix=*)
+            prefix="$optarg"
+            ;;
+        --exec-prefix=*)
+            exec_prefix="$optarg"
+            ;;
+        --bindir=*)
+            bindir="$optarg"
+            ;;
+        --libdir=*)
+            libdir="$optarg"
+            ;;
+        --includedir=*)
+            includedir="$optarg"
+            ;;
+        --optlevel=*)
+            olev="$optarg"
+            ;;
+        --extra-cppflags=*)
+            CPPFLAGS="$CPPFLAGS ${opt#--extra-cppflags=}"
+            ;;
+        --extra-cflags=*)
+            CFLAGS="$CFLAGS ${opt#--extra-cflags=}"
+            ;;
+        --extra-cxxflags=*)
+            CXXFLAGS="$CXXFLAGS ${opt#--extra-cxxflags=}"
+            ;;
+        --extra-ldflags=*)
+            LDFLAGS="$LDFLAGS ${opt#--extra-ldflags=}"
+            ;;
+        --extra-soflags=*)
+            SOFLAGS="$SOFLAGS ${opt#--extra-soflags=}"
+            ;;
+        --enable-debug)
+            debug="yes"
+            ;;
+        --enable-gprof)
+            CFLAGS="$CFLAGS -pg"
+            LDFLAGS="$LDFLAGS -pg"
+            gprof="yes"
             ;;
         --enable-pic)
             pic="yes"
             ;;
-        --msys)
-            msyson="yes"
+        --enable-shared)
+            shared="yes"
+            ;;
+        --host=*)
+            host="${opt#--host=}"
+            ;;
+        --cross-prefix=*)
+            cross_prefix="${opt#--cross-prefix=}"
+            ;;
+        --sysroot=*)
+            CFLAGS="$CFLAGS --sysroot=${opt#--sysroot=}"
+            LDFLAGS="$LDFLAGS --sysroot=${opt#--sysroot=}"
             ;;
         *)
             echo "Unknown option $opt, ignored"
@@ -31,41 +221,197 @@ for opt do
     esac
 done
 
-if [ "$BITTAGE" = "64" ] ; then
-    CROSS_PREFIX="x86_64-w64-mingw32-"
-    CPPFLAGS="-I/usr/x86_64-w64-mingw32/include"
-    archreport="x86_64-w64-mingw32 (64-bit)"
+CC="${CC-${cross_prefix}gcc}"
+CXX="${CXX-${cross_prefix}g++}"
+AR="${AR-${cross_prefix}ar}"
+RANLIB="${RANLIB-${cross_prefix}ranlib}"
+STRIP="${STRIP-${cross_prefix}strip}"
+ASM="nasm"
+RC=""
+
+if [ -z "$host" -a -z "$cross_prefix" ]; then    
+    host=`./config.guess`
 else
-    CROSS_PREFIX="i686-w64-mingw32-"
-    CPPFLAGS="-I/usr/i686-w64-mingw32/include"
-    archreport="i686-w64-mingw32 (32-bit)"
+    host="${cross_prefix%%-}"
 fi
+# normalize a triplet into a quadruplet
+host=`./config.sub $host`
+
+# split $host
+host_cpu="${host%%-*}"
+host="${host#*-}"
+host_vendor="${host%%-*}"
+host_os="${host#*-}"
+
+case $host_os in
+  beos*)
+    SYS="BEOS"
+    ;;
+  darwin*)
+    SYS="MACOSX"
+    if [ "$pic" = "no" ]; then
+        cc_check "" -mdynamic-no-pic && CFLAGS="$CFLAGS -mdynamic-no-pic"
+    fi
+    ;;
+  freebsd*)
+    SYS="FREEBSD"
+    ;;
+  kfreebsd*-gnu)
+    SYS="FREEBSD"
+    ;;
+  netbsd*)
+    SYS="NETBSD"
+    ;;
+  openbsd*)
+    SYS="OPENBSD"
+    ;;
+  *linux*)
+    SYS="LINUX"
+    ;;
+  cygwin*)
+    SYS="MINGW"
+    EXE=".exe"
+    DEVNULL="NUL"
+    pic="no"
+    if cc_check "" -mno-cygwin; then
+        CFLAGS="$CFLAGS -mno-cygwin"
+        CXXFLAGS="$CXXFLAGS -mno-cygwin"
+        LDFLAGS="$LDFLAGS -mno-cygwin"
+    fi
+    ;;
+  mingw*)
+    SYS="MINGW"
+    EXE=".exe"
+    DEVNULL="NUL"
+    ;;
+  sunos*|solaris*)
+    SYS="SunOS"
+    ;;
+  *)
+    die "Unknown system $host, edit the configure"
+    ;;
+esac
+
+! cc_check && die "no working c compiler found
+! cxx_check && die "no working c++ compiler found
+
+if cc_check '' -std=gnu99 ; then
+    CFLAGS="$CFLAGS -std=gnu99"
+elif cc_check '' -std=c99 ; then
+    CFLAGS="$CFLAGS -std=c99"
+    CPPFLAGS="$CPPFLAGS -D_POSIX_C_SOURCE=200112L -D_BSD_SOURCE -U__STRICT_ANSI__"
+fi
+
+if cpp_check '' '' "defined(_WIN32)" ; then
+    pic="no"
+fi
+
+#COM functions on windows
+cc_check "objbase.h" "-lole32" "CoUninitialize();" && LDFLAGS="$LDFLAGS -lole32"
+
+#find libz
+if ! cc_check zlib.h -lz "deflate( 0, 0 );" ; then
+    die "unable to link against zlib"
+fi
+
+CPPFLAGS="$CPPFLAGS"
+LDFLAGS="$LDFLAGS"
+[ "${LDFLAGS/-lz/}" = "$LDFLAGS" ] && LDFLAGS="$LDFLAGS -lz"
+
+# god do not shadow...
+#if cc_check '' -Wshadow ; then
+#    CFLAGS="-Wshadow $CFLAGS"
+#    CXXFLAGS="-Wshadow $CXXFLAGS"
+#fi
 
 if [ "$pic" = "yes" ] ; then
-    PICON=-fPIC
-else
-    PICON=
+    CFLAGS="$CFLAGS -fPIC"
+    CXXFLAGS="$CXXFLAGS -fPIC"
+    # resolve textrels in the x86 asm
+    cc_check stdio.h -Wl,-Bsymbolic && LDFLAGS="$LDFLAGS -Wl,-Bsymbolic"
 fi
 
-if [ "$msyson" = "yes" -a "$BITTAGE" != "64" ] ; then
-    CROSS_PREFIX=
-    CPPFLAGS=
-    archreport="msys"
+if [ "$debug" != "yes" -a "$gprof" != "yes" ]; then
+    CFLAGS="$CFLAGS -s -fomit-frame-pointer"
+    CXXFLAGS="$CXXFLAGS -s -fomit-frame-pointer"
+    LDFLAGS="$LDFLAGS -s"
 fi
+if [ "$debug" = "yes" ]; then
+    CFLAGS="$CFLAGS -g"
+    CXXFLAGS="$CXXFLAGS -g"
+    olev="0"
+		      test "x$?" != "x0" && pkg_failed=yes
+fi
+
+if [ "$optlevel" != "no" -a "$olev" = "0" ] ; then
+    CFLAGS="$CFLAGS"
+    CXXFLAGS="$CXXFLAGS"
+else
+    CFLAGS="-O$olev $CFLAGS"
+    CXXFLAGS="-O$olev $CXXFLAGS"
+fi
+
+
+rm -f conftest*
 
 cat > config.mak << EOF
-CROSS_PREFIX=$CROSS_PREFIX
+prefix=$prefix
+exec_prefix=$exec_prefix
+bindir=$bindir
+libdir=$libdir
+includedir=$includedir
+API=$API
+CC=$CC
+CXX=$CXX
+ASM=$ASM
 CPPFLAGS=$CPPFLAGS
-PICON=$PICON
+CFLAGS=$CFLAGS
+CXXFLAGS=$CXXFLAGS
+LDFLAGS=$LDFLAGS
+ASMFLAGS=$ASMFLAGS
+AR=$AR
+RANLIB=$RANLIB
+STRIP=$STRIP
+EXE=$EXE
+DEVNULL=$DEVNULL
+SOFLAGS_USER=$SOFLAGS
+SYS=$SYS
+RC=$RC
 EOF
 
-cat > conftest.log << EOF
-target:        $archreport
+if [ "$shared" = "yes" ]; then
+    if [ "$SYS" = "MINGW" ]; then
+        echo "SONAME=libutvideo-${API}.dll" >> config.mak
+        echo 'SOFLAGS=-Wl,--out-implib,$(IMPLIBNAME) -Wl,--enable-auto-image-base' >> config.mak
+        echo "IMPLIBNAME=libutvideo-${API}.dll.a" >> config.mak
+    elif [ "$SYS" = "MACOSX" ]; then
+        echo "SOSUFFIX=dylib" >> config.mak
+        echo "SONAME=utvideo.$API.dylib" >> config.mak
+        echo 'SOFLAGS=-dynamiclib -Wl,-single_module -Wl,-read_only_relocs,suppress -install_name $(DESTDIR)$(libdir)/$(SONAME)' >> config.mak
+    elif [ "$SYS" = "SunOS" ]; then
+        echo "SOSUFFIX=so" >> config.mak
+        echo "SONAME=utvideo.so.$API" >> config.mak
+        echo 'SOFLAGS=-Wl,-h,$(SONAME)' >> config.mak
+    else
+        echo "SOSUFFIX=so" >> config.mak
+        echo "SONAME=utvideo.so.$API" >> config.mak
+        echo 'SOFLAGS=-Wl,-soname,$(SONAME)' >> config.mak
+    fi
+    echo 'default: $(SONAME)' >> config.mak
+fi
+
+cat > conftest.log <<EOF
+debug:      $debug
+gprof:      $gprof
+PIC:        $pic
+shared:     $shared
+optlevel:   $olev
 EOF
 
-cat conftest.log > config.log
+echo >> config.log
+cat conftest.log >> config.log
 cat conftest.log
 rm conftest.log
 
 echo
-echo "You can run make now."
+echo "You can run 'make' now."
