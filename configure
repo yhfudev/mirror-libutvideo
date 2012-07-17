@@ -386,6 +386,8 @@ SYS=$SYS
 RC=$RC
 EOF
 
+API="$(grep "UTVIDEO_VERSION_STR" utv_core/utvideo.h | cut -f2 -d "\"")"
+
 if [ "$shared" = "yes" ]; then
     if [ "$SYS" = "MINGW" ]; then
         echo "SONAME=libutvideo-${API}.dll" >> config.mak
