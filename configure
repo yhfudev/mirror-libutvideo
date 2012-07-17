@@ -313,14 +313,8 @@ fi
 #COM functions on windows
 cc_check "objbase.h" "-lole32" "CoUninitialize();" && LDFLAGS="$LDFLAGS -lole32"
 
-#find libz
-if ! cc_check zlib.h -lz "deflate( 0, 0 );" ; then
-    die "unable to link against zlib"
-fi
-
 CPPFLAGS="$CPPFLAGS"
 LDFLAGS="$LDFLAGS"
-[ "${LDFLAGS/-lz/}" = "$LDFLAGS" ] && LDFLAGS="$LDFLAGS -lz"
 
 # god do not shadow...
 #if cc_check '' -Wshadow ; then
