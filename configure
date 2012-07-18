@@ -386,24 +386,23 @@ SYS=$SYS
 RC=$RC
 EOF
 
-API="$(grep "UTVIDEO_VERSION_STR" utv_core/utvideo.h | cut -f2 -d "\"")"
-
 if [ "$shared" = "yes" ]; then
+    API="$(grep "UTVIDEO_VERSION_STR" utv_core/utvideo.h | cut -f2 -d "\"")"
     if [ "$SYS" = "MINGW" ]; then
         echo "SONAME=libutvideo-${API}.dll" >> config.mak
         echo 'SOFLAGS=-Wl,--out-implib,$(IMPLIBNAME) -Wl,--enable-auto-image-base' >> config.mak
         echo "IMPLIBNAME=libutvideo-${API}.dll.a" >> config.mak
     elif [ "$SYS" = "MACOSX" ]; then
         echo "SOSUFFIX=dylib" >> config.mak
-        echo "SONAME=utvideo.$API.dylib" >> config.mak
+        echo "SONAME=libutvideo.$API.dylib" >> config.mak
         echo 'SOFLAGS=-dynamiclib -Wl,-single_module -Wl,-read_only_relocs,suppress -install_name $(DESTDIR)$(libdir)/$(SONAME)' >> config.mak
     elif [ "$SYS" = "SunOS" ]; then
         echo "SOSUFFIX=so" >> config.mak
-        echo "SONAME=utvideo.so.$API" >> config.mak
+        echo "SONAME=libutvideo.so.$API" >> config.mak
         echo 'SOFLAGS=-Wl,-h,$(SONAME)' >> config.mak
     else
         echo "SOSUFFIX=so" >> config.mak
-        echo "SONAME=utvideo.so.$API" >> config.mak
+        echo "SONAME=libutvideo.so.$API" >> config.mak
         echo 'SOFLAGS=-Wl,-soname,$(SONAME)' >> config.mak
     fi
     echo 'default: $(SONAME)' >> config.mak

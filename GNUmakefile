@@ -50,6 +50,9 @@ endif
 	$(AR) rcu $@ $^
 	$(RANLIB) $@
 
+$(SONAME):
+	$(CXX) -shared -o $@ $^ $(SOFLAGS) $(SOFLAGS_USER) $(LDFLAGS)
+
 OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/Convert.o \
       $(UTV_CORE_DIR)/DummyCodec.o \
@@ -77,8 +80,10 @@ else
 all: static-lib
 endif
 
+$(SONAME): $(OBJ)
 $(UTV_CORE_DIR)/libutvideo.a: $(OBJ)
 
+shared-lib: $(SONAME)
 static-lib: $(UTV_CORE_DIR)/libutvideo.a
 
 clean:
@@ -86,6 +91,13 @@ clean:
 	@rm -f $(UTV_CORE_DIR)/*.o
 	@printf " RM\t$(UTV_CORE_DIR)/libutvideo.a\n";
 	@rm -f $(UTV_CORE_DIR)/libutvideo.a
+ifneq ($(IMPLIBNAME),)
+	@printf " RM\t$(IMPLIBNAME)\n";
+	@rm -f $(IMPLIBNAME)
+else ifneq ($(SONAME),)
+	@printf " RM\t$(SONAME)\n";
+	@rm -f $(SONAME)
+endif
 
 install: all
 	@mkdir -p $(libdir) # in case of custom install dir
@@ -97,6 +109,13 @@ install: all
 	@cp -f $(UTV_CORE_DIR)/utvideo.h $(includedir)/utvideo/utvideo.h
 	@printf " INSTALL\t$(libdir)/libutvideo.a\n";
 	@cp -f $(UTV_CORE_DIR)/libutvideo.a $(libdir)/libutvideo.a
+ifneq ($(IMPLIBNAME),)
+	@printf " INSTALL\t$(libdir)/$(IMPLIBNAME)\n";
+	@cp -f $(IMPLIBNAME) $(libdir)/$(IMPLIBNAME)
+else ifneq ($(SONAME),)
+	@printf " INSTALL\t$(libdir)/$(SONAME)\n";
+	@cp -f $(SONAME) $(libdir)/$(SONAME)
+endif
 
 uninstall:
 	@printf " RM\t$(includedir)/utvideo/*.h\n";
@@ -108,6 +127,13 @@ uninstall:
 	  fi
 	@printf " RM\t$(libdir)/libutvideo.a\n";
 	@rm -f $(libdir)/libutvideo.a
+ifneq ($(IMPLIBNAME),)
+	@printf " RM\t$(libdir)/$(IMPLIBNAME)\n";
+	@rm -f $(libdir)/$(IMPLIBNAME)
+else ifneq ($(SONAME),)
+	@printf " RM\t$(libdir)/$(SONAME)\n";
+	@rm -f $(libdir)/$(SONAME)
+endif
 
 distclean:
 	@printf " RM\t*.log\n";
@@ -118,5 +144,12 @@ distclean:
 	@rm -f $(UTV_CORE_DIR)/*.o
 	@printf " RM\t$(UTV_CORE_DIR)/libutvideo.a\n";
 	@rm -f $(UTV_CORE_DIR)/libutvideo.a
+ifneq ($(IMPLIBNAME),)
+	@printf " RM\t$(IMPLIBNAME)\n";
+	@rm -f $(IMPLIBNAME)
+else ifneq ($(SONAME),)
+	@printf " RM\t$(SONAME)\n";
+	@rm -f $(SONAME)
+endif
 
-.PHONY: all static-lib clean install uninstall
+.PHONY: all static-lib shared-lib clean install uninstall
