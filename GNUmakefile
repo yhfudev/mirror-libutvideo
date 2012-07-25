@@ -115,6 +115,10 @@ ifneq ($(IMPLIBNAME),)
 else ifneq ($(SONAME),)
 	@printf " INSTALL\t$(libdir)/$(SONAME)\n";
 	@cp -f $(SONAME) $(libdir)/$(SONAME)
+	@printf " LN\t$(libdir)/$(SONAMELESS)\n";
+	@ln -f -s $(libdir)/$(SONAME) $(libdir)/$(SONAMELESS)
+	@printf " LN\t$(libdir)/$(SONAMEPLAIN)\n";
+	@ln -f -s $(libdir)/$(SONAME) $(libdir)/$(SONAMEPLAIN)
 endif
 
 uninstall:
@@ -133,6 +137,10 @@ ifneq ($(IMPLIBNAME),)
 else ifneq ($(SONAME),)
 	@printf " RM\t$(libdir)/$(SONAME)\n";
 	@rm -f $(libdir)/$(SONAME)
+	@printf " RM\t$(libdir)/$(SONAMELESS)\n";
+	@rm -f $(libdir)/$(SONAMELESS)
+	@printf " RM\t$(libdir)/$(SONAMEPLAIN)\n";
+	@rm -f $(libdir)/$(SONAMEPLAIN)
 endif
 
 distclean:
