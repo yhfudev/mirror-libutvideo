@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: VCMCodec.cpp 842 2011-12-29 09:34:33Z umezawa $ */
+/* $Id: VCMCodec.cpp 899 2012-07-26 11:51:21Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -162,6 +162,7 @@ LRESULT CVCMCodec::CompressGetFormat(const BITMAPINFOHEADER *pbihIn, BITMAPINFOH
 		return ICERR_BADFORMAT;
 
 	UtVideoFormatToWindowsFormat(&pbihOut->biCompression, &pbihOut->biBitCount, NULL, *m_pCodec->GetCompressedFormat());
+	pbihOut->biSizeImage = (DWORD)m_pCodec->EncodeGetOutputSize(infmt, pbihIn->biWidth, pbihIn->biHeight, CBGROSSWIDTH_WINDOWS);
 	return m_pCodec->EncodeGetExtraData(((BYTE *)pbihOut) + sizeof(BITMAPINFOHEADER), m_pCodec->EncodeGetExtraDataSize(), infmt, pbihIn->biWidth, pbihIn->biHeight, CBGROSSWIDTH_WINDOWS) == 0 ? ICERR_OK : ICERR_BADFORMAT;
 }
 
@@ -242,7 +243,10 @@ LRESULT CVCMCodec::DecompressGetFormat(const BITMAPINFOHEADER *pbihIn, BITMAPINF
 	for (utvf = m_pCodec->GetDecoderOutputFormat(); *utvf; utvf++)
 	{
 		if (UtVideoFormatToWindowsFormat(&pbihOut->biCompression, &pbihOut->biBitCount, NULL, *utvf) == 0)
+		{
+			pbihOut->biSizeImage = (DWORD)m_pCodec->DecodeGetOutputSize(*utvf, pbihOut->biWidth, pbihOut->biHeight, CBGROSSWIDTH_WINDOWS);
 			return ICERR_OK;
+		}
 	}
 
 	return ICERR_INTERNAL;
