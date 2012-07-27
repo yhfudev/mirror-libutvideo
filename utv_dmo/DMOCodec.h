@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: DMOCodec.h 773 2011-10-16 10:27:27Z umezawa $ */
+/* $Id: DMOCodec.h 899 2012-07-26 11:51:21Z umezawa $ */
 
 // DMOCodec.h : CDMOCodec ‚ÌéŒ¾
 
@@ -315,6 +315,7 @@ public:
 			pvih = (VIDEOINFOHEADER *)pmt->pbFormat;
 			memcpy(pvih, pvihIn, sizeof(VIDEOINFOHEADER));
 			UtVideoFormatToWindowsFormat(&pvih->bmiHeader.biCompression, &pvih->bmiHeader.biBitCount, NULL, *putvf);
+			pvih->bmiHeader.biSizeImage = (DWORD)((T *)this)->GetSize(outfmt, infmt, pvih->bmiHeader.biWidth, pvih->bmiHeader.biHeight);
 			pvih->bmiHeader.biSize = (DWORD)(sizeof(BITMAPINFOHEADER) + cbExtraData);
 			((T *)this)->GetExtraData(((BYTE *)&pvih->bmiHeader) + sizeof(BITMAPINFOHEADER), cbExtraData, outfmt, infmt, pvih->bmiHeader.biWidth, pvih->bmiHeader.biHeight);
 		}
