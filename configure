@@ -13,7 +13,6 @@ echo "  --enable-shared          build libutvideo.so"
 echo "  --optlevel=olev          GCC optimization level [0-3, s, fast] (2)"
 echo "  --enable-asm=ARCH        Enable assembly optimizations for ARCH [x86, x64]"
 echo "  --extra-cppflags=EFLAGS  add EFLAGS to CPPFLAGS"
-echo "  --extra-cflags=ECFLAGS   add ECFLAGS to CFLAGS"
 echo "  --extra-cxxflags=EFLAGS  add EFLAGS to CXXFLAGS"
 echo "  --extra-ldflags=ELDFLAGS add ELDFLAGS to LDFLAGS"
 echo "  --extra-soflags=ESOFLAGS add ESOFLAGS to SOFLAGS"
@@ -182,9 +181,6 @@ for opt do
             ;;
         --extra-cppflags=*)
             CPPFLAGS="$CPPFLAGS ${opt#--extra-cppflags=}"
-            ;;
-        --extra-cflags=*)
-            CFLAGS="$CFLAGS ${opt#--extra-cflags=}"
             ;;
         --extra-cxxflags=*)
             CXXFLAGS="$CXXFLAGS ${opt#--extra-cxxflags=}"
