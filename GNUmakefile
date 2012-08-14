@@ -8,8 +8,6 @@
 
 include config.mak
 
-UTV_CORE_DIR=utv_core
-
 # Pretty-ify Building
 ifndef V
 $(foreach VAR,CXX ASM AR RANLIB INSTALL,\
@@ -96,13 +94,13 @@ all:
 	@echo "Invalid ARCH specified. Use x86 or x64, or none at all."
   endif
 else
-all: static-lib shared-lib
+all: default
 endif
 
-$(UTV_CORE_DIR)/libutvideo.a: $(OBJ)
+$(STATICLIB): $(OBJ)
 $(SONAME): $(OBJ)
 
-static-lib: $(UTV_CORE_DIR)/libutvideo.a
+static-lib: $(STATICLIB)
 shared-lib: $(SONAME)
 
 clean:
@@ -125,9 +123,10 @@ install: all
 	@install -m 644 $(UTV_CORE_DIR)/Codec.h $(DESTDIR)$(includedir)/utvideo
 	@printf " INSTALL\t$(includedir)/utvideo/utvideo.h\n";
 	@install -m 644 $(UTV_CORE_DIR)/utvideo.h $(DESTDIR)$(includedir)/utvideo
-	@printf " INSTALL\t$(libdir)/libutvideo.a\n";
-	@install -m 644 $(UTV_CORE_DIR)/libutvideo.a $(DESTDIR)$(libdir)
-	@$(RANLIBX) $(DESTDIR)$(libdir)/libutvideo.a
+	@$(if $(STATICLIB), \
+	@printf " INSTALL\t$(libdir)/libutvideo.a\n";${\n}\
+	@install -m 644 $(STATICLIB) $(DESTDIR)$(libdir)${\n}\
+	@$(RANLIBX) $(DESTDIR)$(libdir)/libutvideo.a)
 ifeq ($(SYS),MINGW)
 	@$(if $(SONAME), \
 	@printf " INSTALL\t$(bindir)/$(SONAME)\n";${\n}\
@@ -158,8 +157,9 @@ uninstall:
 	  if [ -d $(includedir)/utvideo ]; then \
 	    printf " NOTE: Not removing $(includedir)/utvideo since it is not empty.\n"; \
 	  fi
-	@printf " RM\t$(libdir)/libutvideo.a\n";
-	@rm -f $(libdir)/libutvideo.a
+	@$(if $(STATICLIB),\
+	@printf " RM\t$(libdir)/libutvideo.a\n";${\n}\
+	@rm -f $(libdir)/libutvideo.a)
 	@$(if $(IMPLIBNAME),\
 	@printf " RM\t$(libdir)/$(IMPLIBNAME)\n";${\n}\
 	@rm -f $(libdir)/$(IMPLIBNAME))

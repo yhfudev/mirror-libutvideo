@@ -10,6 +10,7 @@ echo "  --enable-debug           adds -g, doesn't strip"
 echo "  --enable-gprof           adds -pg, doesn't strip"
 echo "  --enable-pic             build position-independent code"
 echo "  --enable-shared          build libutvideo.so"
+echo "  --disable-static         do not build libutvideo.a"
 echo "  --optlevel=olev          GCC optimization level [0-3, s, fast] (2)"
 echo "  --enable-asm=ARCH        Enable assembly optimizations for ARCH [x86, x64]"
 echo "  --extra-cppflags=EFLAGS  add EFLAGS to CPPFLAGS"
@@ -138,11 +139,13 @@ bindir='${exec_prefix}/bin'
 libdir='${exec_prefix}/lib'
 includedir='${prefix}/include'
 DEVNULL='/dev/null'
+UTV_CORE_DIR='utv_core'
 
 debug="no"
 gprof="no"
 pic="no"
 shared="no"
+static="yes"
 postproc="no"
 
 CXXFLAGS="$CXXFLAGS -Wall -Wextra -Wno-multichar -Wno-unused-parameter -Wno-sign-compare"
@@ -204,6 +207,9 @@ for opt do
             ;;
         --enable-shared)
             shared="yes"
+            ;;
+        --disable-static)
+            static="no"
             ;;
         --host=*)
             host="${opt#--host=}"
@@ -318,6 +324,12 @@ LDFLAGS="$LDFLAGS"
 #    CXXFLAGS="-Wshadow $CXXFLAGS"
 #fi
 
+if [ "$static" = "no" ] ; then
+    STATICLIB=""
+else
+    STATICLIB='$(UTV_CORE_DIR)/libutvideo.a'
+fi
+
 if [ "$pic" = "yes" ] ; then
     CFLAGS="$CFLAGS -fPIC"
     CXXFLAGS="$CXXFLAGS -fPIC"
@@ -325,12 +337,12 @@ if [ "$pic" = "yes" ] ; then
     cc_check stdio.h -Wl,-Bsymbolic && LDFLAGS="$LDFLAGS -Wl,-Bsymbolic"
 fi
 
-if [ "$debug" != "yes" -a "$gprof" != "yes" ]; then
+if [ "$debug" != "yes" -a "$gprof" != "yes" ] ; then
     CFLAGS="$CFLAGS -s -fomit-frame-pointer"
     CXXFLAGS="$CXXFLAGS -s -fomit-frame-pointer"
     LDFLAGS="$LDFLAGS -s"
 fi
-if [ "$debug" = "yes" ]; then
+if [ "$debug" = "yes" ] ; then
     CFLAGS="$CFLAGS -g"
     CXXFLAGS="$CXXFLAGS -g"
     olev="0"
@@ -347,12 +359,21 @@ fi
 
 if [ "$ARCH" = "x86" ] ; then
     ARCH=x86
+    ARCHREPORT=yes
 fi
 
 if [ "$ARCH" = "x64" ] ; then
     ARCH=x64
+    ARCHREPORT=yes
 fi
 
+if [ "$ARCH" = "" ] ; then
+    ARCHREPORT=no
+fi
+
+if [ "$ARCHREPORT" != "no" ] ; then
+    ARCHREPORT=$ARCH
+fi
 
 rm -f conftest*
 
@@ -380,20 +401,26 @@ DEVNULL=$DEVNULL
 SOFLAGS_USER=$SOFLAGS
 ARCH=$ARCH
 SYS=$SYS
+UTV_CORE_DIR=$UTV_CORE_DIR
+STATICLIB=$STATICLIB
 RC=$RC
 EOF
 
-if [ "$shared" = "yes" ]; then
+if [ "$static" = "yes" -a "$shared" = "no" ] ; then
+        echo 'default: $(STATICLIB)' >> config.mak
+fi
+
+if [ "$shared" = "yes" ] ; then
     API="$(grep "UTVIDEO_VERSION_STR" utv_core/utvideo.h | cut -f2 -d "\"")"
-    if [ "$SYS" = "MINGW" ]; then
+    if [ "$SYS" = "MINGW" ] ; then
         echo "SONAME=libutvideo-${API}.dll" >> config.mak
         echo 'SOFLAGS=-Wl,--out-implib,$(IMPLIBNAME) -Wl,--enable-auto-image-base' >> config.mak
         echo "IMPLIBNAME=libutvideo-${API}.dll.a" >> config.mak
-    elif [ "$SYS" = "MACOSX" ]; then
+    elif [ "$SYS" = "MACOSX" ] ; then
         echo "SOSUFFIX=dylib" >> config.mak
         echo "SONAME=libutvideo.$API.dylib" >> config.mak
         echo 'SOFLAGS=-dynamiclib -Wl,-single_module -Wl,-read_only_relocs,suppress -install_name $(DESTDIR)$(libdir)/$(SONAME)' >> config.mak
-    elif [ "$SYS" = "SunOS" ]; then
+    elif [ "$SYS" = "SunOS" ] ; then
         echo "SOSUFFIX=so" >> config.mak
         echo "SONAME=libutvideo.so.$API" >> config.mak
         echo 'SOFLAGS=-Wl,-h,$(SONAME)' >> config.mak
@@ -402,13 +429,20 @@ if [ "$shared" = "yes" ]; then
         echo "SONAME=libutvideo.so.$API" >> config.mak
         echo 'SOFLAGS=-Wl,-soname,$(SONAME)' >> config.mak
     fi
-    echo 'default: $(SONAME)' >> config.mak
+    if [ "$static" = "yes" ] ; then
+        echo 'default: $(STATICLIB) $(SONAME)' >> config.mak
+    else
+        echo 'default: $(SONAME)' >> config.mak
+    fi
 fi
 
 cat > conftest.log <<EOF
+OS:         $SYS
+asm:        $ARCHREPORT
 debug:      $debug
 gprof:      $gprof
 PIC:        $pic
+static:     $static
 shared:     $shared
 optlevel:   $olev
 EOF
