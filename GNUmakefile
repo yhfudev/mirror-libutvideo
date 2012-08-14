@@ -18,14 +18,14 @@ endif
 
 # Set the proper nasm output format
 ifeq ($(ARCH),x86)
-  ifeq ($(SYS),windows)
+  ifeq ($(SYS),MINGW)
     ASMFORMAT=win32
   else
     ASMFORMAT=elf32
   endif
 else
   ifeq ($(ARCH),x64)
-    ifeq ($(SYS),windows)
+    ifeq ($(SYS),MINGW)
       ASMFORMAT=win64
     else
       ASMFORMAT=elf64
