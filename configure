@@ -373,6 +373,7 @@ LDFLAGS=$LDFLAGS
 ASMFLAGS=$ASMFLAGS
 AR=$AR
 RANLIB=$RANLIB
+RANLIBX=$RANLIB
 STRIP=$STRIP
 EXE=$EXE
 DEVNULL=$DEVNULL
@@ -384,7 +385,6 @@ EOF
 
 if [ "$shared" = "yes" ]; then
     API="$(grep "UTVIDEO_VERSION_STR" utv_core/utvideo.h | cut -f2 -d "\"")"
-    MINAPI="$(grep "UTVIDEO_VERSION_STR" utv_core/utvideo.h | cut -f2 -d "\"" | cut -f1 -d .)"
     if [ "$SYS" = "MINGW" ]; then
         echo "SONAME=libutvideo-${API}.dll" >> config.mak
         echo 'SOFLAGS=-Wl,--out-implib,$(IMPLIBNAME) -Wl,--enable-auto-image-base' >> config.mak
@@ -400,8 +400,6 @@ if [ "$shared" = "yes" ]; then
     else
         echo "SOSUFFIX=so" >> config.mak
         echo "SONAME=libutvideo.so.$API" >> config.mak
-        echo "SONAMELESS=libutvideo.so.$MINAPI" >> config.mak
-        echo "SONAMEPLAIN=libutvideo.so" >> config.mak
         echo 'SOFLAGS=-Wl,-soname,$(SONAME)' >> config.mak
     fi
     echo 'default: $(SONAME)' >> config.mak

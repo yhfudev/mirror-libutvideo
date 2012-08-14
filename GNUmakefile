@@ -12,7 +12,7 @@ UTV_CORE_DIR=utv_core
 
 # Pretty-ify Building
 ifndef V
-$(foreach VAR,CXX ASM AR RANLIB,\
+$(foreach VAR,CXX ASM AR RANLIB INSTALL,\
     $(eval override $(VAR) = @printf " %s\t%s\n" $(VAR) "$$@"; $($(VAR))))
 endif
 
@@ -53,6 +53,7 @@ endif
 $(SONAME):
 	$(CXX) -shared -o $@ $^ $(SOFLAGS) $(SOFLAGS_USER) $(LDFLAGS)
 
+ifneq ($(SYS),MINGW)
 OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/Convert.o \
       $(UTV_CORE_DIR)/DummyCodec.o \
@@ -70,6 +71,24 @@ OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/ULY2Codec.o \
       $(UTV_CORE_DIR)/utv_core.o \
       $(ASM_OBJECTS)
+else
+OBJ = $(UTV_CORE_DIR)/Codec.o \
+      $(UTV_CORE_DIR)/Convert.o \
+      $(UTV_CORE_DIR)/DummyCodec.o \
+      $(UTV_CORE_DIR)/FrameBuffer.o \
+      $(UTV_CORE_DIR)/GlobalConfig.o \
+      $(UTV_CORE_DIR)/HuffmanCode.o \
+      $(UTV_CORE_DIR)/Predict.o \
+      $(UTV_CORE_DIR)/Thread.o \
+      $(UTV_CORE_DIR)/TunedFunc.o \
+      $(UTV_CORE_DIR)/UL00Codec.o \
+      $(UTV_CORE_DIR)/ULRACodec.o \
+      $(UTV_CORE_DIR)/ULRGCodec.o \
+      $(UTV_CORE_DIR)/ULY0Codec.o \
+      $(UTV_CORE_DIR)/ULY2Codec.o \
+      $(UTV_CORE_DIR)/utv_core.o \
+      $(ASM_OBJECTS)
+endif
 
 ifneq ($(ARCH),)
   ifeq ($(ASMFORMAT),)
@@ -77,49 +96,59 @@ all:
 	@echo "Invalid ARCH specified. Use x86 or x64, or none at all."
   endif
 else
-all: static-lib
+all: static-lib shared-lib
 endif
 
-$(SONAME): $(OBJ)
 $(UTV_CORE_DIR)/libutvideo.a: $(OBJ)
+$(SONAME): $(OBJ)
 
-shared-lib: $(SONAME)
 static-lib: $(UTV_CORE_DIR)/libutvideo.a
+shared-lib: $(SONAME)
 
 clean:
 	@printf " RM\t$(UTV_CORE_DIR)/*.o\n";
 	@rm -f $(UTV_CORE_DIR)/*.o
-	@printf " RM\t$(UTV_CORE_DIR)/libutvideo.a\n";
-	@rm -f $(UTV_CORE_DIR)/libutvideo.a
-ifneq ($(IMPLIBNAME),)
-	@printf " RM\t$(IMPLIBNAME)\n";
-	@rm -f $(IMPLIBNAME)
-else ifneq ($(SONAME),)
-	@printf " RM\t$(SONAME)\n";
-	@rm -f $(SONAME)
-endif
+	@printf " RM\t$(UTV_CORE_DIR)/*.a\n";
+	@rm -f $(UTV_CORE_DIR)/*.a
+	@$(if $(IMPLIBNAME),\
+	@printf " RM\t$(IMPLIBNAME)\n";${\n}\
+	@rm -f $(IMPLIBNAME))
+	@$(if $(SONAME),\
+	@printf " RM\t$(SONAME)\n";${\n}\
+	@rm -f $(SONAME))
 
 install: all
-	@mkdir -p $(libdir) # in case of custom install dir
-	@printf " MKDIR\t\t$(includedir)/utvideo\n";
-	@mkdir -p $(includedir)/utvideo
+	@install -d $(DESTDIR)$(includedir)
+	@install -d $(DESTDIR)$(includedir)/utvideo
+	@install -d $(DESTDIR)$(libdir)
 	@printf " INSTALL\t$(includedir)/utvideo/Codec.h\n";
-	@cp -f $(UTV_CORE_DIR)/Codec.h $(includedir)/utvideo/Codec.h
+	@install -m 644 $(UTV_CORE_DIR)/Codec.h $(DESTDIR)$(includedir)/utvideo
 	@printf " INSTALL\t$(includedir)/utvideo/utvideo.h\n";
-	@cp -f $(UTV_CORE_DIR)/utvideo.h $(includedir)/utvideo/utvideo.h
+	@install -m 644 $(UTV_CORE_DIR)/utvideo.h $(DESTDIR)$(includedir)/utvideo
 	@printf " INSTALL\t$(libdir)/libutvideo.a\n";
-	@cp -f $(UTV_CORE_DIR)/libutvideo.a $(libdir)/libutvideo.a
-ifneq ($(IMPLIBNAME),)
-	@printf " INSTALL\t$(libdir)/$(IMPLIBNAME)\n";
-	@cp -f $(IMPLIBNAME) $(libdir)/$(IMPLIBNAME)
-else ifneq ($(SONAME),)
-	@printf " INSTALL\t$(libdir)/$(SONAME)\n";
-	@cp -f $(SONAME) $(libdir)/$(SONAME)
-	@printf " LN\t$(libdir)/$(SONAMELESS)\n";
-	@ln -f -s $(libdir)/$(SONAME) $(libdir)/$(SONAMELESS)
-	@printf " LN\t$(libdir)/$(SONAMEPLAIN)\n";
-	@ln -f -s $(libdir)/$(SONAME) $(libdir)/$(SONAMEPLAIN)
+	@install -m 644 $(UTV_CORE_DIR)/libutvideo.a $(DESTDIR)$(libdir)
+	@$(RANLIBX) $(DESTDIR)$(libdir)/libutvideo.a
+ifeq ($(SYS),MINGW)
+	@$(if $(SONAME), \
+	@printf " INSTALL\t$(bindir)/$(SONAME)\n";${\n}\
+	@install -d $(DESTDIR)$(bindir)${\n}\
+	@install -m 755 $(SONAME) $(DESTDIR)$(bindir))
+else
+	@$(if $(SONAME), \
+	@printf " INSTALL\t$(libdir)/libutvideo.$(SOSUFFIX)\n";${\n}\
+	@ln -f -s $(SONAME) $(DESTDIR)$(libdir)/libutvideo.$(SOSUFFIX))
+	@$(if $(SONAME), \
+	@printf " INSTALL\t$(libdir)/$(SONAME)\n";${\n}\
+	@install -m 755 $(SONAME) $(DESTDIR)$(libdir))
 endif
+	@$(if $(IMPLIBNAME), \
+	@printf " INSTALL\t$(libdir)/$(IMPLIBNAME)\n";${\n}\
+	@install -m 644 $(IMPLIBNAME) $(DESTDIR)$(libdir))
+
+define \n
+
+
+endef
 
 uninstall:
 	@printf " RM\t$(includedir)/utvideo/*.h\n";
@@ -131,33 +160,25 @@ uninstall:
 	  fi
 	@printf " RM\t$(libdir)/libutvideo.a\n";
 	@rm -f $(libdir)/libutvideo.a
-ifneq ($(IMPLIBNAME),)
-	@printf " RM\t$(libdir)/$(IMPLIBNAME)\n";
-	@rm -f $(libdir)/$(IMPLIBNAME)
-else ifneq ($(SONAME),)
-	@printf " RM\t$(libdir)/$(SONAME)\n";
-	@rm -f $(libdir)/$(SONAME)
-	@printf " RM\t$(libdir)/$(SONAMELESS)\n";
-	@rm -f $(libdir)/$(SONAMELESS)
-	@printf " RM\t$(libdir)/$(SONAMEPLAIN)\n";
-	@rm -f $(libdir)/$(SONAMEPLAIN)
+	@$(if $(IMPLIBNAME),\
+	@printf " RM\t$(libdir)/$(IMPLIBNAME)\n";${\n}\
+	@rm -f $(libdir)/$(IMPLIBNAME))
+ifeq ($(SYS),MINGW)
+	@$(if $(SONAME),\
+	@printf " RM\t$(bindir)/$(SONAME)\n";${\n}\
+	@rm -f $(bindir)/$(SONAME))
+else
+	@$(if $(SONAME),\
+	@printf " RM\t$(libdir)/libutvideo.$(SOSUFFIX)\n";${\n}\
+	@rm -f $(libdir)/libutvideo.$(SOSUFFIX)${\n}\
+	@printf " RM\t$(libdir)/$(SONAME)\n";${\n}\
+	@rm -f $(libdir)/$(SONAME))
 endif
 
-distclean:
+distclean: clean
 	@printf " RM\t*.log\n";
 	@rm -f *.log
 	@printf " RM\t*.mak\n";
 	@rm -f *.mak
-	@printf " RM\t$(UTV_CORE_DIR)/*.o\n";
-	@rm -f $(UTV_CORE_DIR)/*.o
-	@printf " RM\t$(UTV_CORE_DIR)/libutvideo.a\n";
-	@rm -f $(UTV_CORE_DIR)/libutvideo.a
-ifneq ($(IMPLIBNAME),)
-	@printf " RM\t$(IMPLIBNAME)\n";
-	@rm -f $(IMPLIBNAME)
-else ifneq ($(SONAME),)
-	@printf " RM\t$(SONAME)\n";
-	@rm -f $(SONAME)
-endif
 
-.PHONY: all static-lib shared-lib clean install uninstall
+.PHONY: all static-lib shared-lib clean install uninstall distclean
