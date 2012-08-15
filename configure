@@ -375,6 +375,10 @@ if [ "$ARCHREPORT" != "no" ] ; then
     ARCHREPORT=$ARCH
 fi
 
+if [ "$shared" = "yes" -a "$SYS" = "MINGW" ] ; then
+    LDFLAGS="$LDFLAGS -lstrmiids"
+fi
+
 rm -f conftest*
 
 cat > config.mak << EOF

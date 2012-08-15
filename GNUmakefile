@@ -51,7 +51,6 @@ endif
 $(SONAME):
 	$(CXX) -shared -o $@ $^ $(SOFLAGS) $(SOFLAGS_USER) $(LDFLAGS)
 
-ifneq ($(SYS),MINGW)
 OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/Convert.o \
       $(UTV_CORE_DIR)/DummyCodec.o \
@@ -69,24 +68,6 @@ OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/ULY2Codec.o \
       $(UTV_CORE_DIR)/utv_core.o \
       $(ASM_OBJECTS)
-else
-OBJ = $(UTV_CORE_DIR)/Codec.o \
-      $(UTV_CORE_DIR)/Convert.o \
-      $(UTV_CORE_DIR)/DummyCodec.o \
-      $(UTV_CORE_DIR)/FrameBuffer.o \
-      $(UTV_CORE_DIR)/GlobalConfig.o \
-      $(UTV_CORE_DIR)/HuffmanCode.o \
-      $(UTV_CORE_DIR)/Predict.o \
-      $(UTV_CORE_DIR)/Thread.o \
-      $(UTV_CORE_DIR)/TunedFunc.o \
-      $(UTV_CORE_DIR)/UL00Codec.o \
-      $(UTV_CORE_DIR)/ULRACodec.o \
-      $(UTV_CORE_DIR)/ULRGCodec.o \
-      $(UTV_CORE_DIR)/ULY0Codec.o \
-      $(UTV_CORE_DIR)/ULY2Codec.o \
-      $(UTV_CORE_DIR)/utv_core.o \
-      $(ASM_OBJECTS)
-endif
 
 ifneq ($(ARCH),)
   ifeq ($(ASMFORMAT),)
