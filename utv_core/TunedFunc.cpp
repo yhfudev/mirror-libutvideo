@@ -1,7 +1,8 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: TunedFunc.cpp 887 2012-05-09 12:03:08Z umezawa $ */
+/* $Id: TunedFunc.cpp 950 2012-10-14 09:56:14Z umezawa $ */
 
 #include "stdafx.h"
+#include "utvideo.h"
 #include "TunedFunc.h"
 #include "Predict.h"
 #include "HuffmanCode.h"
@@ -17,28 +18,34 @@ const TUNEDFUNC tfnCPP = {
 	cpp_HuffmanDecodeAndAccum,
 	cpp_HuffmanDecodeAndAccumStep2,
 	cpp_HuffmanDecodeAndAccumStep4,
-	cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32Green,
-	cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32Blue,
-	cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32Red,
-	cpp_HuffmanDecodeAndAccumStep4ForBottomupRGB32RedAndDummyAlpha,
-	cpp_HuffmanDecodeAndAccumStep3ForBottomupRGB24Green,
-	cpp_HuffmanDecodeAndAccumStep3ForBottomupRGB24Blue,
-	cpp_HuffmanDecodeAndAccumStep3ForBottomupRGB24Red,
-	cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32Green,
-	cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32Blue,
-	cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32Red,
-	cpp_HuffmanDecodeAndAccumStep4ForTopdownRGB32RedAndDummyAlpha,
-	cpp_HuffmanDecodeAndAccumStep3ForTopdownRGB24Green,
-	cpp_HuffmanDecodeAndAccumStep3ForTopdownRGB24Blue,
-	cpp_HuffmanDecodeAndAccumStep3ForTopdownRGB24Red,
-	cpp_ConvertULY2ToBottomupRGB24,
-	cpp_ConvertULY2ToBottomupRGB32,
-	cpp_ConvertULY2ToTopdownRGB24,
-	cpp_ConvertULY2ToTopdownRGB32,
-	cpp_ConvertBottomupRGB24ToULY2,
-	cpp_ConvertBottomupRGB32ToULY2,
-	cpp_ConvertTopdownRGB24ToULY2,
-	cpp_ConvertTopdownRGB32ToULY2,
+	cpp_HuffmanDecodeAndAccumStep4ForBottomupBGRXGreen,
+	cpp_HuffmanDecodeAndAccumStep4ForBottomupBGRXBlue,
+	cpp_HuffmanDecodeAndAccumStep4ForBottomupBGRXRed,
+	cpp_HuffmanDecodeAndAccumStep4ForBottomupBGRXRedAndDummyAlpha,
+	cpp_HuffmanDecodeAndAccumStep3ForBottomupBGRGreen,
+	cpp_HuffmanDecodeAndAccumStep3ForBottomupBGRBlue,
+	cpp_HuffmanDecodeAndAccumStep3ForBottomupBGRRed,
+	cpp_HuffmanDecodeAndAccumStep4ForTopdownXRGBGreen,
+	cpp_HuffmanDecodeAndAccumStep4ForTopdownXRGBBlue,
+	cpp_HuffmanDecodeAndAccumStep4ForTopdownXRGBRed,
+	cpp_HuffmanDecodeAndAccumStep4ForTopdownXRGBRedAndDummyAlpha,
+	cpp_HuffmanDecodeAndAccumStep3ForTopdownRGBGreen,
+	cpp_HuffmanDecodeAndAccumStep3ForTopdownRGBBlue,
+	cpp_HuffmanDecodeAndAccumStep3ForTopdownRGBRed,
+	cpp_HuffmanDecodeAndAccumStep4ForTopdownBGRXRedAndDummyAlpha,
+	cpp_ConvertULY2ToBottomupBGR,
+	cpp_ConvertULY2ToBottomupBGRX,
+	cpp_ConvertULY2ToTopdownBGR,
+	cpp_ConvertULY2ToTopdownBGRX,
+	cpp_ConvertULY2ToTopdownRGB,
+	cpp_ConvertULY2ToTopdownXRGB,
+	cpp_ConvertBottomupBGRToULY2,
+	cpp_ConvertBottomupBGRXToULY2,
+	cpp_ConvertTopdownBGRToULY2,
+	cpp_ConvertTopdownBGRXToULY2,
+	cpp_ConvertTopdownRGBToULY2,
+	cpp_ConvertTopdownXRGBToULY2,
+	DummyTunedFunc
 };
 
 TUNEDFUNC tfn = tfnCPP;

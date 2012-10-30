@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: DMODecoder.h 715 2011-08-23 14:40:03Z umezawa $ */
+/* $Id: DMODecoder.h 952 2012-10-17 12:06:34Z umezawa $ */
 
 // DMODecoder.h : CDMODecoder ‚ÌéŒ¾
 
@@ -43,7 +43,7 @@ public:
 
 	static const utvf_t *GetInputFormatInfo(CCodec *pCodec) { return pCodec->GetCompressedFormat(); }
 	static const utvf_t *GetOutputFormatInfo(CCodec *pCodec) { return pCodec->GetDecoderOutputFormat(); }
-	static const void GetName(CCodec *pCodec, WCHAR *szCodecName, size_t cchCodecName) { wsprintfW(szCodecName, L"%S DMO Decoder", pCodec->GetTinyName()); }
+	static const void GetName(CCodec *pCodec, WCHAR *szCodecName, size_t cchCodecName) { wsprintfW(szCodecName, L"%S Decoder DMO", pCodec->GetTinyName()); }
 
 	size_t GetExtraDataSize(void)
 	{

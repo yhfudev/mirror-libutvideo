@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: utvideo.h 900 2012-07-26 12:31:05Z umezawa $ */
+/* $Id: utvideo.h 961 2012-10-22 13:02:43Z umezawa $ */
 
 #pragma once
 
@@ -30,8 +30,8 @@ typedef ptrdiff_t ssize_t;
 
 
 #define UTVIDEO_VERSION_MASK                      0xffffff00
-#define UTVIDEO_VERSION                           0x0b010100
-#define UTVIDEO_VERSION_STR                       "11.1.1"
+#define UTVIDEO_VERSION                           0x0c000000
+#define UTVIDEO_VERSION_STR                       "12.0.0"
 
 /*
  * NOTE:
@@ -44,6 +44,7 @@ typedef ptrdiff_t ssize_t;
 #define UTVIDEO_IMPLEMENTATION_ORIGINAL_WIN64_X64   0x00000001
 #define UTVIDEO_IMPLEMENTATION_ORIGINAL_MACOSX_I386 0x00000011
 #define UTVIDEO_IMPLEMENTATION_ORIGINAL_POSIX       0x00000020
+#define UTVIDEO_IMPLEMENTATION_LIBAVCODEC           0x000000f0
 #define UTVIDEO_IMPLEMENTATION_NOT_REGISTERED       0x000000ff
 
 #ifdef _WIN64
@@ -98,12 +99,19 @@ typedef uint32_t utvf_t;
 
 #define UTVF_INVALID 0
 
-// standard RGB formats
-#define UTVF_RGB24_WIN   ((utvf_t)0x00000118)
-#define UTVF_RGB32_WIN   ((utvf_t)0x00000218)
-#define UTVF_ARGB32_WIN  ((utvf_t)0x00000120)
-#define UTVF_RGB24_QT    ((utvf_t)0x00000018)
-#define UTVF_ARGB32_QT   ((utvf_t)0x00000020)
+// Non-FourCC RGB formats
+//      UTVF_NFCC_RGB_MASK_EFFECTIVE_BITCOUNT 0x000000ff
+//      UTVF_NFCC_RGB_FLAG_HAVE_DUMMY_CHANNEL 0x00000100
+//      UTVF_NFCC_RGB_FLAG_BOTTOMUP           0x00000200
+//      UTVF_NFCC_RGB_FLAG_ORDER_BGR          0x00000400
+#define UTVF_NFCC_RGB_TD             ((utvf_t)0x00000018)
+#define UTVF_NFCC_ARGB_TD            ((utvf_t)0x00000020)
+#define UTVF_NFCC_BGR_TD             ((utvf_t)0x00000418)
+#define UTVF_NFCC_BGRX_TD            ((utvf_t)0x00000518)
+#define UTVF_NFCC_BGRA_TD            ((utvf_t)0x00000420)
+#define UTVF_NFCC_BGR_BU             ((utvf_t)0x00000618)
+#define UTVF_NFCC_BGRX_BU            ((utvf_t)0x00000718)
+#define UTVF_NFCC_BGRA_BU            ((utvf_t)0x00000620)
 
 // FourCC formats
 #define UTVF_ULRA ((utvf_t)'ULRA')
