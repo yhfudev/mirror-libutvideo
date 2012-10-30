@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: DMODecoder.cpp 715 2011-08-23 14:40:03Z umezawa $ */
+/* $Id: DMODecoder.cpp 914 2012-09-17 10:05:59Z umezawa $ */
 
 // DMODecoder.cpp : CDMODecoder ‚ÌŽÀ‘•
 
@@ -21,7 +21,7 @@ HRESULT CDMODecoder::InternalAllocateStreamingResources()
 	const VIDEOINFOHEADER *pvihOut = (const VIDEOINFOHEADER *)pmtOut->pbFormat;
 	utvf_t outfmt;
 
-	if (WindowsFormatToUtVideoFormat(&outfmt, pvihOut->bmiHeader.biCompression, pvihOut->bmiHeader.biBitCount, pmtOut->subtype) != 0)
+	if (DirectShowFormatToUtVideoFormat(&outfmt, pvihOut->bmiHeader.biCompression, pvihOut->bmiHeader.biBitCount, pmtOut->subtype) != 0)
 		return DMO_E_INVALIDTYPE;
 
 	if (m_pCodec->DecodeBegin(outfmt, pvihOut->bmiHeader.biWidth, pvihOut->bmiHeader.biHeight, CBGROSSWIDTH_WINDOWS,

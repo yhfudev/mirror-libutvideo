@@ -1,5 +1,5 @@
 ; ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe
-; $Id: Convert_asm_x64.asm 889 2012-05-10 10:15:34Z umezawa $
+; $Id: Convert_asm_x64.asm 948 2012-10-14 08:54:20Z umezawa $
 
 
 %include "Common_asm_x64.mac"
@@ -183,10 +183,12 @@ global %$procname
 %pop
 %endmacro
 
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToBottomupRGB24, 1, 1, 0
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToBottomupRGB32, 1, 1, 1
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownRGB24,  0, 0, 0
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownRGB32,  0, 0, 1
+CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToBottomupBGR,  1, 1, 0
+CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToBottomupBGRX, 1, 1, 1
+CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownBGR,   0, 1, 0
+CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownBGRX,  0, 1, 1
+CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownRGB,   0, 0, 0
+CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownXRGB,  0, 0, 1
 
 
 ; Y  =  0.29891 R + 0.58661 G + 0.11448 B
@@ -331,7 +333,9 @@ global %$procname
 %pop
 %endmacro
 
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertBottomupRGB24ToULY2, 1, 1, 0
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertBottomupRGB32ToULY2, 1, 1, 1
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownRGB24ToULY2,  0, 0, 0
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownRGB32ToULY2,  0, 0, 1
+CONVERT_RGB_TO_ULY2	x64_sse2_ConvertBottomupBGRToULY2,  1, 1, 0
+CONVERT_RGB_TO_ULY2	x64_sse2_ConvertBottomupBGRXToULY2, 1, 1, 1
+CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownBGRToULY2,   0, 1, 0
+CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownBGRXToULY2,  0, 1, 1
+CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownRGBToULY2,   0, 0, 0
+CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownXRGBToULY2,  0, 0, 1

@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: UL00Codec.cpp 890 2012-05-10 10:33:13Z umezawa $ */
+/* $Id: UL00Codec.cpp 943 2012-10-13 14:56:39Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -372,22 +372,25 @@ int CUL00Codec::CalcRawFrameMetric(utvf_t rawfmt, unsigned int width, unsigned i
 	default:
 		switch (rawfmt)
 		{
-		case UTVF_RGB24_WIN:
+		case UTVF_NFCC_BGR_BU:
 			m_bBottomUpFrame = true;
+		case UTVF_NFCC_BGR_TD:
 			m_dwRawNetWidth = width * 3;
 			m_dwRawGrossWidth = ROUNDUP(m_dwRawNetWidth, 4);
 			break;
-		case UTVF_RGB32_WIN:
-		case UTVF_ARGB32_WIN:
+		case UTVF_NFCC_BGRX_BU:
+		case UTVF_NFCC_BGRA_BU:
 			m_bBottomUpFrame = true;
+		case UTVF_NFCC_BGRX_TD:
+		case UTVF_NFCC_BGRA_TD:
 			m_dwRawNetWidth = width * 4;
 			m_dwRawGrossWidth = m_dwRawNetWidth;
 			break;
-		case UTVF_RGB24_QT:
+		case UTVF_NFCC_RGB_TD:
 			m_dwRawNetWidth = width * 3;
 			m_dwRawGrossWidth = cbGrossWidth;
 			break;
-		case UTVF_ARGB32_QT:
+		case UTVF_NFCC_ARGB_TD:
 			m_dwRawNetWidth = width * 4;
 			m_dwRawGrossWidth = cbGrossWidth;
 			break;

@@ -1,5 +1,5 @@
 /* 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ */
-/* $Id: stdafx.h 705 2011-08-14 10:08:23Z umezawa $ */
+/* $Id: stdafx.h 916 2012-09-21 14:20:14Z umezawa $ */
 
 // stdafx.h : 標準のシステム インクルード ファイルのインクルード ファイル、または
 // 参照回数が多く、かつあまり変更されない、プロジェクト専用のインクルード ファイル
@@ -38,6 +38,7 @@
 #include <atlbase.h>
 #include <atlcom.h>
 
+#define NO_DSHOW_STRSAFE
 #include <dshow.h>
 #include <uuids.h> // for MEDIATYPE_* and MEDIASUBTYPE_*
 

@@ -1,5 +1,5 @@
 /* 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ */
-/* $Id: stdafx.h 808 2011-11-28 12:43:22Z umezawa $ */
+/* $Id: stdafx.h 912 2012-09-17 09:50:39Z umezawa $ */
 
 #pragma once
 
@@ -28,8 +28,6 @@
 
 // Windows ヘッダー ファイル:
 #include <windows.h>
-#include <guiddef.h>
-#include <uuids.h> // for MEDIATYPE_* and MEDIASUBTYPE_*
 
 inline BOOL EnableDlgItem(HWND hwndParent, UINT nID, BOOL bEnable)
 {
@@ -48,11 +46,6 @@ inline BOOL EnableDlgItem(HWND hwndParent, UINT nID, BOOL bEnable)
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#endif
-
-#if defined(__APPLE__)
-#include <Carbon/Carbon.h>
-#include <QuickTime/QuickTime.h>
 #endif
 
 #ifndef _MSC_VER // XXX

@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: ULY2Codec.cpp 868 2012-04-21 13:00:33Z umezawa $ */
+/* $Id: ULY2Codec.cpp 945 2012-10-13 15:34:26Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -12,10 +12,12 @@ const utvf_t CULY2Codec::m_utvfEncoderInput[] = {
 	UTVF_YUY2, UTVF_YUYV, UTVF_YUNV,
 	UTVF_UYVY, UTVF_UYNV,
 #endif
-	UTVF_RGB24_WIN,
-	UTVF_RGB32_WIN,
-	UTVF_RGB24_QT,
-	UTVF_ARGB32_QT,
+	UTVF_NFCC_BGR_BU,
+	UTVF_NFCC_BGRX_BU,
+	UTVF_NFCC_BGR_TD,
+	UTVF_NFCC_BGRX_TD,
+	UTVF_NFCC_RGB_TD,
+	UTVF_NFCC_ARGB_TD,
 	UTVF_INVALID,
 };
 
@@ -24,10 +26,12 @@ const utvf_t CULY2Codec::m_utvfDecoderOutput[] = {
 	UTVF_YUY2, UTVF_YUYV, UTVF_YUNV,
 	UTVF_UYVY, UTVF_UYNV,
 #endif
-	UTVF_RGB24_WIN,
-	UTVF_RGB32_WIN,
-	UTVF_RGB24_QT,
-	UTVF_ARGB32_QT,
+	UTVF_NFCC_BGR_BU,
+	UTVF_NFCC_BGRX_BU,
+	UTVF_NFCC_BGR_TD,
+	UTVF_NFCC_BGRX_TD,
+	UTVF_NFCC_RGB_TD,
+	UTVF_NFCC_ARGB_TD,
 	UTVF_INVALID,
 };
 
@@ -102,17 +106,23 @@ void CULY2Codec::ConvertToPlanar(uint32_t nBandIndex)
 			*y++ = *(p+3);
 		}
 		break;
-	case UTVF_RGB24_WIN:
-		ConvertBottomupRGB24ToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
+	case UTVF_NFCC_BGR_BU:
+		ConvertBottomupBGRToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
 		break;
-	case UTVF_RGB32_WIN:
-		ConvertBottomupRGB32ToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
+	case UTVF_NFCC_BGRX_BU:
+		ConvertBottomupBGRXToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
 		break;
-	case UTVF_RGB24_QT:
-		ConvertTopdownRGB24ToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
+	case UTVF_NFCC_BGR_TD:
+		ConvertTopdownBGRToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
 		break;
-	case UTVF_ARGB32_QT:
-		ConvertTopdownRGB32ToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
+	case UTVF_NFCC_BGRX_TD:
+		ConvertTopdownBGRXToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
+		break;
+	case UTVF_NFCC_RGB_TD:
+		ConvertTopdownRGBToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
+		break;
+	case UTVF_NFCC_ARGB_TD:
+		ConvertTopdownXRGBToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
 		break;
 	}
 }
@@ -151,17 +161,23 @@ void CULY2Codec::ConvertFromPlanar(uint32_t nBandIndex)
 			*(p+3) = *y++;
 		}
 		break;
-	case UTVF_RGB24_WIN:
-		ConvertULY2ToBottomupRGB24(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
+	case UTVF_NFCC_BGR_BU:
+		ConvertULY2ToBottomupBGR(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
 		break;
-	case UTVF_RGB32_WIN:
-		ConvertULY2ToBottomupRGB32(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
+	case UTVF_NFCC_BGRX_BU:
+		ConvertULY2ToBottomupBGRX(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
 		break;
-	case UTVF_RGB24_QT:
-		ConvertULY2ToTopdownRGB24(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
+	case UTVF_NFCC_BGR_TD:
+		ConvertULY2ToTopdownBGR(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
 		break;
-	case UTVF_ARGB32_QT:
-		ConvertULY2ToTopdownRGB32(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
+	case UTVF_NFCC_BGRX_TD:
+		ConvertULY2ToTopdownBGRX(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
+		break;
+	case UTVF_NFCC_RGB_TD:
+		ConvertULY2ToTopdownRGB(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
+		break;
+	case UTVF_NFCC_ARGB_TD:
+		ConvertULY2ToTopdownXRGB(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
 		break;
 	}
 }

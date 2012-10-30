@@ -1,11 +1,12 @@
 /* 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ */
-/* $Id: DMOCodec.h 899 2012-07-26 11:51:21Z umezawa $ */
+/* $Id: DMOCodec.h 917 2012-09-23 14:17:31Z umezawa $ */
 
 // DMOCodec.h : CDMOCodec の宣言
 
 #pragma once
 #include "resource.h"       // メイン シンボル
 
+#include "utvideo.h"
 #include "utv_dmo.h"
 //#include <vfw.h>
 #include "Codec.h"
@@ -16,6 +17,7 @@
 #error "DCOM の完全サポートを含んでいない Windows Mobile プラットフォームのような Windows CE プラットフォームでは、単一スレッド COM オブジェクトは正しくサポートされていません。ATL が単一スレッド COM オブジェクトの作成をサポートすること、およびその単一スレッド COM オブジェクトの実装の使用を許可することを強制するには、_CE_ALLOW_SINGLE_THREADED_OBJECTS_IN_MTA を定義してください。ご使用の rgs ファイルのスレッド モデルは 'Free' に設定されており、DCOM Windows CE 以外のプラットフォームでサポートされる唯一のスレッド モデルと設定されていました。"
 #endif
 
+void FormatInfoToPartialMediaType(const utvf_t *putvf, DWORD *pcTypes, DMO_PARTIAL_MEDIATYPE **ppTypes);
 
 
 // CDMOCodec
@@ -42,7 +44,7 @@ public:
 	{
 		utvf_t utvf;
 
-		WindowsFormatToUtVideoFormat(&utvf, fcc, 0);
+		VCMFormatToUtVideoFormat(&utvf, fcc, 0);
 		m_pCodec = CCodec::CreateInstance(utvf, "DMO");
 		m_pInputBuffer = NULL;
 	}
@@ -88,7 +90,7 @@ public:
 			DWORD cInTypes, cOutTypes;
 			utvf_t utvf;
 
-			WindowsFormatToUtVideoFormat(&utvf, fcc, 0);
+			VCMFormatToUtVideoFormat(&utvf, fcc, 0);
 			pCodec = CCodec::CreateInstance(utvf, "DMO");
 			FormatInfoToPartialMediaType(T::GetInputFormatInfo(pCodec), &cInTypes, &pInTypes);
 			FormatInfoToPartialMediaType(T::GetOutputFormatInfo(pCodec), &cOutTypes, &pOutTypes);
@@ -117,38 +119,6 @@ public:
 	}
 
 public:
-	// IMediaObjectImpl
-
-	static void FormatInfoToPartialMediaType(const utvf_t *putvf, DWORD *pcTypes, DMO_PARTIAL_MEDIATYPE **ppTypes)
-	{
-		const utvf_t *p;
-		DMO_PARTIAL_MEDIATYPE *ppmt;
-		DWORD n;
-
-		p = putvf;
-		n = 0;
-		while (*p)
-		{
-			n++;
-			p++;
-		}
-
-		*pcTypes = 0;
-		*ppTypes = new DMO_PARTIAL_MEDIATYPE[n];
-
-		ppmt = *ppTypes;
-		for (p = putvf; *p; p++)
-		{
-			if (UtVideoFormatToWindowsFormat(NULL, NULL, &ppmt->subtype, *p) == 0)
-			{
-				ppmt->type = MEDIATYPE_Video;
-				ppmt++;
-				(*pcTypes)++;
-			}
-		}
-	}
-
-
 	// IMediaObjectImpl
 
 	HRESULT InternalGetInputStreamInfo(DWORD dwInputStreamIndex, DWORD *pdwFlags)
@@ -183,7 +153,7 @@ public:
 
 		pvih = (const VIDEOINFOHEADER *)pmt->pbFormat;
 
-		if (WindowsFormatToUtVideoFormat(&infmt, pvih->bmiHeader.biCompression, pvih->bmiHeader.biBitCount, pmt->subtype) != 0)
+		if (DirectShowFormatToUtVideoFormat(&infmt, pvih->bmiHeader.biCompression, pvih->bmiHeader.biBitCount, pmt->subtype) != 0)
 			return DMO_E_INVALIDTYPE;
 
 		if (pvih->bmiHeader.biHeight < 0)
@@ -222,9 +192,9 @@ public:
 
 		pvih = (const VIDEOINFOHEADER *)pmt->pbFormat;
 
-		if (WindowsFormatToUtVideoFormat(&infmt, pvihIn->bmiHeader.biCompression, pvihIn->bmiHeader.biBitCount, pmtIn->subtype) != 0)
+		if (DirectShowFormatToUtVideoFormat(&infmt, pvihIn->bmiHeader.biCompression, pvihIn->bmiHeader.biBitCount, pmtIn->subtype) != 0)
 			return DMO_E_INVALIDTYPE;
-		if (WindowsFormatToUtVideoFormat(&outfmt, pvih->bmiHeader.biCompression, pvih->bmiHeader.biBitCount, pmt->subtype) != 0)
+		if (DirectShowFormatToUtVideoFormat(&outfmt, pvih->bmiHeader.biCompression, pvih->bmiHeader.biBitCount, pmt->subtype) != 0)
 			return DMO_E_INVALIDTYPE;
 
 		if (pvih->bmiHeader.biWidth != pvihIn->bmiHeader.biWidth || pvih->bmiHeader.biHeight != pvihIn->bmiHeader.biHeight)
@@ -252,7 +222,7 @@ public:
 		{
 			if (!*putvf)
 				return DMO_E_NO_MORE_ITEMS;
-			if (UtVideoFormatToWindowsFormat(NULL, NULL, &subtype, *putvf) != 0)
+			if (UtVideoFormatToDirectShowFormat(&subtype, *putvf) != 0)
 				continue;
 			if (dwTypeIndex == 0)
 				break;
@@ -282,7 +252,7 @@ public:
 		{
 			if (!*putvf)
 				return DMO_E_NO_MORE_ITEMS;
-			if (UtVideoFormatToWindowsFormat(NULL, NULL, &subtype, *putvf) != 0)
+			if (UtVideoFormatToDirectShowFormat(&subtype, *putvf) != 0)
 				continue;
 			if (dwTypeIndex == 0)
 				break;
@@ -307,14 +277,14 @@ public:
 			utvf_t infmt;
 			utvf_t outfmt = *putvf;
 
-			WindowsFormatToUtVideoFormat(&infmt, pvihIn->bmiHeader.biCompression, pvihIn->bmiHeader.biBitCount, pmtIn->subtype);
+			DirectShowFormatToUtVideoFormat(&infmt, pvihIn->bmiHeader.biCompression, pvihIn->bmiHeader.biBitCount, pmtIn->subtype);
 
 			cbExtraData = ((T *)this)->GetExtraDataSize();
 			MoInitMediaType(pmt, (DWORD)(sizeof(VIDEOINFOHEADER) + cbExtraData));
 			pmt->formattype = FORMAT_VideoInfo;
 			pvih = (VIDEOINFOHEADER *)pmt->pbFormat;
 			memcpy(pvih, pvihIn, sizeof(VIDEOINFOHEADER));
-			UtVideoFormatToWindowsFormat(&pvih->bmiHeader.biCompression, &pvih->bmiHeader.biBitCount, NULL, *putvf);
+			UtVideoFormatToVCMFormat(&pvih->bmiHeader.biCompression, &pvih->bmiHeader.biBitCount, *putvf);
 			pvih->bmiHeader.biSizeImage = (DWORD)((T *)this)->GetSize(outfmt, infmt, pvih->bmiHeader.biWidth, pvih->bmiHeader.biHeight);
 			pvih->bmiHeader.biSize = (DWORD)(sizeof(BITMAPINFOHEADER) + cbExtraData);
 			((T *)this)->GetExtraData(((BYTE *)&pvih->bmiHeader) + sizeof(BITMAPINFOHEADER), cbExtraData, outfmt, infmt, pvih->bmiHeader.biWidth, pvih->bmiHeader.biHeight);
@@ -345,9 +315,9 @@ public:
 		utvf_t infmt;
 		utvf_t outfmt;
 
-		if (WindowsFormatToUtVideoFormat(&infmt, pvihIn->bmiHeader.biCompression, pvihIn->bmiHeader.biBitCount, pmtIn->subtype) != 0)
+		if (DirectShowFormatToUtVideoFormat(&infmt, pvihIn->bmiHeader.biCompression, pvihIn->bmiHeader.biBitCount, pmtIn->subtype) != 0)
 			return DMO_E_INVALIDTYPE;
-		if (WindowsFormatToUtVideoFormat(&outfmt, pvihOut->bmiHeader.biCompression, pvihOut->bmiHeader.biBitCount, pmtOut->subtype) != 0)
+		if (DirectShowFormatToUtVideoFormat(&outfmt, pvihOut->bmiHeader.biCompression, pvihOut->bmiHeader.biBitCount, pmtOut->subtype) != 0)
 			return DMO_E_INVALIDTYPE;
 
 		*pcbSize = (DWORD)((T *)this)->GetSize(outfmt, infmt, pvihIn->bmiHeader.biWidth, pvihIn->bmiHeader.biHeight);
