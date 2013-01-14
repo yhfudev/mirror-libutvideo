@@ -1,5 +1,5 @@
 ; •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e
-; $Id: HuffmanCode_asm_x64.asm 950 2012-10-14 09:56:14Z umezawa $
+; $Id: HuffmanCode_asm_x64.asm 966 2013-01-13 14:00:25Z umezawa $
 
 
 %include "Common_asm_x64.mac"
@@ -114,7 +114,7 @@ global %$procname
 	mov			edx, dword [rsi]
 	sub			rsi, 4
 %else
-	mov			ah, byte [ebx]
+	mov			ah, byte [rbx]
 %endif
 
 	align		64
@@ -194,7 +194,7 @@ global %$procname
 %pop
 %endmacro
 
-	cmp			byte [ebx + 1], 0
+	cmp			byte [rbx + 1], 0
 	je			.solidframe
 	DO_OUTPUT_%$procname	1
 	jmp			.funcend
