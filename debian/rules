@@ -6,16 +6,12 @@
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-SHELL = /bin/bash
-
-DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-
-ifneq (,$(filter $(DEB_HOST_ARCH), x86))
-	EXTRA_CONFIG_FLAGS = "--enable-asm=x86"
+ifeq ($(DEB_HOST_ARCH),i386)
+    EXTRA_CONFIG_FLAGS := "--enable-asm=x86"
 endif
 
-ifneq (,$(filter $(DEB_HOST_ARCH), x64))
-	EXTRA_CONFIG_FLAGS = "--enable-asm=x64"
+ifeq ($(DEB_HOST_ARCH),amd64)
+    EXTRA_CONFIG_FLAGS := "--enable-asm=x64"
 endif
 
 CONFIG_ALL += --enable-shared
