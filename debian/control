@@ -17,7 +17,7 @@ Description: A video codec library.
 Package: libutvideo-dev
 Section: libdevel
 Architecture: any
-Depends: libutvideo12(<= ${source:Upstream-Version}-99), ${misc:Depends}
+Depends: libutvideo12(<= ${binary:Version}-99), ${misc:Depends}
 Description: Development files for utvideo codec.
  Ut Video Codec Suite is a free software.
  Author's blog is http://umezawa.dyndns.info/wordpress/ (Japanese)
