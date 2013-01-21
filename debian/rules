@@ -9,14 +9,13 @@ export DH_OPTIONS
 SHELL = /bin/bash
 
 DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_HOST_ARCH      ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
 ifneq (,$(filter $(DEB_HOST_ARCH), x86))
-	EXTRA_CONFIG_FLAGS = --enable-asm=x86
+	EXTRA_CONFIG_FLAGS = "--enable-asm=x86"
 endif
 
 ifneq (,$(filter $(DEB_HOST_ARCH), x64))
-	EXTRA_CONFIG_FLAGS = --enable-asm=x64
+	EXTRA_CONFIG_FLAGS = "--enable-asm=x64"
 endif
 
 CONFIG_ALL += --enable-shared
