@@ -1,3 +1,11 @@
+libutvideo (12.0.1-1~41.gbpe314ac) UNRELEASED; urgency=low
+
+  ** SNAPSHOT build @e314ac851d737023d441832a7d15a9dd7f40ff80 **
+
+  * Correct *.install files and rules
+
+ -- yysfire <yysfire@github.com>  Tue, 22 Jan 2013 01:39:06 +0800
+
 libutvideo (12.0.1) unstable; urgency=low
 
   * New upstream 12.0.1
