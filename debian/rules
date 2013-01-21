@@ -6,17 +6,28 @@
 # This has to be exported to make some magic below work.
 export DH_OPTIONS
 
-CONFIG_ALL += --prefix=/usr
+SHELL = /bin/bash
+
+DEB_HOST_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_HOST_ARCH      ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+ifneq (,$(filter $(DEB_HOST_ARCH), x86))
+	EXTRA_CONFIG_FLAGS = --enable-asm=x86
+endif
+
+ifneq (,$(filter $(DEB_HOST_ARCH), x64))
+	EXTRA_CONFIG_FLAGS = --enable-asm=x64
+endif
+
 CONFIG_ALL += --enable-shared
-CONFIG_ALL += --optlevel=fast
-CONFIG_ALL += --enable-asm=x64
-CONFIG_ALL += --extra-cxxflags="-fPIC"
+CONFIG_ALL += --enable-pic
 
 %:
 	dh $@ 
 
 override_dh_auto_configure:
-	./configure $(CONFIG_ALL)
+	./configure --host=$(DEB_HOST_GNU_TYPE) \
+	    $(CONFIG_ALL) $(EXTRA_CONFIG_FLAGS)
 
 override_dh_auto_test:
 
