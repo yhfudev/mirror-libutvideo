@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+CONFIG_ALL += --prefix=/usr
+CONFIG_ALL += --enable-shared
+CONFIG_ALL += --optlevel=fast
+CONFIG_ALL += --enable-asm=x64
+CONFIG_ALL += --extra-cxxflags="-fPIC"
+
+%:
+	dh $@ 
+
+override_dh_auto_configure:
+	./configure $(CONFIG_ALL)
+
+override_dh_auto_test:
+
+override_dh_usrlocal:

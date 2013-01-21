@@ -1,0 +1,23 @@
+Source: libutvideo
+Section: video
+Priority: optional
+Maintainer: yysfire <yysfire@github.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, nasm
+Standards-Version: 3.9.4
+Homepage: https://github.com/qyot27/libutvideo
+
+Package: libutvideo12
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A video codec library.
+ Ut Video Codec Suite is a free software.
+ Author's blog is http://umezawa.dyndns.info/wordpress/ (Japanese)
+
+Package: libutvideo-dev
+Section: libdevel
+Architecture: any
+Depends: libutvideo12(<= ${source:Upstream-Version}-99), ${misc:Depends}
+Description: Development files for utvideo codec.
+ Ut Video Codec Suite is a free software.
+ Author's blog is http://umezawa.dyndns.info/wordpress/ (Japanese)
