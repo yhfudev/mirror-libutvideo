@@ -26,8 +26,7 @@ CONFIG_ALL += --enable-pic
 	dh $@ 
 
 override_dh_auto_configure:
-	./configure --host=$(DEB_HOST_GNU_TYPE) \
-	    $(CONFIG_ALL) $(EXTRA_CONFIG_FLAGS)
+	./configure $(CONFIG_ALL) $(EXTRA_CONFIG_FLAGS)
 
 override_dh_auto_test:
 
