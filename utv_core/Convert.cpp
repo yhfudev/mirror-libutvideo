@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: Convert.cpp 945 2012-10-13 15:34:26Z umezawa $ */
+/* $Id: Convert.cpp 988 2013-04-20 09:28:02Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -218,4 +218,273 @@ void cpp_ConvertTopdownRGBToULY2(uint8_t *pYBegin, uint8_t *pUBegin, uint8_t *pV
 void cpp_ConvertTopdownXRGBToULY2(uint8_t *pYBegin, uint8_t *pUBegin, uint8_t *pVBegin, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t cbGrossWidth, size_t cbNetWidth)
 {
 	cpp_ConvertTopdownxRGBToULY2(pYBegin, pUBegin, pVBegin, pSrcBegin, pSrcEnd, cbGrossWidth, cbNetWidth, 4);
+}
+
+void cpp_ConvertBGRToULRG(uint8_t *pGBegin, uint8_t *pBBegin, uint8_t *pRBegin, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t cbWidth, ssize_t scbStride)
+{
+	const uint8_t *pStrideBegin, *p;
+	uint8_t *g = pGBegin;
+	uint8_t *b = pBBegin;
+	uint8_t *r = pRBegin;
+
+	for (pStrideBegin = pSrcBegin; pStrideBegin != pSrcEnd; pStrideBegin += scbStride)
+	{
+		const uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 3)
+		{
+			*g++ = *(p+1);
+			*b++ = *(p+0) - *(p+1) + 0x80;
+			*r++ = *(p+2) - *(p+1) + 0x80;
+		}
+	}
+}
+
+void cpp_ConvertBGRXToULRG(uint8_t *pGBegin, uint8_t *pBBegin, uint8_t *pRBegin, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t cbWidth, ssize_t scbStride)
+{
+	const uint8_t *pStrideBegin, *p;
+	uint8_t *g = pGBegin;
+	uint8_t *b = pBBegin;
+	uint8_t *r = pRBegin;
+
+	for (pStrideBegin = pSrcBegin; pStrideBegin != pSrcEnd; pStrideBegin += scbStride)
+	{
+		const uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 4)
+		{
+			*g++ = *(p+1);
+			*b++ = *(p+0) - *(p+1) + 0x80;
+			*r++ = *(p+2) - *(p+1) + 0x80;
+		}
+	}
+}
+
+void cpp_ConvertXRGBToULRG(uint8_t *pGBegin, uint8_t *pBBegin, uint8_t *pRBegin, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t cbWidth, ssize_t scbStride)
+{
+	const uint8_t *pStrideBegin, *p;
+	uint8_t *g = pGBegin;
+	uint8_t *b = pBBegin;
+	uint8_t *r = pRBegin;
+
+	for (pStrideBegin = pSrcBegin; pStrideBegin != pSrcEnd; pStrideBegin += scbStride)
+	{
+		const uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 4)
+		{
+			*g++ = *(p+2);
+			*b++ = *(p+3) - *(p+2) + 0x80;
+			*r++ = *(p+1) - *(p+2) + 0x80;
+		}
+	}
+}
+
+void cpp_ConvertBGRAToULRA(uint8_t *pGBegin, uint8_t *pBBegin, uint8_t *pRBegin, uint8_t *pABegin, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t cbWidth, ssize_t scbStride)
+{
+	const uint8_t *pStrideBegin, *p;
+	uint8_t *g = pGBegin;
+	uint8_t *b = pBBegin;
+	uint8_t *r = pRBegin;
+	uint8_t *a = pABegin;
+
+	for (pStrideBegin = pSrcBegin; pStrideBegin != pSrcEnd; pStrideBegin += scbStride)
+	{
+		const uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 4)
+		{
+			*g++ = *(p+1);
+			*b++ = *(p+0) - *(p+1) + 0x80;
+			*r++ = *(p+2) - *(p+1) + 0x80;
+			*a++ = *(p+3);
+		}
+	}
+}
+
+void cpp_ConvertARGBToULRA(uint8_t *pGBegin, uint8_t *pBBegin, uint8_t *pRBegin, uint8_t *pABegin, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t cbWidth, ssize_t scbStride)
+{
+	const uint8_t *pStrideBegin, *p;
+	uint8_t *g = pGBegin;
+	uint8_t *b = pBBegin;
+	uint8_t *r = pRBegin;
+	uint8_t *a = pABegin;
+
+	for (pStrideBegin = pSrcBegin; pStrideBegin != pSrcEnd; pStrideBegin += scbStride)
+	{
+		const uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 4)
+		{
+			*g++ = *(p+2);
+			*b++ = *(p+3) - *(p+2) + 0x80;
+			*r++ = *(p+1) - *(p+2) + 0x80;
+			*a++ = *(p+0);
+		}
+	}
+}
+
+void cpp_ConvertYUYVToULY2(uint8_t *pYBegin, uint8_t *pUBegin, uint8_t *pVBegin, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd)
+{
+	const uint8_t *p;
+	uint8_t *y = pYBegin;
+	uint8_t *u = pUBegin;
+	uint8_t *v = pVBegin;
+
+	for (p = pSrcBegin; p < pSrcEnd; p += 4)
+	{
+		*y++ = *p;
+		*u++ = *(p+1);
+		*y++ = *(p+2);
+		*v++ = *(p+3);
+	}
+}
+
+void cpp_ConvertUYVYToULY2(uint8_t *pYBegin, uint8_t *pUBegin, uint8_t *pVBegin, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd)
+{
+	const uint8_t *p;
+	uint8_t *y = pYBegin;
+	uint8_t *u = pUBegin;
+	uint8_t *v = pVBegin;
+
+	for (p = pSrcBegin; p < pSrcEnd; p += 4)
+	{
+		*u++ = *p;
+		*y++ = *(p+1);
+		*v++ = *(p+2);
+		*y++ = *(p+3);
+	}
+}
+
+void cpp_ConvertULRGToBGR(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pGBegin, const uint8_t *pBBegin, const uint8_t *pRBegin, size_t cbWidth, ssize_t scbStride)
+{
+	uint8_t *pStrideBegin, *p;
+	const uint8_t *g = pGBegin;
+	const uint8_t *b = pBBegin;
+	const uint8_t *r = pRBegin;
+
+	for (pStrideBegin = pDstBegin; pStrideBegin != pDstEnd; pStrideBegin += scbStride)
+	{
+		uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 3)
+		{
+			*(p+1) = *g;
+			*(p+0) = *b + *g - 0x80;
+			*(p+2) = *r + *g - 0x80;
+			g++; b++; r++;
+		}
+	}
+}
+
+void cpp_ConvertULRGToBGRX(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pGBegin, const uint8_t *pBBegin, const uint8_t *pRBegin, size_t cbWidth, ssize_t scbStride)
+{
+	uint8_t *pStrideBegin, *p;
+	const uint8_t *g = pGBegin;
+	const uint8_t *b = pBBegin;
+	const uint8_t *r = pRBegin;
+
+	for (pStrideBegin = pDstBegin; pStrideBegin != pDstEnd; pStrideBegin += scbStride)
+	{
+		uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 4)
+		{
+			*(p+1) = *g;
+			*(p+0) = *b + *g - 0x80;
+			*(p+2) = *r + *g - 0x80;
+			*(p+3) = 0xff;
+			g++; b++; r++;
+		}
+	}
+}
+
+void cpp_ConvertULRGToXRGB(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pGBegin, const uint8_t *pBBegin, const uint8_t *pRBegin, size_t cbWidth, ssize_t scbStride)
+{
+	uint8_t *pStrideBegin, *p;
+	const uint8_t *g = pGBegin;
+	const uint8_t *b = pBBegin;
+	const uint8_t *r = pRBegin;
+
+	for (pStrideBegin = pDstBegin; pStrideBegin != pDstEnd; pStrideBegin += scbStride)
+	{
+		uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 4)
+		{
+			*(p+2) = *g;
+			*(p+3) = *b + *g - 0x80;
+			*(p+1) = *r + *g - 0x80;
+			*(p+0) = 0xff;
+			g++; b++; r++;
+		}
+	}
+}
+
+void cpp_ConvertULRAToBGRA(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pGBegin, const uint8_t *pBBegin, const uint8_t *pRBegin, const uint8_t *pABegin, size_t cbWidth, ssize_t scbStride)
+{
+	uint8_t *pStrideBegin, *p;
+	const uint8_t *g = pGBegin;
+	const uint8_t *b = pBBegin;
+	const uint8_t *r = pRBegin;
+	const uint8_t *a = pABegin;
+
+	for (pStrideBegin = pDstBegin; pStrideBegin != pDstEnd; pStrideBegin += scbStride)
+	{
+		uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 4)
+		{
+			*(p+1) = *g;
+			*(p+0) = *b + *g - 0x80;
+			*(p+2) = *r + *g - 0x80;
+			*(p+3) = *a;
+			g++; b++; r++; a++;
+		}
+	}
+}
+
+void cpp_ConvertULRAToARGB(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pGBegin, const uint8_t *pBBegin, const uint8_t *pRBegin, const uint8_t *pABegin, size_t cbWidth, ssize_t scbStride)
+{
+	uint8_t *pStrideBegin, *p;
+	const uint8_t *g = pGBegin;
+	const uint8_t *b = pBBegin;
+	const uint8_t *r = pRBegin;
+	const uint8_t *a = pABegin;
+
+	for (pStrideBegin = pDstBegin; pStrideBegin != pDstEnd; pStrideBegin += scbStride)
+	{
+		uint8_t *pStrideEnd = pStrideBegin + cbWidth;
+		for (p = pStrideBegin; p < pStrideEnd; p += 4)
+		{
+			*(p+2) = *g;
+			*(p+3) = *b + *g - 0x80;
+			*(p+1) = *r + *g - 0x80;
+			*(p+0) = *a;
+			g++; b++; r++; a++;
+		}
+	}
+}
+
+void cpp_ConvertULY2ToYUYV(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pYBegin, const uint8_t *pUBegin, const uint8_t *pVBegin)
+{
+	uint8_t *p;
+	const uint8_t *y = pYBegin;
+	const uint8_t *u = pUBegin;
+	const uint8_t *v = pVBegin;
+
+	for (p = pDstBegin; p < pDstEnd; p += 4)
+	{
+		*p     = *y++;
+		*(p+1) = *u++;
+		*(p+2) = *y++;
+		*(p+3) = *v++;
+	}
+}
+
+void cpp_ConvertULY2ToUYVY(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pYBegin, const uint8_t *pUBegin, const uint8_t *pVBegin)
+{
+	uint8_t *p;
+	const uint8_t *y = pYBegin;
+	const uint8_t *u = pUBegin;
+	const uint8_t *v = pVBegin;
+
+	for (p = pDstBegin; p < pDstEnd; p += 4)
+	{
+		*p     = *u++;
+		*(p+1) = *y++;
+		*(p+2) = *v++;
+		*(p+3) = *y++;
+	}
 }

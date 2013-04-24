@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: TunedFunc.cpp 950 2012-10-14 09:56:14Z umezawa $ */
+/* $Id: TunedFunc.cpp 988 2013-04-20 09:28:02Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -9,10 +9,10 @@
 #include "Convert.h"
 
 const TUNEDFUNC tfnCPP = {
-	cpp_PredictMedianAndCount,
-	cpp_PredictMedianAndCount,
+	cpp_PredictWrongMedianAndCount,
+	cpp_PredictWrongMedianAndCount,
 	cpp_PredictLeftAndCount,
-	cpp_RestoreMedian,
+	cpp_RestoreWrongMedian,
 	cpp_HuffmanEncode,
 	cpp_HuffmanDecode,
 	cpp_HuffmanDecodeAndAccum,
@@ -45,6 +45,20 @@ const TUNEDFUNC tfnCPP = {
 	cpp_ConvertTopdownBGRXToULY2,
 	cpp_ConvertTopdownRGBToULY2,
 	cpp_ConvertTopdownXRGBToULY2,
+	cpp_ConvertBGRToULRG,
+	cpp_ConvertBGRXToULRG,
+	cpp_ConvertXRGBToULRG,
+	cpp_ConvertBGRAToULRA,
+	cpp_ConvertARGBToULRA,
+	cpp_ConvertYUYVToULY2,
+	cpp_ConvertUYVYToULY2,
+	cpp_ConvertULRGToBGR,
+	cpp_ConvertULRGToBGRX,
+	cpp_ConvertULRGToXRGB,
+	cpp_ConvertULRAToBGRA,
+	cpp_ConvertULRAToARGB,
+	cpp_ConvertULY2ToYUYV,
+	cpp_ConvertULY2ToUYVY,
 	DummyTunedFunc
 };
 

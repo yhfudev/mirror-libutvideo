@@ -430,6 +430,90 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\CPUID_asm_x64.asm"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -f win64 -g -Xvc -o &quot;$(IntDir)\$(InputName).obj&quot; $(InputFileName)&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -f win64 -g -Xvc -o &quot;$(IntDir)\$(InputName).obj&quot; $(InputFileName)&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -f win64 -g -Xvc -o &quot;$(IntDir)\$(InputName).obj&quot; $(InputFileName)&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -f win64 -g -Xvc -o &quot;$(IntDir)\$(InputName).obj&quot; $(InputFileName)&#x0D;&#x0A;"
+						Outputs="$(IntDir)\$(InputName).obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\CPUID_asm_x86.asm"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -f win32 -g -Xvc -o &quot;$(IntDir)\$(InputName).obj&quot; $(InputFileName)&#x0D;&#x0A;"
+						Outputs="&quot;$(IntDir)\$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -f win32 -g -Xvc -o &quot;$(IntDir)\$(InputName).obj&quot; $(InputFileName)&#x0D;&#x0A;"
+						Outputs="&quot;$(IntDir)\$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -f win32 -g -Xvc -o &quot;$(IntDir)\$(InputName).obj&quot; $(InputFileName)&#x0D;&#x0A;"
+						Outputs="&quot;$(IntDir)\$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						CommandLine="nasm -f win32 -g -Xvc -o &quot;$(IntDir)\$(InputName).obj&quot; $(InputFileName)&#x0D;&#x0A;"
+						Outputs="&quot;$(IntDir)\$(InputName).obj&quot;"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\DummyCodec.cpp"
 				>
 			</File>
@@ -618,26 +702,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\PredictUnitTest.cpp"
-				>
-				<FileConfiguration
-					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -722,6 +786,38 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\TunedFunc_x86x64.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\UL00Codec.cpp"
 				>
 			</File>
@@ -765,6 +861,10 @@
 			</File>
 			<File
 				RelativePath=".\Convert.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CPUID.h"
 				>
 			</File>
 			<File

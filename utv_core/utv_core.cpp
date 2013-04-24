@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: utv_core.cpp 807 2011-11-26 17:36:37Z umezawa $ */
+/* $Id: utv_core.cpp 974 2013-03-20 14:07:51Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -25,11 +25,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 
 #ifdef _DEBUG
 
-#include "Predict.h"
-
 DLLEXPORT void UnitTest_core(void)
 {
-	UnitTest_Predict();
 }
 
 #endif

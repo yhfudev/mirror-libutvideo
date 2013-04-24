@@ -1,10 +1,11 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: ULRACodec.cpp 955 2012-10-18 13:53:44Z umezawa $ */
+/* $Id: ULRACodec.cpp 988 2013-04-20 09:28:02Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
 #include "ULRACodec.h"
 #include "Predict.h"
+#include "Convert.h"
 
 const utvf_t CULRACodec::m_utvfEncoderInput[] = {
 	UTVF_NFCC_BGRA_BU,
@@ -66,7 +67,7 @@ void CULRACodec::CalcPlaneSizes(unsigned int width, unsigned int height)
 void CULRACodec::ConvertToPlanar(uint32_t nBandIndex)
 {
 	uint8_t *g, *b, *r, *a;
-	const uint8_t *pSrcBegin, *pSrcEnd, *pStrideBegin, *p;
+	const uint8_t *pSrcBegin, *pSrcEnd;
 
 	pSrcBegin = ((uint8_t *)m_pInput) + m_dwRawStripeBegin[nBandIndex] * m_dwRawStripeSize;
 	pSrcEnd   = ((uint8_t *)m_pInput) + m_dwRawStripeEnd[nBandIndex]   * m_dwRawStripeSize;
@@ -79,43 +80,13 @@ void CULRACodec::ConvertToPlanar(uint32_t nBandIndex)
 	{
 	case UTVF_NFCC_BGRA_BU:
 	case UTVF_NFCC_BGRX_BU:
-		for (pStrideBegin = pSrcEnd - m_dwRawGrossWidth; pStrideBegin >= pSrcBegin; pStrideBegin -= m_dwRawGrossWidth)
-		{
-			const uint8_t *pStrideEnd = pStrideBegin + m_nWidth * 4;
-			for (p = pStrideBegin; p < pStrideEnd; p += 4)
-			{
-				*g++ = *(p+1);
-				*b++ = *(p+0) - *(p+1) + 0x80;
-				*r++ = *(p+2) - *(p+1) + 0x80;
-				*a++ = *(p+3);
-			}
-		}
+		ConvertBGRAToULRA(g, b, r, a, pSrcEnd - m_dwRawGrossWidth, pSrcBegin - m_dwRawGrossWidth, m_dwRawNetWidth, -(ssize_t)m_dwRawGrossWidth);
 		break;
 	case UTVF_NFCC_BGRA_TD:
-		for (pStrideBegin = pSrcBegin; pStrideBegin < pSrcEnd; pStrideBegin += m_dwRawGrossWidth)
-		{
-			const uint8_t *pStrideEnd = pStrideBegin + m_nWidth * 4;
-			for (p = pStrideBegin; p < pStrideEnd; p += 4)
-			{
-				*g++ = *(p+1);
-				*b++ = *(p+0) - *(p+1) + 0x80;
-				*r++ = *(p+2) - *(p+1) + 0x80;
-				*a++ = *(p+3);
-			}
-		}
+		ConvertBGRAToULRA(g, b, r, a, pSrcBegin, pSrcEnd, m_dwRawNetWidth, m_dwRawGrossWidth);
 		break;
 	case UTVF_NFCC_ARGB_TD:
-		for (pStrideBegin = pSrcBegin; pStrideBegin < pSrcEnd; pStrideBegin += m_dwRawGrossWidth)
-		{
-			const uint8_t *pStrideEnd = pStrideBegin + m_nWidth * 4;
-			for (p = pStrideBegin; p < pStrideEnd; p += 4)
-			{
-				*g++ = *(p+2);
-				*b++ = *(p+3) - *(p+2) + 0x80;
-				*r++ = *(p+1) - *(p+2) + 0x80;
-				*a++ = *(p+0);
-			}
-		}
+		ConvertARGBToULRA(g, b, r, a, pSrcBegin, pSrcEnd, m_dwRawNetWidth, m_dwRawGrossWidth);
 		break;
 	}
 }
@@ -123,7 +94,7 @@ void CULRACodec::ConvertToPlanar(uint32_t nBandIndex)
 void CULRACodec::ConvertFromPlanar(uint32_t nBandIndex)
 {
 	const uint8_t *g, *b, *r, *a;
-	uint8_t *pDstBegin, *pDstEnd, *pStrideBegin, *p;
+	uint8_t *pDstBegin, *pDstEnd;
 
 	pDstBegin = ((uint8_t *)m_pOutput) + m_dwRawStripeBegin[nBandIndex] * m_dwRawStripeSize;
 	pDstEnd   = ((uint8_t *)m_pOutput) + m_dwRawStripeEnd[nBandIndex]   * m_dwRawStripeSize;
@@ -136,46 +107,13 @@ void CULRACodec::ConvertFromPlanar(uint32_t nBandIndex)
 	{
 	case UTVF_NFCC_BGRA_BU:
 	case UTVF_NFCC_BGRX_BU:
-		for (pStrideBegin = pDstEnd - m_dwRawGrossWidth; pStrideBegin >= pDstBegin; pStrideBegin -= m_dwRawGrossWidth)
-		{
-			uint8_t *pStrideEnd = pStrideBegin + m_nWidth * 4;
-			for (p = pStrideBegin; p < pStrideEnd; p += 4)
-			{
-				*(p+1) = *g;
-				*(p+0) = *b + *g - 0x80;
-				*(p+2) = *r + *g - 0x80;
-				*(p+3) = *a;
-				g++; b++; r++; a++;
-			}
-		}
+		ConvertULRAToBGRA(pDstEnd - m_dwRawGrossWidth, pDstBegin - m_dwRawGrossWidth, g, b, r, a, m_dwRawNetWidth, -(ssize_t)m_dwRawGrossWidth);
 		break;
 	case UTVF_NFCC_BGRA_TD:
-		for (pStrideBegin = pDstBegin; pStrideBegin < pDstEnd; pStrideBegin += m_dwRawGrossWidth)
-		{
-			uint8_t *pStrideEnd = pStrideBegin + m_nWidth * 4;
-			for (p = pStrideBegin; p < pStrideEnd; p += 4)
-			{
-				*(p+1) = *g;
-				*(p+0) = *b + *g - 0x80;
-				*(p+2) = *r + *g - 0x80;
-				*(p+3) = *a;
-				g++; b++; r++; a++;
-			}
-		}
+		ConvertULRAToBGRA(pDstBegin, pDstEnd, g, b, r, a, m_dwRawNetWidth, m_dwRawGrossWidth);
 		break;
 	case UTVF_NFCC_ARGB_TD:
-		for (pStrideBegin = pDstBegin; pStrideBegin < pDstEnd; pStrideBegin += m_dwRawGrossWidth)
-		{
-			uint8_t *pStrideEnd = pStrideBegin + m_nWidth * 4;
-			for (p = pStrideBegin; p < pStrideEnd; p += 4)
-			{
-				*(p+2) = *g;
-				*(p+3) = *b + *g - 0x80;
-				*(p+1) = *r + *g - 0x80;
-				*(p+0) = *a;
-				g++; b++; r++; a++;
-			}
-		}
+		ConvertULRAToARGB(pDstBegin, pDstEnd, g, b, r, a, m_dwRawNetWidth, m_dwRawGrossWidth);
 		break;
 	}
 }

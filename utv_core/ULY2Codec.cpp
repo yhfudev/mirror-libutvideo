@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: ULY2Codec.cpp 945 2012-10-13 15:34:26Z umezawa $ */
+/* $Id: ULY2Codec.cpp 988 2013-04-20 09:28:02Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -75,7 +75,7 @@ void CULY2Codec::CalcPlaneSizes(unsigned int width, unsigned int height)
 void CULY2Codec::ConvertToPlanar(uint32_t nBandIndex)
 {
 	uint8_t *y, *u, *v;
-	const uint8_t *pSrcBegin, *pSrcEnd, *p;
+	const uint8_t *pSrcBegin, *pSrcEnd;
 
 	pSrcBegin = ((uint8_t *)m_pInput) + m_dwRawStripeBegin[nBandIndex] * m_dwRawStripeSize;
 	pSrcEnd   = ((uint8_t *)m_pInput) + m_dwRawStripeEnd[nBandIndex]   * m_dwRawStripeSize;
@@ -88,23 +88,11 @@ void CULY2Codec::ConvertToPlanar(uint32_t nBandIndex)
 	case UTVF_YUY2:
 	case UTVF_YUYV:
 	case UTVF_YUNV:
-		for (p = pSrcBegin; p < pSrcEnd; p += 4)
-		{
-			*y++ = *p;
-			*u++ = *(p+1);
-			*y++ = *(p+2);
-			*v++ = *(p+3);
-		}
+		ConvertYUYVToULY2(y, u, v, pSrcBegin, pSrcEnd);
 		break;
 	case UTVF_UYVY:
 	case UTVF_UYNV:
-		for (p = pSrcBegin; p < pSrcEnd; p += 4)
-		{
-			*u++ = *p;
-			*y++ = *(p+1);
-			*v++ = *(p+2);
-			*y++ = *(p+3);
-		}
+		ConvertUYVYToULY2(y, u, v, pSrcBegin, pSrcEnd);
 		break;
 	case UTVF_NFCC_BGR_BU:
 		ConvertBottomupBGRToULY2(y, u, v, pSrcBegin, pSrcEnd, m_dwRawGrossWidth, m_dwRawNetWidth);
@@ -130,7 +118,7 @@ void CULY2Codec::ConvertToPlanar(uint32_t nBandIndex)
 void CULY2Codec::ConvertFromPlanar(uint32_t nBandIndex)
 {
 	const uint8_t *y, *u, *v;
-	uint8_t *pDstBegin, *pDstEnd, *p;
+	uint8_t *pDstBegin, *pDstEnd;
 
 	pDstBegin = ((uint8_t *)m_pOutput) + m_dwRawStripeBegin[nBandIndex] * m_dwRawStripeSize;
 	pDstEnd   = ((uint8_t *)m_pOutput) + m_dwRawStripeEnd[nBandIndex]   * m_dwRawStripeSize;
@@ -143,23 +131,11 @@ void CULY2Codec::ConvertFromPlanar(uint32_t nBandIndex)
 	case UTVF_YUY2:
 	case UTVF_YUYV:
 	case UTVF_YUNV:
-		for (p = pDstBegin; p < pDstEnd; p += 4)
-		{
-			*p     = *y++;
-			*(p+1) = *u++;
-			*(p+2) = *y++;
-			*(p+3) = *v++;
-		}
+		ConvertULY2ToYUYV(pDstBegin, pDstEnd, y, u, v);
 		break;
 	case UTVF_UYVY:
 	case UTVF_UYNV:
-		for (p = pDstBegin; p < pDstEnd; p += 4)
-		{
-			*p     = *u++;
-			*(p+1) = *y++;
-			*(p+2) = *v++;
-			*(p+3) = *y++;
-		}
+		ConvertULY2ToUYVY(pDstBegin, pDstEnd, y, u, v);
 		break;
 	case UTVF_NFCC_BGR_BU:
 		ConvertULY2ToBottomupBGR(pDstBegin, pDstEnd, y, u, v, m_dwRawGrossWidth, m_dwRawNetWidth);
