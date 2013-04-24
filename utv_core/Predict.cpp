@@ -1,25 +1,26 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: Predict.cpp 724 2011-08-25 16:16:00Z umezawa $ */
+/* $Id: Predict.cpp 975 2013-03-20 14:24:05Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
 #include "Predict.h"
 #include "TunedFunc.h"
 
-inline uint8_t median(uint8_t a, uint8_t b, uint8_t c)
+template<class T>
+inline T median(T a, T b, T c)
 {
 	return max(min(max(a,b),c),min(a,b));
 }
 
-void PredictMedianAndCount(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride, uint32_t *pCountTable)
+void PredictWrongMedianAndCount(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride, uint32_t *pCountTable)
 {
 	if (IS_ALIGNED(pDst, 16) && IS_ALIGNED(pSrcBegin, 16) && IS_ALIGNED(dwStride, 16))
-		tfn.pfnPredictMedianAndCount_align16(pDst, pSrcBegin, pSrcEnd, dwStride, pCountTable);
+		tfn.pfnPredictWrongMedianAndCount_align16(pDst, pSrcBegin, pSrcEnd, dwStride, pCountTable);
 	else
-		tfn.pfnPredictMedianAndCount_align1(pDst, pSrcBegin, pSrcEnd, dwStride, pCountTable);
+		tfn.pfnPredictWrongMedianAndCount_align1(pDst, pSrcBegin, pSrcEnd, dwStride, pCountTable);
 }
 
-void cpp_PredictMedianAndCount(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride, uint32_t *pCountTable)
+void cpp_PredictWrongMedianAndCount(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride, uint32_t *pCountTable)
 {
 	const uint8_t *p = pSrcBegin;
 	uint8_t *q = pDst;
@@ -51,7 +52,7 @@ void cpp_PredictMedianAndCount(uint8_t *pDst, const uint8_t *pSrcBegin, const ui
 	// écÇËÇÃÉsÉNÉZÉãÇ™ predict median ÇÃñ{î‘
 	for (; p < pSrcEnd; p++, q++)
 	{
-		*q = *p - median(*(p - dwStride), *(p - 1), *(p - dwStride) + *(p - 1) - *(p - 1 - dwStride));
+		*q = *p - median<uint8_t>(*(p - dwStride), *(p - 1), *(p - dwStride) + *(p - 1) - *(p - 1 - dwStride));
 		pCountTable[*q]++;
 	}
 }
@@ -75,7 +76,7 @@ void cpp_PredictLeftAndCount(uint8_t *pDst, const uint8_t *pSrcBegin, const uint
 	}
 }
 
-void cpp_RestoreMedian(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride)
+void cpp_RestoreWrongMedian(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride)
 {
 	const uint8_t *p = pSrcBegin;
 	uint8_t *q = pDst;
@@ -96,6 +97,6 @@ void cpp_RestoreMedian(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *p
 
 	for (; p < pSrcEnd; p++, q++)
 	{
-		*q = *p + median(*(q - dwStride), *(q - 1), *(q - dwStride) + *(q - 1) - *(q - 1 - dwStride));
+		*q = *p + median<uint8_t>(*(q - dwStride), *(q - 1), *(q - dwStride) + *(q - 1) - *(q - 1 - dwStride));
 	}
 }

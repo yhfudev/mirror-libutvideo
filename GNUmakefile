@@ -34,6 +34,7 @@ endif
 OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/Convert.o \
       $(UTV_CORE_DIR)/DummyCodec.o \
+      $(UTV_CORE_DIR)/Format.o \
       $(UTV_CORE_DIR)/FrameBuffer.o \
       $(UTV_CORE_DIR)/GlobalConfig.o \
       $(UTV_CORE_DIR)/HuffmanCode.o \

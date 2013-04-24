@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by utvideo.rc
+// Used by utv_core.rc
 //
 #define IDD_DIALOG1                     101
 #define IDD_CONFIG_DIALOG               101
@@ -10,7 +10,7 @@
 #define IDC_CHECK1                      1002
 #define IDC_ASSUME_INTERLACE_CHECK      1002
 #define IDC_IGNORE_SET_CONFIG_CHECK     1002
-#define IDC_INTRAFRAME_PREDICT_MEDIAN_RADIO 1003
+#define IDC_INTRAFRAME_PREDICT_WRONG_MEDIAN_RADIO 1003
 #define IDC_INTRAFRAME_PREDICT_LEFT_RADIO 1004
 #define IDC_CHECK2                      1005
 #define IDC_DIVIDE_COUNT_IS_NUM_PROCESSORS 1005
