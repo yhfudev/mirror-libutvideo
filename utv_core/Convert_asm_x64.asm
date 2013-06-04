@@ -1,5 +1,5 @@
 ; 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ
-; $Id: Convert_asm_x64.asm 990 2013-04-21 12:03:02Z umezawa $
+; $Id: Convert_asm_x64.asm 1005 2013-05-02 16:42:06Z umezawa $
 
 
 %include "Common_asm_x64.mac"
@@ -24,64 +24,67 @@ uv2r	dq	03313000033130000h
 uv2b	dq	00000408D0000408Dh
 		dq	00000408D0000408Dh
 
-%macro CONVERT_ULY2_TO_RGB 4
+%macro CONVERT_ULY2_TO_RGB 3
 %push
-	MULTI_CONTEXT_XDEFINE procname, %1, bottomup, %2, littleendian, %3, rgb32, %4
+	MULTI_CONTEXT_XDEFINE procname, %1, littleendian, %2, rgb32, %3
 
 global %$procname
 %$procname:
-	SIMPLE_PROLOGUE 0, pDstBegin, pDstEnd, pYBegin, pUBegin, pVBegin, cbGrossWidth, cbNetWidth
+	SIMPLE_PROLOGUE 0, pDstBegin, pDstEnd, pYBegin, pUBegin, pVBegin, cbWidth, scbStride
 
-	mov			rbp, qword [rsp + %$pYBegin]
-	mov			rbx, qword [rsp + %$pUBegin]
-	mov			rcx, qword [rsp + %$pVBegin]
-	mov			rdx, qword [rsp + %$cbGrossWidth]
-%if %$bottomup
-	mov			rsi, qword [rsp + %$pDstEnd]			; esi なのに dst のポインタを保持するのは気持ちが悪いが。
-	sub			rsi, rdx
-	add			rsi, qword [rsp + %$cbNetWidth]
-%else
-	mov			rsi, qword [rsp + %$pDstBegin]			; esi なのに dst のポインタを保持するのは気持ちが悪いが。
-	add			rsi, qword [rsp + %$cbNetWidth]
-%endif
+	mov			rdi, [rsp + %$pDstBegin]
+	mov			rsi, [rsp + %$pYBegin]
+	mov			rbx, [rsp + %$pUBegin]
+	mov			rdx, [rsp + %$pVBegin]
+	mov			r9,  [rsp + %$pDstEnd]
+	mov			r10, [rsp + %$cbWidth]
+	mov			r11, [rsp + %$scbStride]
+	sub			r11, r10
+	xor			rcx, rcx
 
 	pxor		xmm7, xmm7				; xmm7 = 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 	pcmpeqb		xmm6, xmm6				; xmm6 = ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
 	psrlw		xmm6, 8					; xmm6 = 00 ff 00 ff 00 ff 00 ff 00 ff 00 ff 00 ff 00 ff
 
+	movdqa		xmm8, [yoff]
+	movdqa		xmm9, [uvoff]
+	movdqa		xmm10, [y2rgb]
+	movdqa		xmm11, [uv2r]
+	movdqa		xmm12, [uv2b]
+	movdqa		xmm13, [uv2g]
+
 	align	64
 .label0:
-	mov			rdi, rsi
-	sub			rdi, qword [rsp + %$cbNetWidth]
+	lea			r8, [rdi+r10]
 
 	; align	64	; さすがに入れすぎな気がするのでコメントアウト。
 .label1:
-	movd		xmm0, dword [rbp]		; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 Y3 Y2 Y1 Y0
+	movd		xmm0, [rsi+rcx*2]		; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 Y3 Y2 Y1 Y0
 	punpcklbw	xmm0, xmm7				; xmm0 = 00 00 00 00 00 00 00 00 00 Y3 00 Y2 00 Y1 00 Y0
-	psubw		xmm0, oword [yoff]		; xmm0 = 00 00 00 00 00 00 00 00 ---Y3 ---Y2 ---Y1 ---Y0 (de-offset)
+	psubw		xmm0, xmm8				; xmm0 = 00 00 00 00 00 00 00 00 ---Y3 ---Y2 ---Y1 ---Y0 (de-offset)
 	punpcklwd	xmm0, xmm7				; xmm0 = 00 00 ---Y3 00 00 ---Y2 00 00 ---Y1 00 00 ---Y0 (de-offset)
 
-	movd		xmm1, dword [rbx]		; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 U6 U4 U2 U0
-	movd		xmm2, dword [rcx]		; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 V6 V4 V2 V0
+	movd		xmm1, [rbx+rcx]			; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 U6 U4 U2 U0
+	movd		xmm2, [rdx+rcx]			; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 V6 V4 V2 V0
 	punpcklbw	xmm1, xmm2				; xmm1 = 00 00 00 00 00 00 00 00 V6 U6 V4 U4 V2 U2 V0 U0
 	punpcklbw	xmm1, xmm7				; xmm1 = 00 V6 00 U6 00 V4 00 U4 00 V2 00 U2 00 V0 00 U0
-	psubw		xmm1, oword [uvoff]		; xmm1 = ---V6 ---U6 ---V4 ---U4 ---V2 ---U2 ---V0 ---U0 (de-offset)
+	psubw		xmm1, xmm9				; xmm1 = ---V6 ---U6 ---V4 ---U4 ---V2 ---U2 ---V0 ---U0 (de-offset)
 	punpckldq	xmm1, xmm1				; xmm1 = ---V2 ---U2 ---V2 ---U2 ---V0 ---U0 ---V0 ---U0 (de-offset)
 	paddw		xmm1, xmm1
 
-	pmaddwd		xmm0, oword [y2rgb]
+	pmaddwd		xmm0, xmm10
 
 	movdqa		xmm3, xmm1
-	pmaddwd		xmm3, oword [uv2r]
+	pmaddwd		xmm3, xmm11
 	paddd		xmm3, xmm0				; xmm3 = -R3-------- -R2-------- -R1-------- -R0--------
 	psrad		xmm3, 14				; xmm3 = ---------R3 ---------R2 ---------R1 ---------R0
 
 	movdqa		xmm2, xmm1
-	pmaddwd		xmm2, oword [uv2b]
+	pmaddwd		xmm2, xmm12
 	paddd		xmm2, xmm0				; xmm2 = -B3-------- -B2-------- -B1-------- -B0--------
 	psrad		xmm2, 14				; xmm2 = ---------B3 ---------B2 ---------B1 ---------B0
 
-	pmaddwd		xmm1, oword [uv2g]
+	pmaddwd		xmm1, xmm13
 	paddd		xmm1, xmm0				; xmm1 = -G3-------- -G2-------- -G1-------- -G0--------
 	psrad		xmm1, 14				; xmm1 = ---------G3 ---------G2 ---------G1 ---------G0
 
@@ -117,78 +120,60 @@ global %$procname
 
 %if %$rgb32
 	add			rdi, 16
-	add			rbp, 4
-	add			rbx, 2
 	add			rcx, 2
-	cmp			rdi, rsi
+	cmp			rdi, r8
 	ja			.label2
-	movdqu		oword [rdi-16], xmm2
+	movdqu		[rdi-16], xmm2
 	jne			.label1
 	jmp			.label3
 
 .label2:
-	movq		qword [rdi-16], xmm2
+	movq		[rdi-16], xmm2
 	sub			rdi, 8
-	sub			rbp, 2
-	sub			rbx, 1
 	sub			rcx, 1
 %else
-	movd		eax, xmm2
-	psrldq		xmm2, 4
-	mov			word [rdi], ax
-	shr			eax, 16
-	mov			byte [rdi+2], al
-	movd		eax, xmm2
-	psrldq		xmm2, 4
-	mov			word [rdi+3], ax
-	shr			eax, 16
-	mov			byte [rdi+5], al
+	movq		rax, xmm2
+	psrldq		xmm2, 8
+	mov			[rdi], ax
+	shr			rax, 16
+	mov			[rdi+2], al
+	shr			rax, 16
+	mov			[rdi+3], ax
+	shr			rax, 16
+	mov			[rdi+5], al
 	add			rdi, 6
-	add			rbp, 2
-	add			rbx, 1
 	add			rcx, 1
-	cmp			rdi, rsi
+	cmp			rdi, r8
 	jae			.label3
 
-	movd		eax, xmm2
-	psrldq		xmm2, 4
-	mov			word [rdi], ax
-	shr			eax, 16
-	mov			byte [rdi+2], al
-	movd		eax, xmm2
-	mov			word [rdi+3], ax
-	shr			eax, 16
-	mov			byte [rdi+5], al
+	movq		rax, xmm2
+	mov			[rdi], ax
+	shr			rax, 16
+	mov			[rdi+2], al
+	shr			rax, 16
+	mov			[rdi+3], ax
+	shr			rax, 16
+	mov			[rdi+5], al
 	add			rdi, 6
-	add			rbp, 2
-	add			rbx, 1
 	add			rcx, 1
-	cmp			rdi, rsi
+	cmp			rdi, r8
 	jb			.label1
 %endif
 
 .label3:
-%if %$bottomup
-	sub			rsi, rdx
-	cmp			rsi, qword [rsp + %$pDstBegin]
-	ja			.label0
-%else
-	add			rsi, rdx
-	cmp			rsi, qword [rsp + %$pDstEnd]
-	jb			.label0
-%endif
+	add			rdi, r11
+	cmp			rdi, r9
+	jne			.label0
 
 	SIMPLE_EPILOGUE
 
 %pop
 %endmacro
 
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToBottomupBGR,  1, 1, 0
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToBottomupBGRX, 1, 1, 1
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownBGR,   0, 1, 0
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownBGRX,  0, 1, 1
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownRGB,   0, 0, 0
-CONVERT_ULY2_TO_RGB	x64_sse2_ConvertULY2ToTopdownXRGB,  0, 0, 1
+CONVERT_ULY2_TO_RGB	sse2_ConvertULY2ToBGR,   1, 0
+CONVERT_ULY2_TO_RGB	sse2_ConvertULY2ToBGRX,  1, 1
+CONVERT_ULY2_TO_RGB	sse2_ConvertULY2ToRGB,   0, 0
+CONVERT_ULY2_TO_RGB	sse2_ConvertULY2ToXRGB,  0, 1
 
 
 ; Y  =  0.29891 R + 0.58661 G + 0.11448 B
@@ -216,44 +201,41 @@ r2yuv	dq	01073000000001073h
 yuvoff	dq	00004200000042000h
 		dq	00020200000202000h
 
-%macro CONVERT_RGB_TO_ULY2 4
+%macro CONVERT_RGB_TO_ULY2 3
 %push
-	MULTI_CONTEXT_XDEFINE procname, %1, bottomup, %2, littleendian, %3, rgb32, %4
+	MULTI_CONTEXT_XDEFINE procname, %1, littleendian, %2, rgb32, %3
 
 global %$procname
 %$procname:
-	SIMPLE_PROLOGUE 0, pYBegin, pUBegin, pVBegin, pSrcBegin, pSrcEnd, cbGrossWidth, cbNetWidth
+	SIMPLE_PROLOGUE 0, pYBegin, pUBegin, pVBegin, pSrcBegin, pSrcEnd, cbWidth, scbStride
 
-	mov			rdi, qword [rsp + %$pYBegin]
-	mov			rbx, qword [rsp + %$pUBegin]
-	mov			rcx, qword [rsp + %$pVBegin]
-%if %$bottomup
-	mov			rbp, qword [rsp + %$pSrcEnd]
-	sub			rbp, qword [rsp + %$cbGrossWidth]
-	add			rbp, qword [rsp + %$cbNetWidth]
-%else
-	mov			rbp, qword [rsp + %$pSrcBegin]
-	add			rbp, qword [rsp + %$cbNetWidth]
-%endif
+	mov			rsi, [rsp + %$pSrcBegin]
+	mov			rdi, [rsp + %$pYBegin]
+	mov			rbx, [rsp + %$pUBegin]
+	mov			rdx, [rsp + %$pVBegin]
+	mov			r9,  [rsp + %$pSrcEnd]
+	mov			r10, [rsp + %$cbWidth]
+	mov			r11, [rsp + %$scbStride]
+	sub			r11, r10
+	xor			rcx, rcx
+
+	movdqa		xmm4, [b2yuv]
+	movdqa		xmm5, [g2yuv]
+	movdqa		xmm6, [r2yuv]
+	movdqa		xmm7, [yuvoff]
 
 	align	64
 .label0:
-	mov			rsi, rbp
-	sub			rsi, qword [rsp + %$cbNetWidth]
-%if %$rgb32
-	add			rsi, 4
-%else
-	add			rsi, 3
-%endif
+	lea			r8, [rsi+r10]
 
 	;align	64
 .label1:
 %if %$rgb32
-	movd		xmm0, dword [rsi-4]					; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0 / B0 G0 R0 XX
-	movd		xmm1, dword [rsi]					; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R1 G1 B1 / B1 G1 R1 XX
+	movd		xmm0, [rsi  ]						; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0 / B0 G0 R0 XX
+	movd		xmm1, [rsi+4]						; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R1 G1 B1 / B1 G1 R1 XX
 %else
-	movd		xmm0, dword [rsi-3]					; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0 / XX B0 G0 R0
-	movd		xmm1, dword [rsi-1]					; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 R1 G1 B1 XX / B1 G1 R1 XX
+	movd		xmm0, [rsi  ]						; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0 / XX B0 G0 R0
+	movd		xmm1, [rsi+2]						; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 R1 G1 B1 XX / B1 G1 R1 XX
 	psrld		xmm1, 8								; xmm1 = 00 00 00 00 00 00 00 00 00 00 00 00 00 R1 G1 B1 / 00 B1 G1 R1
 %endif
 
@@ -279,11 +261,11 @@ global %$procname
  %endif
 %endif
 
-	pmaddwd		xmm0, oword [b2yuv]					; xmm0 = ----B2V---- ----B2U---- ----B2Y1--- ----B2Y0---
-	pmaddwd		xmm1, oword [g2yuv]					; xmm1 = ----G2V---- ----G2U---- ----G2Y1--- ----G2Y0---
-	pmaddwd		xmm2, oword [r2yuv]					; xmm2 = ----R2V---- ----R2U---- ----R2Y1--- ----R2Y0---
+	pmaddwd		xmm0, xmm4							; xmm0 = ----B2V---- ----B2U---- ----B2Y1--- ----B2Y0---
+	pmaddwd		xmm1, xmm5							; xmm1 = ----G2V---- ----G2U---- ----G2Y1--- ----G2Y0---
+	pmaddwd		xmm2, xmm6							; xmm2 = ----R2V---- ----R2U---- ----R2Y1--- ----R2Y0---
 
-	paddd		xmm0, oword [yuvoff]
+	paddd		xmm0, xmm7
 	paddd		xmm2, xmm1
 	paddd		xmm0, xmm2							; xmm0 = -----V----- -----U----- -----Y1---- -----Y0----
 
@@ -291,54 +273,34 @@ global %$procname
 	packssdw	xmm0, xmm0							; xmm0 = XX XX XX XX XX XX XX XX ---V0 ---U0 ---Y1 ---Y0
 	packuswb	xmm0, xmm0							; xmm0 = XX XX XX XX XX XX XX XX XX XX XX XX V0 U0 Y1 Y0
 	movd		eax, xmm0
-	mov			word [rdi], ax
+	mov			[rdi+rcx*2], ax
 	shr			eax, 16
-	mov			byte [rbx], al
-	mov			byte [rcx], ah
+	mov			[rbx+rcx], al
+	mov			[rdx+rcx], ah
 
-	add			rdi, 2
-	add			rbx, 1
 	add			rcx, 1
 %if %$rgb32
 	add			rsi, 8
 %else
 	add			rsi, 6
 %endif
-	cmp			rsi, rbp
+	cmp			rsi, r8
 	jb			.label1
-	ja			.label2
-
-%if %$rgb32
-	movd		xmm0, dword [rsi-4]					; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0
-%else
-	movd		xmm0, dword [rsi-3]					; xmm0 = 00 00 00 00 00 00 00 00 00 00 00 00 XX R0 G0 B0
-%endif
-
-	punpcklbw	xmm0, xmm0							; xmm0 = 00 00 00 00 00 00 00 00 XX XX R0 R0 G0 G0 B0 B0
-	jmp			.label3
 
 .label2:
-%if %$bottomup
-	sub			rbp, qword [rsp + %$cbGrossWidth]
-	cmp			rbp, qword [rsp + %$pSrcBegin]
-	ja			.label0
-%else
-	add			rbp, qword [rsp + %$cbGrossWidth]
-	cmp			rbp, qword [rsp + %$pSrcEnd]
-	jbe			.label0
-%endif
+	add			rsi, r11
+	cmp			rsi, r9
+	jne			.label0
 
 	SIMPLE_EPILOGUE
 
 %pop
 %endmacro
 
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertBottomupBGRToULY2,  1, 1, 0
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertBottomupBGRXToULY2, 1, 1, 1
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownBGRToULY2,   0, 1, 0
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownBGRXToULY2,  0, 1, 1
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownRGBToULY2,   0, 0, 0
-CONVERT_RGB_TO_ULY2	x64_sse2_ConvertTopdownXRGBToULY2,  0, 0, 1
+CONVERT_RGB_TO_ULY2	sse2_ConvertBGRToULY2,   1, 0
+CONVERT_RGB_TO_ULY2	sse2_ConvertBGRXToULY2,  1, 1
+CONVERT_RGB_TO_ULY2	sse2_ConvertRGBToULY2,   0, 0
+CONVERT_RGB_TO_ULY2	sse2_ConvertXRGBToULY2,  0, 1
 
 
 
@@ -363,8 +325,8 @@ _0x80b				dq	8080808080808080h
 					dq	8080808080808080h
 
 %push
-global x64_avx1_ConvertBGRToULRG
-x64_avx1_ConvertBGRToULRG:
+global avx1_ConvertBGRToULRG
+avx1_ConvertBGRToULRG:
 	SIMPLE_PROLOGUE	0, pGBegin, pBBegin, pRBegin, pSrcBegin, pSrcEnd, cbWidth, scbStride
 
 	vmovdqa		xmm7, [bgr2planarpshufb16]
@@ -578,10 +540,10 @@ global %$procname
 %pop
 %endmacro
 
-CONVERT_XRGB_TO_ULRGA	x64_avx1_ConvertBGRXToULRG, 1, 0
-CONVERT_XRGB_TO_ULRGA	x64_avx1_ConvertXRGBToULRG, 0, 0
-CONVERT_XRGB_TO_ULRGA	x64_avx1_ConvertBGRAToULRA, 1, 1
-CONVERT_XRGB_TO_ULRGA	x64_avx1_ConvertARGBToULRA, 0, 1
+CONVERT_XRGB_TO_ULRGA	avx1_ConvertBGRXToULRG, 1, 0
+CONVERT_XRGB_TO_ULRGA	avx1_ConvertXRGBToULRG, 0, 0
+CONVERT_XRGB_TO_ULRGA	avx1_ConvertBGRAToULRA, 1, 1
+CONVERT_XRGB_TO_ULRGA	avx1_ConvertARGBToULRA, 0, 1
 
 
 	align	64
@@ -674,8 +636,8 @@ global %$procname
 %pop
 %endmacro
 
-CONVERT_YUV422_TO_ULY2	x64_avx1_ConvertYUYVToULY2, 1
-CONVERT_YUV422_TO_ULY2	x64_avx1_ConvertUYVYToULY2, 0
+CONVERT_YUV422_TO_ULY2	avx1_ConvertYUYVToULY2, 1
+CONVERT_YUV422_TO_ULY2	avx1_ConvertUYVYToULY2, 0
 
 
 
@@ -689,8 +651,8 @@ dummya		dq	3736353433323130h
 			dq	3f3e3d3c3b3a3938h
 
 %push
-global x64_avx1_ConvertULRGToBGR
-x64_avx1_ConvertULRGToBGR:
+global avx1_ConvertULRGToBGR
+avx1_ConvertULRGToBGR:
 	SIMPLE_PROLOGUE	0, pDstBegin, pDstEnd, pGBegin, pBBegin, pRBegin, cbWidth, scbStride
 
 	vmovdqa		xmm7, [planar2bgrpshufb16]
@@ -790,6 +752,9 @@ global %$procname
 	vmovdqa		xmm7, [planar2xrgbpshufb16]
 %endif
 	vmovdqa		xmm6, [_0x80b]
+%if ! %$havealpha
+	vpcmpeqd	xmm3, xmm3, xmm3
+%endif
 	mov			rdi, [rsp + %$pDstBegin]
 	mov			rsi, [rsp + %$pGBegin]
 	mov			rbx, [rsp + %$pBBegin]
@@ -812,8 +777,6 @@ global %$procname
 	vlddqu		xmm2, [rdx+rcx]
 %if %$havealpha
 	vlddqu		xmm3, [rbp+rcx]		; xmm3 = Af Ae Ad Ac Ab Aa A9 A8 A7 A6 A5 A4 A3 A2 A1 A0
-%else
-	vpcmpeqd	xmm3, xmm3, xmm3
 %endif
 ;	vlddqu		xmm0, [dummyg]
 ;	vlddqu		xmm1, [dummyb]
@@ -905,10 +868,10 @@ global %$procname
 %pop
 %endmacro
 
-CONVERT_ULRGA_TO_XRGB	x64_avx1_ConvertULRGToBGRX, 1, 0
-CONVERT_ULRGA_TO_XRGB	x64_avx1_ConvertULRGToXRGB, 0, 0
-CONVERT_ULRGA_TO_XRGB	x64_avx1_ConvertULRAToBGRA, 1, 1
-CONVERT_ULRGA_TO_XRGB	x64_avx1_ConvertULRAToARGB, 0, 1
+CONVERT_ULRGA_TO_XRGB	avx1_ConvertULRGToBGRX, 1, 0
+CONVERT_ULRGA_TO_XRGB	avx1_ConvertULRGToXRGB, 0, 0
+CONVERT_ULRGA_TO_XRGB	avx1_ConvertULRAToBGRA, 1, 1
+CONVERT_ULRGA_TO_XRGB	avx1_ConvertULRAToARGB, 0, 1
 
 
 
@@ -991,5 +954,5 @@ global %$procname
 %pop
 %endmacro
 
-CONVERT_ULY2_TO_YUV422	x64_avx1_ConvertULY2ToYUYV, 1
-CONVERT_ULY2_TO_YUV422	x64_avx1_ConvertULY2ToUYVY, 0
+CONVERT_ULY2_TO_YUV422	avx1_ConvertULY2ToYUYV, 1
+CONVERT_ULY2_TO_YUV422	avx1_ConvertULY2ToUYVY, 0

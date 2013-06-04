@@ -1,5 +1,5 @@
 ; 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ
-; $Id: HuffmanCode_asm_x86.asm 950 2012-10-14 09:56:14Z umezawa $
+; $Id: HuffmanCode_asm_x86.asm 1009 2013-05-11 11:07:46Z umezawa $
 
 
 %include "Common_asm_x86.mac"
@@ -10,8 +10,8 @@ section .text
 
 %push
 
-global _x86_i686_HuffmanEncode
-_x86_i686_HuffmanEncode:
+global _i686_HuffmanEncode
+_i686_HuffmanEncode:
 	SIMPLE_PROLOGUE	0, pDstBegin, pSrcBegin, pSrcEnd, pEncodeTable
 
 	mov			esi, dword [esp + %$pSrcBegin]
@@ -30,7 +30,7 @@ _x86_i686_HuffmanEncode:
 	cmp			esi, edx
 	jnb			.label4
 	movzx		ecx, byte [esi]
-	inc			esi
+	add			esi, 1
 	mov			ecx, dword [ebp+ecx*4]
 	add			bl, cl
 	jnc			.label1
@@ -59,13 +59,13 @@ _x86_i686_HuffmanEncode:
 %pop
 
 
-%macro HUFFMAN_DECODE 7
+%macro HUFFMAN_DECODE 5
 %push
-	MULTI_CONTEXT_XDEFINE procname, %1, accum, %2, step, %3, multiscan, %4, bottomup, %5, corrpos, %6, dummyalphapos, %7
+	MULTI_CONTEXT_XDEFINE procname, %1, accum, %2, step, %3, corrpos, %4, dummyalphapos, %5
 
 global %$procname
 %$procname:
-	SIMPLE_PROLOGUE 12, pDstBegin, pDstEnd, pSrcBegin, pDecodeTable, cbNetWidth, cbGrossWidth
+	SIMPLE_PROLOGUE 12, pDstBegin, pDstEnd, pSrcBegin, pDecodeTable, cbWidth, scbStride
 
 %define %$byCorrBuf     0
 %define %$pLineEnd      4
@@ -73,30 +73,14 @@ global %$procname
 
 	mov			esi, dword [esp + %$pSrcBegin]
 	mov			ebx, dword [esp + %$pDecodeTable]
-%if %$multiscan
- %if %$bottomup
-	mov			edi, dword [esp + %$pDstEnd]
-	sub			edi, dword [esp + %$cbGrossWidth]
-	mov			eax, edi
-	add			eax, dword [esp + %$cbNetWidth]
-	mov			dword [esp + %$pLineEnd], eax
-	mov			eax, dword [esp + %$cbGrossWidth]
-	add			eax, dword [esp + %$cbNetWidth]
-	mov			dword [esp + %$dwLineOffset], eax
- %else
+
 	mov			edi, dword [esp + %$pDstBegin]
 	mov			eax, edi
-	add			eax, dword [esp + %$cbNetWidth]
+	add			eax, dword [esp + %$cbWidth]
 	mov			dword [esp + %$pLineEnd], eax
-	mov			eax, dword [esp + %$cbGrossWidth]
-	sub			eax, dword [esp + %$cbNetWidth]
+	mov			eax, dword [esp + %$scbStride]
+	sub			eax, dword [esp + %$cbWidth]
 	mov			dword [esp + %$dwLineOffset], eax
- %endif
-%else
-	mov			edi, dword [esp + %$pDstBegin]
-	mov			eax, dword [esp + %$pDstEnd]
-	mov			dword [esp + %$pLineEnd], eax
-%endif
 
 %macro DO_OUTPUT_%$procname 1
 %push
@@ -111,8 +95,12 @@ global %$procname
 %endif
 
 %if %$dohuffman
+ %if %$$accum || (%$$corrpos != 0)
+	mov			cl, 0
+ %else
 	mov			cl, -32
 	mov			ah, 32
+ %endif
 	mov			edx, dword [esi]
 	sub			esi, 4
 %else
@@ -125,8 +113,13 @@ global %$procname
 	jae			%%label2
 
 %if %$dohuffman
+ %if %$$accum || (%$$corrpos != 0)
+	test		cl, cl		; (*a)
+	js			%%label4
+ %else
 	add			cl, ah
 	jnc			%%label4
+ %endif
 	sub			cl, 32
 	mov			ebp, edx
 	mov			edx, dword [esi+4+4]
@@ -153,6 +146,16 @@ global %$procname
 	mov			ebp, dword [esi]
 
 %%label0:
+ %if %$$accum || (%$$corrpos != 0)
+	add			cl, ah		; 本来は cl への add はここではなく (*a) でやって uOP を減らしたいが、
+							; 下の al への add が eax への部分レジスタ更新になっているため、
+							; ah に対して偽の依存関係を生んでしまい、遅くなる。
+							;
+							; 下の al への add が無い場合は部分レジスタ更新をしないので
+							; cl への add をここに持ってきても逆に遅くなるはずで、
+							; Penryn の場合はその通りなのだが、
+							; Sandy Bridge の場合はこっちの方が速い。原因不明。
+ %endif
 %else
 	mov			al, ah
 %endif
@@ -168,39 +171,22 @@ global %$procname
 %if %$$dummyalphapos != 0
 	mov			byte [edi + %$$dummyalphapos], 0ffh
 %endif
-%if %$$step == 1
-	inc			edi
-%else
 	add			edi, %$$step
-%endif
 	jmp			%%label1
 
 %%label2:
-%if %$$multiscan
- %if %$$bottomup
-	mov			edx, dword [esp + %$$pLineEnd]
-	sub			edx, dword [esp + %$$cbGrossWidth]
-	cmp			edx, dword [esp + %$$pDstBegin]
-	jbe			%%label3
-	mov			dword [esp + %$$pLineEnd], edx
-  %if %$dohuffman
-	mov			edx, dword [esi+4]
-  %endif
-	sub			edi, dword [esp + %$$dwLineOffset]
- %else
-	mov			edx, dword [esp + %$$pLineEnd]
-	add			edx, dword [esp + %$$cbGrossWidth]
-	cmp			edx, dword [esp + %$$pDstEnd]
-	ja			%%label3
-	mov			dword [esp + %$$pLineEnd], edx
-  %if %$dohuffman
-	mov			edx, dword [esi+4]
-  %endif
 	add			edi, dword [esp + %$$dwLineOffset]
- %endif
+	cmp			edi, dword [esp + %$$pDstEnd]
+	je			%%label3
+	mov			edx, edi
+	add			edx, dword [esp + %$$cbWidth]
+	mov			dword [esp + %$$pLineEnd], edx
+%if %$dohuffman
+	mov			edx, dword [esi+4]
+%endif
+
 	jmp			%%label1
 %%label3:
-%endif
 %pop
 %endmacro
 
@@ -216,22 +202,14 @@ global %$procname
 %pop
 %endmacro
 
-HUFFMAN_DECODE	_x86_i686_HuffmanDecode,                                             0, 1, 0, 0,  0,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccum,                                     1, 1, 0, 0,  0,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep2,                                1, 2, 0, 0,  0,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4,                                1, 4, 0, 0,  0,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4ForBottomupBGRXGreen,            1, 4, 1, 1,  0,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4ForBottomupBGRXBlue,             1, 4, 1, 1, +1,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4ForBottomupBGRXRed,              1, 4, 1, 1, -1,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4ForBottomupBGRXRedAndDummyAlpha, 1, 4, 1, 1, -1, +1
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep3ForBottomupBGRGreen,             1, 3, 1, 1,  0,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep3ForBottomupBGRBlue,              1, 3, 1, 1, +1,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep3ForBottomupBGRRed,               1, 3, 1, 1, -1,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4ForTopdownXRGBGreen,             1, 4, 1, 0,  0,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4ForTopdownXRGBBlue,              1, 4, 1, 0, -1,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4ForTopdownXRGBRed,               1, 4, 1, 0, +1,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4ForTopdownXRGBRedAndDummyAlpha,  1, 4, 1, 0, +1, -1
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep3ForTopdownRGBGreen,              1, 3, 1, 0,  0,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep3ForTopdownRGBBlue,               1, 3, 1, 0, -1,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep3ForTopdownRGBRed,                1, 3, 1, 0, +1,  0
-HUFFMAN_DECODE	_x86_i686_HuffmanDecodeAndAccumStep4ForTopdownBGRXRedAndDummyAlpha,  1, 4, 1, 0, -1, +1
+HUFFMAN_DECODE	_i686_HuffmanDecode,                                     0, 1,  0,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccum,                             1, 1,  0,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep2,                        1, 2,  0,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep3,                        1, 3,  0,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep4,                        1, 4,  0,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep3ForBGRBlue,              1, 3, +1,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep3ForBGRRed,               1, 3, -1,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep4ForBGRXBlue,             1, 4, +1,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep4ForBGRXRed,              1, 4, -1,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep4ForBGRXRedAndDummyAlpha, 1, 4, -1, +1
+HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep4ForXRGBRedAndDummyAlpha, 1, 4, +1, -1

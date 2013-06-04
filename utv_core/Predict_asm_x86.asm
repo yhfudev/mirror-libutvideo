@@ -1,5 +1,5 @@
 ; ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe
-; $Id: Predict_asm_x86.asm 975 2013-03-20 14:24:05Z umezawa $
+; $Id: Predict_asm_x86.asm 1007 2013-05-06 09:24:29Z umezawa $
 
 
 %include "Common_asm_x86.mac"
@@ -10,8 +10,8 @@ section .text
 
 %push
 
-global _x86_sse2_PredictLeftAndCount_align1
-_x86_sse2_PredictLeftAndCount_align1:
+global _sse2_PredictLeftAndCount_align1
+_sse2_PredictLeftAndCount_align1:
 	SIMPLE_PROLOGUE 0, pDstBegin, pSrcBegin, pSrcEnd, pCountTable
 
 	mov			eax, 80h
@@ -71,8 +71,8 @@ _x86_sse2_PredictLeftAndCount_align1:
 	movzx		ebp, cl
 	inc			dword [ebx+ebp*4]
 	psrldq		xmm0, 1
-	inc			esi
-	inc			edi
+	add			esi, 1
+	add			edi, 1
 	cmp			esi, eax
 	jb			.label3
 
@@ -84,8 +84,8 @@ _x86_sse2_PredictLeftAndCount_align1:
 
 %push
 
-global _x86_sse2_PredictWrongMedianAndCount_align16
-_x86_sse2_PredictWrongMedianAndCount_align16:
+global _sse2_PredictWrongMedianAndCount_align16
+_sse2_PredictWrongMedianAndCount_align16:
 	SIMPLE_PROLOGUE 0, pDstBegin, pSrcBegin, pSrcEnd, dwStride, pCountTable
 
 	mov			eax, 80h
@@ -185,8 +185,8 @@ _x86_sse2_PredictWrongMedianAndCount_align16:
 
 %push
 
-global _x86_sse2_PredictWrongMedianAndCount_align1
-_x86_sse2_PredictWrongMedianAndCount_align1:
+global _sse2_PredictWrongMedianAndCount_align1
+_sse2_PredictWrongMedianAndCount_align1:
 	SIMPLE_PROLOGUE 0, pDstBegin, pSrcBegin, pSrcEnd, dwStride, pCountTable
 
 	mov			eax, 80h
@@ -247,8 +247,8 @@ _x86_sse2_PredictWrongMedianAndCount_align1:
 	movzx		ebp, cl
 	inc			dword [ebx+ebp*4]
 	psrldq		xmm0, 1
-	inc			esi
-	inc			edi
+	add			esi, 1
+	add			edi, 1
 	cmp			esi, eax
 	jb			.label3
 
@@ -342,8 +342,8 @@ _x86_sse2_PredictWrongMedianAndCount_align1:
 	movzx		ebp, cl
 	inc			dword [ebx+ebp*4]
 	psrldq		xmm0, 1
-	inc			esi
-	inc			edi
+	add			esi, 1
+	add			edi, 1
 	cmp			esi, eax
 	jb			.label5
 
@@ -355,8 +355,8 @@ _x86_sse2_PredictWrongMedianAndCount_align1:
 
 %push
 
-global _x86_i686_RestoreWrongMedian_align1
-_x86_i686_RestoreWrongMedian_align1:
+global _i686_RestoreWrongMedian_align1
+_i686_RestoreWrongMedian_align1:
 	SIMPLE_PROLOGUE 0, pDstBegin, pSrcBegin, pSrcEnd, dwStride
 
 	mov			esi, dword [esp + %$pSrcBegin]
@@ -372,8 +372,8 @@ _x86_i686_RestoreWrongMedian_align1:
 .label1:
 	add			dl, byte [esi]
 	mov			byte [edi], dl
-	inc 		esi
-	inc			edi
+	add 		esi, 1
+	add			edi, 1
 	cmp			esi, eax
 	jb			.label1
 
@@ -401,8 +401,8 @@ _x86_i686_RestoreWrongMedian_align1:
 	add			edx, ebx
 	mov			byte [edi], dl
 
-	inc			esi
-	inc			edi
+	add			esi, 1
+	add			edi, 1
 	cmp			esi, dword [esp + %$pSrcEnd]	; pSrcEnd
 	jb			.label2
 
@@ -415,8 +415,8 @@ _x86_i686_RestoreWrongMedian_align1:
 
 %push
 
-global _x86_sse1mmx_RestoreWrongMedian_align1
-_x86_sse1mmx_RestoreWrongMedian_align1:
+global _sse1mmx_RestoreWrongMedian_align1
+_sse1mmx_RestoreWrongMedian_align1:
 	SIMPLE_PROLOGUE 0, pDstBegin, pSrcBegin, pSrcEnd, dwStride
 
 	mov			esi, dword [esp + %$pSrcBegin]
@@ -432,8 +432,8 @@ _x86_sse1mmx_RestoreWrongMedian_align1:
 .label1:
 	add			dl, byte [esi]
 	mov			byte [edi], dl
-	inc 		esi
-	inc			edi
+	add 		esi, 1
+	add			edi, 1
 	cmp			esi, eax
 	jb			.label1
 
@@ -457,8 +457,8 @@ _x86_sse1mmx_RestoreWrongMedian_align1:
 	movd		eax, mm2
 	mov			byte [edi], al
 
-	inc			esi
-	inc			edi
+	add			esi, 1
+	add			edi, 1
 	cmp			esi, dword [esp + %$pSrcEnd]
 	jb			.label2
 

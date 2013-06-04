@@ -1,11 +1,11 @@
 <html>
-<!-- $Id: readme.en.html 995 2013-04-23 13:31:42Z umezawa $ -->
+<!-- $Id: readme.en.html 1011 2013-05-12 09:33:44Z umezawa $ -->
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
-<title>Ut Video Codec Suite 12.1.0 readme (English)</title>
+<title>Ut Video Codec Suite 12.2.0 readme (English)</title>
 </head>
 <body>
-<h1>Ut Video Codec Suite 12.1.0 readme (English)</h1>
+<h1>Ut Video Codec Suite 12.2.0 readme (English)</h1>
 <hr>
 <h2 id="copyright_notice">Copyright Notice</h2>
 <p>Ut Video Codec Suite<br>Copyright &copy; 2008-2013  UMEZAWA Takeshi</p>
@@ -85,11 +85,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA</p>
 <dd>NASM 2.10.07</dd>
 </dl>
 <h2 id="history">Version history</h2>
+<h3>Version 12.2.0</h3>
+<dl>
+<dt>Performance Improvements</dt><dd><ul>
+<li>Speed up decoding video that were encoded with "Optimize for decoding speed" option. About 5-10% faster.</li>
+<li>(x64) Speed up decoding video that were encoded with "Optimize for compression ratio" option. About 1% faster.</li>
+<li>ULY2: (x64) Speed up encoding from RGB colorspace About 2% faster.</li>
+</ul></dd>
+</dl>
 <h3>Version 12.1.0</h3>
 <dl>
 <dt>Performance Improvements</dt><dd><ul>
-<li>ULRG,ULRA,ULY2: Speed up encoding if AVX instructions are available. About 10% faster in case of x86, and about 12% faster in case of x64.</li>
-<li>ULRG,ULRA,ULY2: Speed up decoding video that were encoded with "Optimize for compression ratio" option if AVX instructions are available. About 5% faster in case of both x86 and x64.</li>
+<li>ULRG,ULRA,ULY2: Speed up encoding from native colorspace if AVX instructions are available. About 10% faster in case of x86, and about 12% faster in case of x64.</li>
+<li>ULRG,ULRA,ULY2: Speed up decoding video that were encoded with "Optimize for compression ratio" option to native colorspace if AVX instructions are available. About 5% faster in case of both x86 and x64.</li>
 </ul></dd>
 </dl>
 <h3>Version 12.0.1</h3>
