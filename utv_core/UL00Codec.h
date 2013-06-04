@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: UL00Codec.h 975 2013-03-20 14:24:05Z umezawa $ */
+/* $Id: UL00Codec.h 1038 2013-06-01 08:19:31Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -110,7 +110,7 @@ protected:
 
 public:
 	CUL00Codec(const char *pszTinyName, const char *pszInterfaceName);
-	virtual ~CUL00Codec(void);
+	virtual ~CUL00Codec(void) {}
 
 public:
 	virtual const char *GetTinyName(void);
@@ -152,14 +152,15 @@ protected:
 	int InternalSetState(const void *pState, size_t cb);
 	int CalcRawFrameMetric(utvf_t rawfmt, unsigned int width, unsigned int height, size_t cbGrossWidth);
 	int CalcFrameMetric(utvf_t rawfmt, unsigned int width, unsigned int height, size_t cbGrossWidth, const void *pExtraData, size_t cbExtraData);
+
 	virtual const char *GetColorFormatName(void) = 0;
 	virtual int GetRealBitCount(void) = 0;
 	virtual int GetNumPlanes(void) = 0;
-	virtual void CalcPlaneSizes(unsigned int width, unsigned int height) = 0;
-	virtual void ConvertToPlanar(uint32_t nBandIndex) = 0;
 	virtual int GetMacroPixelWidth(void) = 0;
 	virtual int GetMacroPixelHeight(void) = 0;
 
+	virtual void CalcPlaneSizes(unsigned int width, unsigned int height) = 0;
+	virtual void ConvertToPlanar(uint32_t nBandIndex) = 0;
 	virtual void ConvertFromPlanar(uint32_t nBandIndex) = 0;
 	virtual bool DecodeDirect(uint32_t nBandIndex);
 

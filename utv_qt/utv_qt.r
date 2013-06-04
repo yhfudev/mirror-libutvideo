@@ -1,5 +1,5 @@
 /*  */
-/* $Id: utv_qt.r 866 2012-04-18 13:26:00Z umezawa $ */
+/* $Id: utv_qt.r 1044 2013-06-01 10:53:09Z umezawa $ */
 
 #define TARGET_REZ_CARBON_MACHO 1
 #define thng_RezTemplateVersion 1
@@ -55,12 +55,26 @@ resource 'dlle' (257) {
 #define SUBTYPE_VAL  'ULY0'
 #define SUBTYPE_STR  "ULY0"
 #define SUBTYPE_RID  258
-#define SUBTYPE_INFO "YUV420"
+#define SUBTYPE_INFO "YUV420 BT.601"
 #include "utv_qt.in.r"
 
 #define SUBTYPE      ULY2
 #define SUBTYPE_VAL  'ULY2'
 #define SUBTYPE_STR  "ULY2"
 #define SUBTYPE_RID  259
-#define SUBTYPE_INFO "YUV422"
+#define SUBTYPE_INFO "YUV422 BT.601"
+#include "utv_qt.in.r"
+
+#define SUBTYPE      ULH0
+#define SUBTYPE_VAL  'ULH0'
+#define SUBTYPE_STR  "ULH0"
+#define SUBTYPE_RID  260
+#define SUBTYPE_INFO "YUV420 BT.709"
+#include "utv_qt.in.r"
+
+#define SUBTYPE      ULH2
+#define SUBTYPE_VAL  'ULH2'
+#define SUBTYPE_STR  "ULH2"
+#define SUBTYPE_RID  261
+#define SUBTYPE_INFO "YUV422 BT.709"
 #include "utv_qt.in.r"

@@ -1,11 +1,12 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: ULRACodec.cpp 1001 2013-04-29 14:48:23Z umezawa $ */
+/* $Id: ULRACodec.cpp 1038 2013-06-01 08:19:31Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
 #include "ULRACodec.h"
 #include "Predict.h"
 #include "Convert.h"
+#include "TunedFunc.h"
 
 const utvf_t CULRACodec::m_utvfEncoderInput[] = {
 	UTVF_NFCC_BGRA_BU,
@@ -30,15 +31,6 @@ const utvf_t CULRACodec::m_utvfCompressed[] = {
 
 CULRACodec::CULRACodec(const char *pszInterfaceName) : CUL00Codec("ULRA", pszInterfaceName)
 {
-}
-
-CULRACodec::~CULRACodec(void)
-{
-}
-
-CCodec *CULRACodec::CreateInstance(const char *pszInterfaceName)
-{
-	return new CULRACodec(pszInterfaceName);
 }
 
 void CULRACodec::CalcPlaneSizes(unsigned int width, unsigned int height)
