@@ -54,6 +54,7 @@ $(SONAME):
 	$(CXX) -shared -o $@ $^ $(SOFLAGS) $(SOFLAGS_USER) $(LDFLAGS)
 
 OBJ = $(UTV_CORE_DIR)/Codec.o \
+      $(UTV_CORE_DIR)/Coefficient.o \
       $(UTV_CORE_DIR)/Convert.o \
       $(UTV_CORE_DIR)/DummyCodec.o \
       $(UTV_CORE_DIR)/FrameBuffer.o \
@@ -65,8 +66,8 @@ OBJ = $(UTV_CORE_DIR)/Codec.o \
       $(UTV_CORE_DIR)/UL00Codec.o \
       $(UTV_CORE_DIR)/ULRACodec.o \
       $(UTV_CORE_DIR)/ULRGCodec.o \
-      $(UTV_CORE_DIR)/ULY0Codec.o \
-      $(UTV_CORE_DIR)/ULY2Codec.o \
+      $(UTV_CORE_DIR)/ULYUV420Codec.o \
+      $(UTV_CORE_DIR)/ULYUV422Codec.o \
       $(UTV_CORE_DIR)/utv_core.o \
       $(ASM_OBJECTS)
 
