@@ -38,7 +38,7 @@ ASM_OBJECTS = $(UTV_CORE_DIR)/Convert_asm_$(ARCH).o \
               $(UTV_CORE_DIR)/CPUID_asm_$(ARCH).o \
               $(UTV_CORE_DIR)/HuffmanCode_asm_$(ARCH).o \
               $(UTV_CORE_DIR)/Predict_asm_$(ARCH).o \
-              $(UTV_CORE_DIR)/TunedFunc_$(ARCH).o
+              $(UTV_CORE_DIR)/TunedFunc_x86x64.o
 else
 ASM_OBJECTS=
 endif

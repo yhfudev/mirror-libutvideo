@@ -53,9 +53,5 @@ const TUNEDFUNC tfnCPP = {
 TUNEDFUNC tfn = tfnCPP;
 
 #ifdef STATIC_LIB_WITH_ASM
-# ifdef __x86_64__
-#  include "TunedFunc_x64.cpp"
-# elif __i386__
-#  include "TunedFunc_x86.cpp"
-# endif
+#  include "TunedFunc_x86x64.cpp"
 #endif
