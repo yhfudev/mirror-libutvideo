@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: ULY0Codec.h 947 2012-10-13 16:10:10Z umezawa $ */
+/* $Id: ULY0Codec.h 1022 2013-05-24 14:08:10Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -25,16 +25,6 @@ public:
 	virtual const utvf_t *GetEncoderInputFormat(void) { return m_utvfEncoderInput; }
 	virtual const utvf_t *GetDecoderOutputFormat(void) { return m_utvfDecoderOutput; }
 	virtual const utvf_t *GetCompressedFormat(void) { return m_utvfCompressed; }
-
-private:
-	void ConvertBottomupBGRxToULY0(uint8_t *pDstYBegin, uint8_t *pDstUBegin, uint8_t *pDstVBegin, uint32_t nBandIndex, uint32_t bypp);
-	void ConvertTopdownBGRxToULY0(uint8_t *pDstYBegin, uint8_t *pDstUBegin, uint8_t *pDstVBegin, uint32_t nBandIndex, uint32_t bypp);
-	void ConvertTopdownxRGBToULY0(uint8_t *pDstYBegin, uint8_t *pDstUBegin, uint8_t *pDstVBegin, uint32_t nBandIndex, uint32_t bypp);
-	void ConvertYUV422ToULY0(uint8_t *pDstYBegin, uint8_t *pDstUBegin, uint8_t *pDstVBegin, uint32_t nBandIndex, uint32_t nYOffset);
-	void ConvertULY0ToBottomupBGRx(const uint8_t *pSrcYBegin, const uint8_t *pSrcUBegin, const uint8_t *pSrcVBegin, uint32_t nBandIndex, uint32_t bypp);
-	void ConvertULY0ToTopdownBGRx(const uint8_t *pSrcYBegin, const uint8_t *pSrcUBegin, const uint8_t *pSrcVBegin, uint32_t nBandIndex, uint32_t bypp);
-	void ConvertULY0ToTopdownxRGB(const uint8_t *pSrcYBegin, const uint8_t *pSrcUBegin, const uint8_t *pSrcVBegin, uint32_t nBandIndex, uint32_t bypp);
-	void ConvertULY0ToYUV422(const uint8_t *pSrcYBegin, const uint8_t *pSrcUBegin, const uint8_t *pSrcVBegin, uint32_t nBandIndex, uint32_t nYOffset);
 
 protected:
 	virtual const char *GetColorFormatName(void) { return "YUV420"; }
