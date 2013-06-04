@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: Predict.cpp 975 2013-03-20 14:24:05Z umezawa $ */
+/* $Id: Predict.cpp 1030 2013-05-31 13:59:01Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -15,9 +15,9 @@ inline T median(T a, T b, T c)
 void PredictWrongMedianAndCount(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride, uint32_t *pCountTable)
 {
 	if (IS_ALIGNED(pDst, 16) && IS_ALIGNED(pSrcBegin, 16) && IS_ALIGNED(dwStride, 16))
-		tfn.pfnPredictWrongMedianAndCount_align16(pDst, pSrcBegin, pSrcEnd, dwStride, pCountTable);
+		PredictWrongMedianAndCount_align16(pDst, pSrcBegin, pSrcEnd, dwStride, pCountTable);
 	else
-		tfn.pfnPredictWrongMedianAndCount_align1(pDst, pSrcBegin, pSrcEnd, dwStride, pCountTable);
+		PredictWrongMedianAndCount_align1(pDst, pSrcBegin, pSrcEnd, dwStride, pCountTable);
 }
 
 void cpp_PredictWrongMedianAndCount(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride, uint32_t *pCountTable)

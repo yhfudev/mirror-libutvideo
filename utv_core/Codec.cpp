@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: Codec.cpp 967 2013-01-13 14:09:16Z umezawa $ */
+/* $Id: Codec.cpp 1059 2013-06-03 14:45:36Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -7,8 +7,8 @@
 #include "DummyCodec.h"
 #include "ULRACodec.h"
 #include "ULRGCodec.h"
-#include "ULY0Codec.h"
-#include "ULY2Codec.h"
+#include "ULYUV420Codec.h"
+#include "ULYUV422Codec.h"
 
 CCodec::CCodec(void)
 {
@@ -40,12 +40,16 @@ struct CODECLIST
 	CCodec *(*pfnCreateInstace)(const char *pszInterfaceName);
 };
 
+#define CODECENTRY(c) { c::m_utvfCodec, c::CreateInstance }
+
 static const struct CODECLIST codeclist[] = {
-	{ UTVF_INVALID, CDummyCodec::CreateInstance },
-	{ UTVF_ULRA,    CULRACodec::CreateInstance  },
-	{ UTVF_ULRG,    CULRGCodec::CreateInstance  },
-	{ UTVF_ULY0,    CULY0Codec::CreateInstance  },
-	{ UTVF_ULY2,    CULY2Codec::CreateInstance  },
+	CODECENTRY(CDummyCodec),
+	CODECENTRY(CULRACodec),
+	CODECENTRY(CULRGCodec),
+	CODECENTRY(CULYUV420Codec<CBT601Coefficient>), // ULY0
+	CODECENTRY(CULYUV422Codec<CBT601Coefficient>), // ULY2
+	CODECENTRY(CULYUV420Codec<CBT709Coefficient>), // ULH0
+	CODECENTRY(CULYUV422Codec<CBT709Coefficient>), // ULH2
 };
 
 DLLEXPORT CCodec *CCodec::CreateInstance(utvf_t utvf, const char *pszInterfaceName)

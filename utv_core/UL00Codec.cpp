@@ -1,11 +1,12 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: UL00Codec.cpp 1001 2013-04-29 14:48:23Z umezawa $ */
+/* $Id: UL00Codec.cpp 1052 2013-06-03 10:38:41Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
 #include "utv_core.h"
 #include "UL00Codec.h"
 #include "Predict.h"
+#include "TunedFunc.h"
 #include "resource.h"
 
 CUL00Codec::CUL00Codec(const char *pszTinyName, const char *pszInterfaceName) : m_pszTinyName(pszTinyName), m_pszInterfaceName(pszInterfaceName)
@@ -14,10 +15,6 @@ CUL00Codec::CUL00Codec(const char *pszTinyName, const char *pszInterfaceName) : 
 	m_ec.dwFlags0 = (CThreadManager::GetNumProcessors() - 1) | EC_FLAGS0_INTRAFRAME_PREDICT_LEFT;
 
 	LoadConfig();
-}
-
-CUL00Codec::~CUL00Codec(void)
-{
 }
 
 const char *CUL00Codec::GetTinyName(void)
@@ -29,7 +26,7 @@ void CUL00Codec::GetShortFriendlyName(char *pszName, size_t cchName)
 {
 	char buf[16];
 
-	sprintf(buf, "Ut Video (%s)", GetTinyName());
+	sprintf(buf, "UtVideo (%s)", GetTinyName());
 	strncpy(pszName, buf, cchName);
 	pszName[cchName - 1] = '\0';
 }
@@ -50,11 +47,10 @@ void CUL00Codec::GetLongFriendlyName(char *pszName, size_t cchName)
 {
 	char buf[128];
 
-	sprintf(buf, "Ut Video Codec %s (%s) %s %s",
+	sprintf(buf, "UtVideo %s (%s) %s",
 		GetColorFormatName(),
 		GetTinyName(),
-		m_pszInterfaceName,
-		UTVIDEO_IMPLEMENTATION_STR);
+		m_pszInterfaceName);
 	strncpy(pszName, buf, cchName);
 	pszName[cchName - 1] = '\0';
 }
@@ -399,6 +395,7 @@ int CUL00Codec::CalcRawFrameMetric(utvf_t rawfmt, unsigned int width, unsigned i
 		case UTVF_YUNV:
 		case UTVF_UYVY:
 		case UTVF_UYNV:
+		case UTVF_HDYC:
 			m_dwRawNetWidth = width * 2;
 			m_dwRawGrossWidth = m_dwRawNetWidth;
 			break;

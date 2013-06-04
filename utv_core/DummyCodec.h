@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: DummyCodec.h 714 2011-08-23 14:19:30Z umezawa $ */
+/* $Id: DummyCodec.h 1059 2013-06-03 14:45:36Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -7,6 +7,9 @@
 class CDummyCodec :
 	public CCodec
 {
+public:
+	static const utvf_t m_utvfCodec = UTVF_INVALID;
+
 public:
 	CDummyCodec(void);
 	~CDummyCodec(void);

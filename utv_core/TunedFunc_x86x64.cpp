@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: TunedFunc_x86x64.cpp 1020 2013-05-21 16:36:19Z umezawa $ */
+/* $Id: TunedFunc_x86x64.cpp 1053 2013-06-03 10:40:47Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -8,6 +8,7 @@
 #include "HuffmanCode.h"
 #include "Convert.h"
 #include "ColorOrder.h"
+#include "Coefficient.h"
 #include "CPUID.h"
 
 #ifdef __i386__
@@ -28,14 +29,26 @@ const TUNEDFUNC tfnI686 = {
 	i686_HuffmanDecodeAndAccumStep4ForBGRXRed,
 	i686_HuffmanDecodeAndAccumStep4ForBGRXRedAndDummyAlpha,
 	i686_HuffmanDecodeAndAccumStep4ForXRGBRedAndDummyAlpha,
-	cpp_ConvertULY2ToRGB<CBGRColorOrder>,
-	cpp_ConvertULY2ToRGB<CBGRAColorOrder>,
-	cpp_ConvertULY2ToRGB<CRGBColorOrder>,
-	cpp_ConvertULY2ToRGB<CARGBColorOrder>,
-	cpp_ConvertRGBToULY2<CBGRColorOrder>,
-	cpp_ConvertRGBToULY2<CBGRAColorOrder>,
-	cpp_ConvertRGBToULY2<CRGBColorOrder>,
-	cpp_ConvertRGBToULY2<CARGBColorOrder>,
+	{
+		cpp_ConvertULY2ToRGB<CBT601Coefficient, CBGRColorOrder>,
+		cpp_ConvertULY2ToRGB<CBT601Coefficient, CBGRAColorOrder>,
+		cpp_ConvertULY2ToRGB<CBT601Coefficient, CRGBColorOrder>,
+		cpp_ConvertULY2ToRGB<CBT601Coefficient, CARGBColorOrder>,
+		cpp_ConvertRGBToULY2<CBT601Coefficient, CBGRColorOrder>,
+		cpp_ConvertRGBToULY2<CBT601Coefficient, CBGRAColorOrder>,
+		cpp_ConvertRGBToULY2<CBT601Coefficient, CRGBColorOrder>,
+		cpp_ConvertRGBToULY2<CBT601Coefficient, CARGBColorOrder>,
+	},
+	{
+		cpp_ConvertULY2ToRGB<CBT709Coefficient, CBGRColorOrder>,
+		cpp_ConvertULY2ToRGB<CBT709Coefficient, CBGRAColorOrder>,
+		cpp_ConvertULY2ToRGB<CBT709Coefficient, CRGBColorOrder>,
+		cpp_ConvertULY2ToRGB<CBT709Coefficient, CARGBColorOrder>,
+		cpp_ConvertRGBToULY2<CBT709Coefficient, CBGRColorOrder>,
+		cpp_ConvertRGBToULY2<CBT709Coefficient, CBGRAColorOrder>,
+		cpp_ConvertRGBToULY2<CBT709Coefficient, CRGBColorOrder>,
+		cpp_ConvertRGBToULY2<CBT709Coefficient, CARGBColorOrder>,
+	},
 	cpp_ConvertRGBToULRG<CBGRColorOrder>,
 	cpp_ConvertRGBToULRG<CBGRAColorOrder>,
 	cpp_ConvertRGBToULRG<CARGBColorOrder>,
@@ -71,14 +84,26 @@ const TUNEDFUNC tfnSSE2 = {
 	i686_HuffmanDecodeAndAccumStep4ForBGRXRed,
 	i686_HuffmanDecodeAndAccumStep4ForBGRXRedAndDummyAlpha,
 	i686_HuffmanDecodeAndAccumStep4ForXRGBRedAndDummyAlpha,
-	sse2_ConvertULY2ToBGR,
-	sse2_ConvertULY2ToBGRX,
-	sse2_ConvertULY2ToRGB,
-	sse2_ConvertULY2ToXRGB,
-	sse2_ConvertBGRToULY2,
-	sse2_ConvertBGRXToULY2,
-	sse2_ConvertRGBToULY2,
-	sse2_ConvertXRGBToULY2,
+	{
+		sse2_ConvertULY2ToBGR,
+		sse2_ConvertULY2ToBGRX,
+		sse2_ConvertULY2ToRGB,
+		sse2_ConvertULY2ToXRGB,
+		sse2_ConvertBGRToULY2,
+		sse2_ConvertBGRXToULY2,
+		sse2_ConvertRGBToULY2,
+		sse2_ConvertXRGBToULY2,
+	},
+	{
+		sse2_ConvertULH2ToBGR,
+		sse2_ConvertULH2ToBGRX,
+		sse2_ConvertULH2ToRGB,
+		sse2_ConvertULH2ToXRGB,
+		sse2_ConvertBGRToULH2,
+		sse2_ConvertBGRXToULH2,
+		sse2_ConvertRGBToULH2,
+		sse2_ConvertXRGBToULH2,
+	},
 	cpp_ConvertRGBToULRG<CBGRColorOrder>,
 	cpp_ConvertRGBToULRG<CBGRAColorOrder>,
 	cpp_ConvertRGBToULRG<CARGBColorOrder>,
@@ -121,14 +146,26 @@ const TUNEDFUNC tfnAVX1 = {
 	i686_HuffmanDecodeAndAccumStep4ForBGRXRed,
 	i686_HuffmanDecodeAndAccumStep4ForBGRXRedAndDummyAlpha,
 	i686_HuffmanDecodeAndAccumStep4ForXRGBRedAndDummyAlpha,
-	sse2_ConvertULY2ToBGR,
-	sse2_ConvertULY2ToBGRX,
-	sse2_ConvertULY2ToRGB,
-	sse2_ConvertULY2ToXRGB,
-	sse2_ConvertBGRToULY2,
-	sse2_ConvertBGRXToULY2,
-	sse2_ConvertRGBToULY2,
-	sse2_ConvertXRGBToULY2,
+	{
+		sse2_ConvertULY2ToBGR,
+		sse2_ConvertULY2ToBGRX,
+		sse2_ConvertULY2ToRGB,
+		sse2_ConvertULY2ToXRGB,
+		sse2_ConvertBGRToULY2,
+		sse2_ConvertBGRXToULY2,
+		sse2_ConvertRGBToULY2,
+		sse2_ConvertXRGBToULY2,
+	},
+	{
+		sse2_ConvertULH2ToBGR,
+		sse2_ConvertULH2ToBGRX,
+		sse2_ConvertULH2ToRGB,
+		sse2_ConvertULH2ToXRGB,
+		sse2_ConvertBGRToULH2,
+		sse2_ConvertBGRXToULH2,
+		sse2_ConvertRGBToULH2,
+		sse2_ConvertXRGBToULH2,
+	},
 	avx1_ConvertBGRToULRG,
 	avx1_ConvertBGRXToULRG,
 	avx1_ConvertXRGBToULRG,

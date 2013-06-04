@@ -1,11 +1,12 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: ULRGCodec.cpp 1001 2013-04-29 14:48:23Z umezawa $ */
+/* $Id: ULRGCodec.cpp 1038 2013-06-01 08:19:31Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
 #include "ULRGCodec.h"
 #include "Predict.h"
 #include "Convert.h"
+#include "TunedFunc.h"
 
 const utvf_t CULRGCodec::m_utvfEncoderInput[] = {
 	UTVF_NFCC_BGR_BU,
@@ -34,15 +35,6 @@ const utvf_t CULRGCodec::m_utvfCompressed[] = {
 
 CULRGCodec::CULRGCodec(const char *pszInterfaceName) : CUL00Codec("ULRG", pszInterfaceName)
 {
-}
-
-CULRGCodec::~CULRGCodec(void)
-{
-}
-
-CCodec *CULRGCodec::CreateInstance(const char *pszInterfaceName)
-{
-	return new CULRGCodec(pszInterfaceName);
 }
 
 void CULRGCodec::CalcPlaneSizes(unsigned int width, unsigned int height)

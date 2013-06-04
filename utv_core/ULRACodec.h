@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: ULRACodec.h 757 2011-09-12 12:00:17Z umezawa $ */
+/* $Id: ULRACodec.h 1059 2013-06-03 14:45:36Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -11,6 +11,9 @@
 class CULRACodec :
 	public CUL00Codec
 {
+public:
+	static const utvf_t m_utvfCodec = UTVF_ULRA;
+
 private:
 	static const utvf_t m_utvfEncoderInput[];
 	static const utvf_t m_utvfDecoderOutput[];
@@ -18,8 +21,8 @@ private:
 
 public:
 	CULRACodec(const char *pszInterfaceName);
-	virtual ~CULRACodec(void);
-	static CCodec *CreateInstance(const char *pszInterfaceName);
+	virtual ~CULRACodec(void) {}
+	static CCodec *CreateInstance(const char *pszInterfaceName) { return new CULRACodec(pszInterfaceName); }
 
 public:
 	virtual const utvf_t *GetEncoderInputFormat(void) { return m_utvfEncoderInput; }
@@ -30,11 +33,11 @@ protected:
 	virtual const char *GetColorFormatName(void) { return "RGBA"; }
 	virtual int GetRealBitCount(void) { return 32; }
 	virtual int GetNumPlanes(void) { return 4; }
-	virtual void CalcPlaneSizes(unsigned int width, unsigned int height);
-	virtual void ConvertToPlanar(uint32_t nBandIndex);
 	virtual int GetMacroPixelWidth(void) { return 1; }
 	virtual int GetMacroPixelHeight(void) { return 1; }
 
+	virtual void CalcPlaneSizes(unsigned int width, unsigned int height);
+	virtual void ConvertToPlanar(uint32_t nBandIndex);
 	virtual void ConvertFromPlanar(uint32_t nBandIndex);
 	virtual bool DecodeDirect(uint32_t nBandIndex);
 };

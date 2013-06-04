@@ -1,11 +1,11 @@
 <html>
-<!-- $Id: readme.en.html 1027 2013-05-28 13:48:39Z umezawa $ -->
+<!-- $Id: readme.en.html 1066 2013-06-04 12:15:44Z umezawa $ -->
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
-<title>Ut Video Codec Suite 12.2.1 readme (English)</title>
+<title>Ut Video Codec Suite 13.0.1 readme (English)</title>
 </head>
 <body>
-<h1>Ut Video Codec Suite 12.2.1 readme (English)</h1>
+<h1>Ut Video Codec Suite 13.0.1 readme (English)</h1>
 <hr>
 <h2 id="copyright_notice">Copyright Notice</h2>
 <p>Ut Video Codec Suite<br>Copyright &copy; 2008-2013  UMEZAWA Takeshi</p>
@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA</p>
 </dl>
 <h3>Recommended</h3>
 <dl>
-<dt>CPU</dt><dd>Intel Core 2 series or later</dd>
+<dt>CPU</dt><dd>1st Generation Intel Core i series (codename &quot;Nehalem&quot;) or later</dd>
 </dl>
 <h2 id="installation">Installation Notice</h2>
 <h3>Windows</h3>
@@ -48,12 +48,14 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA</p>
 <p>If VCM codec is not registered properly, merge utvideo.reg in install destination with registry as a last resort. This file assumes Windows directory is C:\Windows.</p>
 <h2 id="fourcc">List of FourCC</h2>
 <table border>
-<tr><th rowspan="2">FourCC</th><th rowspan="2">Internal format</th><th colspan="2">Supported input/output format (in order of priority)</th></tr>
+<tr><th rowspan="2">FourCC</th><th rowspan="2">Codec name</th><th rowspan="2">Internal format</th><th colspan="2">Supported input/output format (in order of priority)</th></tr>
 <tr><th>VCM / DMO / MFT</th><th>QT</th></tr>
-<tr><td>ULRA</td><td>RGBA 4:4:4:4 8bit full-range</td><td><strong>RGBA</strong></td><td><strong>ARGB</strong></td></tr>
-<tr><td>ULRG</td><td>RGB 4:4:4 8bit full-range</td><td><strong>RGB24<br>RGB32</strong></td><td><strong>RGB<br>ARGB</strong></td></tr>
-<tr><td>ULY2</td><td>YCbCr (BT.601) 4:2:2 8bit limited</td><td><strong>YUY2 (YUYV YUNV)</strong><br><strong>UYVY (UYNV)</strong><br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
-<tr><td>ULY0</td><td>YCbCr (BT.601) 4:2:0 8bit limited</td><td><strong>YV12</strong><br>YUY2 (YUYV YUNV)<br>UYVY (UYNV)<br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
+<tr><td>ULRA</td><td>UtVideo RGBA</td><td>RGBA 4:4:4:4 8bit full-range</td><td><strong>RGBA</strong></td><td><strong>ARGB</strong></td></tr>
+<tr><td>ULRG</td><td>UtVideo RGB</td><td>RGB 4:4:4 8bit full-range</td><td><strong>RGB24<br>RGB32</strong></td><td><strong>RGB<br>ARGB</strong></td></tr>
+<tr><td>ULY2</td><td>UtVideo YUV422 BT.601</td><td>YCbCr (BT.601) 4:2:2 8bit limited</td><td><strong>YUY2 (YUYV YUNV)</strong><br><strong>UYVY (UYNV)</strong><br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
+<tr><td>ULY0</td><td>UtVideo YUV420 BT.601</td><td>YCbCr (BT.601) 4:2:0 8bit limited</td><td><strong>YV12</strong><br>YUY2 (YUYV YUNV)<br>UYVY (UYNV)<br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
+<tr><td>ULH2</td><td>UtVideo YUV422 BT.709</td><td>YCbCr (BT.709) 4:2:2 8bit limited</td><td><strong>HDYC</strong><br><strong>YUY2 (YUYV YUNV)</strong><br><strong>UYVY (UYNV)</strong><br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
+<tr><td>ULH0</td><td>UtVideo YUV420 BT.709</td><td>YCbCr (BT.709) 4:2:0 8bit limited</td><td><strong>YV12</strong><br>HDYC<br>YUY2 (YUYV YUNV)<br>UYVY (UYNV)<br>RGB24<br>RGB32</td><td>RGB<br>ARGB</td></tr>
 </table>
 <ul>
 <li>In &quot;8-bit full-range&quot; of RGB formats, R,G,B=0-255. In &quot;8-bit limited&quot; of YUV formats, Y=16-235 and U,V=16-240.</li>
@@ -85,6 +87,22 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA</p>
 <dd>NASM 2.10.07</dd>
 </dl>
 <h2 id="history">Version history</h2>
+<h3>Version 13.0.1</h3>
+<dl>
+<dt>Others</dt><dd><ul>
+<li>Fix packaging.</li>
+</ul></dd>
+</dl>
+<h3>Version 13.0.0</h3>
+<dl>
+<dt>New features</dt><dd><ul>
+<li>Add codecs that use BT.709-based colorspace conversion coefficient. (FourCC: ULH2, ULH0)</li>
+</ul></dd>
+<dt>Others</dt><dd><ul>
+<li>Changed codec names.</li>
+<li>Changed recommended CPU: Nehalem or later.</li>
+</ul></dd>
+</dl>
 <h3>Version 12.2.1</h3>
 <dl>
 <dt>Bug fixes</dt><dd><ul>

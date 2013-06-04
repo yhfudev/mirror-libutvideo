@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: VCMFormat.cpp 960 2012-10-21 04:21:25Z umezawa $ */
+/* $Id: VCMFormat.cpp 1041 2013-06-01 10:27:56Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -39,6 +39,8 @@ int UtVideoFormatToVCMFormat(DWORD *biCompression, WORD *biBitCount, utvf_t utvf
 	case UTVF_ULRG:
 	case UTVF_ULY2:
 	case UTVF_ULY0:
+	case UTVF_ULH2:
+	case UTVF_ULH0:
 		*biBitCount = 24;
 		break;
 
@@ -47,6 +49,7 @@ int UtVideoFormatToVCMFormat(DWORD *biCompression, WORD *biBitCount, utvf_t utvf
 	case UTVF_YUNV:
 	case UTVF_UYVY:
 	case UTVF_UYNV:
+	case UTVF_HDYC:
 		*biBitCount = 16;
 		break;
 	case UTVF_YV12:
