@@ -1,10 +1,10 @@
 ; •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e
-; $Id: setup_win.iss 995 2013-04-23 13:31:42Z umezawa $
+; $Id: setup_win.iss 1012 2013-05-12 09:34:35Z umezawa $
 
 [Setup]
 AppName=Ut Video Codec Suite
 AppId=utvideo
-AppVersion=12.1.0
+AppVersion=12.2.0
 AppCopyright=Copyright (c) 2008-2013 UMEZAWA Takeshi
 AppPublisher=UMEZAWA Takeshi
 AppPublisherURL=http://umezawa.dyndns.info/
