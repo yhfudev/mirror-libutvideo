@@ -3,6 +3,10 @@
 
 #pragma once
 
+#ifndef _WIN32
+#include <limits.h>
+#endif
+
 class CBGRColorOrder
 {
 public:
