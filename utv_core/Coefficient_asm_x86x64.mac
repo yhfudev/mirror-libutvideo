@@ -1,5 +1,5 @@
 ; •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e
-; $Id: Coefficient_asm_x86x64.mac 1053 2013-06-03 10:40:47Z umezawa $
+; $Id: Coefficient_asm_x86x64.mac 1074 2013-06-22 08:59:42Z umezawa $
 
 %include "Coefficient_nasm.mac"
 
@@ -26,10 +26,10 @@ endstruc
 
 
 	align	64
-yoff	dw	16, 16, 16, 16
-		dw	0, 0, 0, 0
+yoff	dw	16, 0, 16, 0
+		dw	16, 0, 16, 0
 uvoff	dw	128, 128, 128, 128
-		dw	0, 0, 0, 0
+		dw	128, 128, 128, 128
 yuvoff	dd	RSHLD(16, 14)
 		dd	RSHLD(16, 14)
 		dd	RSHLD(128, 14)
