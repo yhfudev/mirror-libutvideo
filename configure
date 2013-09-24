@@ -154,6 +154,7 @@ ASMFLAGS="-g -Xgnu"
 SOFLAGS="$SOFLAGS"
 HAVE_GETOPT_LONG=1
 olev="2"
+assembly="no"
 cross_prefix=""
 
 # parse options
@@ -180,6 +181,7 @@ for opt do
             olev="$optarg"
             ;;
         --enable-asm=*)
+            assembly="yes"
             ARCH="$optarg"
             ;;
         --extra-cppflags=*)
@@ -355,6 +357,14 @@ if [ "$optlevel" != "no" -a "$olev" = "0" ] ; then
 else
     CFLAGS="-O$olev $CFLAGS"
     CXXFLAGS="-O$olev $CXXFLAGS"
+fi
+
+if [ "$assembly" = "yes" -a "$shared" = "yes" ] ; then
+    msg="--enable-asm is incompatible with --enable-shared"
+    echo $msg
+    log_msg "$msg"
+    assembly="no"
+    ARCH=
 fi
 
 if [ "$ARCH" = "x86" ] ; then
