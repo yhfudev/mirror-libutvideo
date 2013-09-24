@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: HuffmanCode.cpp 1001 2013-04-29 14:48:23Z umezawa $ */
+/* $Id: HuffmanCode.cpp 1084 2013-09-16 03:11:43Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -121,14 +121,23 @@ void GenerateHuffmanEncodeTable(HUFFMAN_ENCODE_TABLE *pEncodeTable, const uint8_
 
 // IA-32 ‚Ì BSR –½—ß
 // –{•¨‚Ì BSR –½—ß‚Å‚Í“ü—Í‚ª 0 ‚Ìê‡‚Éo—Í‚ª•s’è‚É‚È‚éB
-inline int bsr(uint32_t curcode)
+inline int bsr(uint32_t x)
 {
-	_ASSERT(curcode != 0);
+	_ASSERT(x != 0);
 
 	for (int i = 31; i >= 0; i--)
-		if (curcode & (1 << i))
+		if (x & (1 << i))
 			return i;
 	return rand() % 32;
+}
+
+// LZCNT ‚ ‚é‚¢‚Í CLZ ‚ÆŒÄ‚Î‚ê‚é–½—ß
+inline int lzcnt(uint32_t x)
+{
+	for (int i = 31; i >= 0; i--)
+		if (x & (1 << i))
+			return 31 - i;
+	return 32;
 }
 
 void GenerateHuffmanDecodeTable(HUFFMAN_DECODE_TABLE *pDecodeTable, const uint8_t *pCodeLengthTable)

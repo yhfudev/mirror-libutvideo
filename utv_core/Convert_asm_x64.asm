@@ -1,5 +1,5 @@
 ; ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe
-; $Id: Convert_asm_x64.asm 1075 2013-06-23 12:56:54Z umezawa $
+; $Id: Convert_asm_x64.asm 1091 2013-09-21 02:54:32Z umezawa $
 
 
 %include "Common_asm_x64.mac"
@@ -210,14 +210,14 @@ CONVERT_ULY2_TO_RGB	sse2_ConvertULH2ToBGRX,  0, bt709coeff, 1, 1
 CONVERT_ULY2_TO_RGB	sse2_ConvertULH2ToRGB,   0, bt709coeff, 0, 0
 CONVERT_ULY2_TO_RGB	sse2_ConvertULH2ToXRGB,  0, bt709coeff, 0, 1
 
-CONVERT_ULY2_TO_RGB	sse41_ConvertULY2ToBGR,   1, bt601coeff, 1, 0
-CONVERT_ULY2_TO_RGB	sse41_ConvertULY2ToBGRX,  1, bt601coeff, 1, 1
-CONVERT_ULY2_TO_RGB	sse41_ConvertULY2ToRGB,   1, bt601coeff, 0, 0
-CONVERT_ULY2_TO_RGB	sse41_ConvertULY2ToXRGB,  1, bt601coeff, 0, 1
-CONVERT_ULY2_TO_RGB	sse41_ConvertULH2ToBGR,   1, bt709coeff, 1, 0
-CONVERT_ULY2_TO_RGB	sse41_ConvertULH2ToBGRX,  1, bt709coeff, 1, 1
-CONVERT_ULY2_TO_RGB	sse41_ConvertULH2ToRGB,   1, bt709coeff, 0, 0
-CONVERT_ULY2_TO_RGB	sse41_ConvertULH2ToXRGB,  1, bt709coeff, 0, 1
+CONVERT_ULY2_TO_RGB	sse41_ConvertULY2ToBGR,  1, bt601coeff, 1, 0
+CONVERT_ULY2_TO_RGB	sse41_ConvertULY2ToBGRX, 1, bt601coeff, 1, 1
+CONVERT_ULY2_TO_RGB	sse41_ConvertULY2ToRGB,  1, bt601coeff, 0, 0
+CONVERT_ULY2_TO_RGB	sse41_ConvertULY2ToXRGB, 1, bt601coeff, 0, 1
+CONVERT_ULY2_TO_RGB	sse41_ConvertULH2ToBGR,  1, bt709coeff, 1, 0
+CONVERT_ULY2_TO_RGB	sse41_ConvertULH2ToBGRX, 1, bt709coeff, 1, 1
+CONVERT_ULY2_TO_RGB	sse41_ConvertULH2ToRGB,  1, bt709coeff, 0, 0
+CONVERT_ULY2_TO_RGB	sse41_ConvertULH2ToXRGB, 1, bt709coeff, 0, 1
 
 
 align	64
@@ -371,10 +371,10 @@ CONVERT_RGB_TO_ULY2	ssse3_ConvertBGRToULY2,  1, bt601coeff, 1, 0
 CONVERT_RGB_TO_ULY2	ssse3_ConvertBGRXToULY2, 1, bt601coeff, 1, 1
 CONVERT_RGB_TO_ULY2	ssse3_ConvertRGBToULY2,  1, bt601coeff, 0, 0
 CONVERT_RGB_TO_ULY2	ssse3_ConvertXRGBToULY2, 1, bt601coeff, 0, 1
-CONVERT_RGB_TO_ULY2	ssse3_ConvertBGRToULH2,   1, bt709coeff, 1, 0
-CONVERT_RGB_TO_ULY2	ssse3_ConvertBGRXToULH2,  1, bt709coeff, 1, 1
-CONVERT_RGB_TO_ULY2	ssse3_ConvertRGBToULH2,   1, bt709coeff, 0, 0
-CONVERT_RGB_TO_ULY2	ssse3_ConvertXRGBToULH2,  1, bt709coeff, 0, 1
+CONVERT_RGB_TO_ULY2	ssse3_ConvertBGRToULH2,  1, bt709coeff, 1, 0
+CONVERT_RGB_TO_ULY2	ssse3_ConvertBGRXToULH2, 1, bt709coeff, 1, 1
+CONVERT_RGB_TO_ULY2	ssse3_ConvertRGBToULH2,  1, bt709coeff, 0, 0
+CONVERT_RGB_TO_ULY2	ssse3_ConvertXRGBToULH2, 1, bt709coeff, 0, 1
 
 
 

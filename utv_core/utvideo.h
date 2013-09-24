@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: utvideo.h 1076 2013-06-25 13:02:18Z umezawa $ */
+/* $Id: utvideo.h 1093 2013-09-21 09:43:30Z umezawa $ */
 
 #pragma once
 
@@ -26,8 +26,8 @@ typedef ptrdiff_t ssize_t;
 
 
 #define UTVIDEO_VERSION_MASK                      0xffffff00
-#define UTVIDEO_VERSION                           0x0d010000
-#define UTVIDEO_VERSION_STR                       "13.1.0"
+#define UTVIDEO_VERSION                           0x0d020000
+#define UTVIDEO_VERSION_STR                       "13.2.0"
 
 /*
  * NOTE:

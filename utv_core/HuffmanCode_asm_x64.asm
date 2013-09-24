@@ -1,5 +1,5 @@
 ; 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ
-; $Id: HuffmanCode_asm_x64.asm 1009 2013-05-11 11:07:46Z umezawa $
+; $Id: HuffmanCode_asm_x64.asm 1090 2013-09-21 02:47:12Z umezawa $
 
 
 %include "Common_asm_x64.mac"
@@ -66,9 +66,9 @@ i686_HuffmanEncode:
 %pop
 
 
-%macro HUFFMAN_DECODE 5
+%macro HUFFMAN_DECODE 6
 %push
-	MULTI_CONTEXT_XDEFINE procname, %1, accum, %2, step, %3, corrpos, %4, dummyalphapos, %5
+	MULTI_CONTEXT_XDEFINE procname, %1, accum, %2, step, %3, corrpos, %4, dummyalphapos, %5, bmi2, %6
 
 global %$procname
 %$procname:
@@ -96,12 +96,7 @@ global %$procname
 %endif
 
 %if %$dohuffman
- %if %$$accum || (%$$corrpos != 0)
-	mov			cl, 0
- %else
-	mov			cl, -32
-	mov			ah, 32
- %endif
+	mov			cl, 32
 	mov			edx, dword [rsi]
 	sub			rsi, 4
 %else
@@ -114,49 +109,50 @@ global %$procname
 	jae			%%label2
 
 %if %$dohuffman
- %if %$$accum || (%$$corrpos != 0)
-	test		cl, cl		; (*a)
-	js			%%label4
- %else
-	add			cl, ah
-	jnc			%%label4
- %endif
+	cmp			cl, 32
+	jb			%%label4
 	sub			cl, 32
-	mov			r9d, edx
-	mov			edx, dword [rsi+4+4]
+	shl			rdx, 32
+	mov			r9d, dword [rsi+4+4]
+	or			rdx, r9
 	add			rsi, 4
 
 %%label4:
-	mov			eax, r9d
-	shld		eax, edx, cl
-	shr			eax, 20
+%if %$$bmi2
+	shlx		rax, rdx, rcx
+%else
+	mov			rax, rdx
+	shl			rax, cl
+%endif
+	shr			rax, 20+32
 	movzx		eax, word [rbx + rax*2]
 	cmp			ah, 255
 	jne			%%label0
 
-	mov			eax, r9d
-	shld		eax, edx, cl
+%if %$$bmi2
+	shlx		rax, rdx, rcx
+%else
+	mov			rax, rdx
+	shl			rax, cl
 	mov			r15d, ecx
+%endif
+	shr			rax, 32
 	or			eax, 1
 	bsr			r10, rax
+%if %$$bmi2
+	movzx		r13d, byte [rbx + 8192 + r10]				; pDecodeTable->nCodeShift[r10]
+	shrx		eax, eax, r13d
+%else
 	mov			cl, byte [rbx + 8192 + r10]					; pDecodeTable->nCodeShift[r10]
 	shr			eax, cl
 	mov			ecx, r15d
+%endif
 	mov			r10d, dword [rbx + 8192+32 + r10*4]			; pDecodeTable->dwSymbolBase[r10]
 	add			r10, rax
 	mov			eax, dword [rbx + 8192+32+4*32 + r10*2]		; pDecodeTable->SymbolAndCodeLength[r10]
 
 %%label0:
- %if %$$accum || (%$$corrpos != 0)
-	add			cl, ah		; 本来は cl への add はここではなく (*a) でやって uOP を減らしたいが、
-							; 下の al への add が eax への部分レジスタ更新になっているため、
-							; ah に対して偽の依存関係を生んでしまい、遅くなる。
-							;
-							; 下の al への add が無い場合は部分レジスタ更新をしないので
-							; cl への add をここに持ってきても逆に遅くなるはずで、
-							; Penryn の場合はその通りなのだが、
-							; Sandy Bridge の場合はこっちの方が速い。原因不明。
- %endif
+	add			cl, ah
 %else
 	mov			al, ah
 %endif
@@ -197,14 +193,26 @@ global %$procname
 %pop
 %endmacro
 
-HUFFMAN_DECODE	i686_HuffmanDecode,                                     0, 1,  0,  0
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccum,                             1, 1,  0,  0
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep2,                        1, 2,  0,  0
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep3,                        1, 3,  0,  0
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4,                        1, 4,  0,  0
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep3ForBGRBlue,              1, 3, +1,  0
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep3ForBGRRed,               1, 3, -1,  0
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4ForBGRXBlue,             1, 4, +1,  0
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4ForBGRXRed,              1, 4, -1,  0
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4ForBGRXRedAndDummyAlpha, 1, 4, -1, +1
-HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4ForXRGBRedAndDummyAlpha, 1, 4, +1, -1
+HUFFMAN_DECODE	i686_HuffmanDecode,                                     0, 1,  0,  0, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccum,                             1, 1,  0,  0, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep2,                        1, 2,  0,  0, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep3,                        1, 3,  0,  0, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4,                        1, 4,  0,  0, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep3ForBGRBlue,              1, 3, +1,  0, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep3ForBGRRed,               1, 3, -1,  0, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4ForBGRXBlue,             1, 4, +1,  0, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4ForBGRXRed,              1, 4, -1,  0, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4ForBGRXRedAndDummyAlpha, 1, 4, -1, +1, 0
+HUFFMAN_DECODE	i686_HuffmanDecodeAndAccumStep4ForXRGBRedAndDummyAlpha, 1, 4, +1, -1, 0
+
+HUFFMAN_DECODE	bmi2_HuffmanDecode,                                     0, 1,  0,  0, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccum,                             1, 1,  0,  0, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccumStep2,                        1, 2,  0,  0, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccumStep3,                        1, 3,  0,  0, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccumStep4,                        1, 4,  0,  0, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccumStep3ForBGRBlue,              1, 3, +1,  0, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccumStep3ForBGRRed,               1, 3, -1,  0, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccumStep4ForBGRXBlue,             1, 4, +1,  0, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccumStep4ForBGRXRed,              1, 4, -1,  0, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccumStep4ForBGRXRedAndDummyAlpha, 1, 4, -1, +1, 1
+HUFFMAN_DECODE	bmi2_HuffmanDecodeAndAccumStep4ForXRGBRedAndDummyAlpha, 1, 4, +1, -1, 1
