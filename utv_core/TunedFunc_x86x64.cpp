@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: TunedFunc_x86x64.cpp 1090 2013-09-21 02:47:12Z umezawa $ */
+/* $Id: TunedFunc_x86x64.cpp 1097 2013-09-25 12:52:08Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -174,7 +174,7 @@ const TUNEDFUNC_CONVERT_YUVRGB tfnConvertYUVRGBSSE41 = {
 
 
 const TUNEDFUNC_CONVERT_SHUFFLE tfnConvertShuffleSSSE3 = {
-	&tfnConvertYUVRGBCPP,
+	&tfnConvertShuffleCPP,
 	{ FEATURE0_SSSE3, 0 },
 	ssse3_ConvertBGRToULRG,
 	ssse3_ConvertBGRXToULRG,
