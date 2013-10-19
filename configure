@@ -450,6 +450,19 @@ if [ "$shared" = "yes" ] ; then
     fi
 fi
 
+cat > libutvideo.pc << EOF
+prefix=$prefix
+exec_prefix=$exec_prefix
+libdir=$libdir
+includedir=$includedir
+
+Name: libutvideo
+Description: Ut Video Codec Suite
+Version: $(grep UTVIDEO_VERSION_STR utv_core/utvideo.h | cut -f2 -d "\"")
+Libs: -L$libdir -lutvideo -lstdc++
+Cflags: -I$includedir
+EOF
+
 cat > conftest.log <<EOF
 OS:         $SYS
 asm:        $ARCHREPORT

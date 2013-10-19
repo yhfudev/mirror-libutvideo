@@ -102,10 +102,13 @@ install: all
 	@install -d $(DESTDIR)$(includedir)
 	@install -d $(DESTDIR)$(includedir)/utvideo
 	@install -d $(DESTDIR)$(libdir)
+	@install -d $(DESTDIR)$(libdir)/pkgconfig
 	@printf " INSTALL\t$(includedir)/utvideo/Codec.h\n";
 	@install -m 644 $(UTV_CORE_DIR)/Codec.h $(DESTDIR)$(includedir)/utvideo
 	@printf " INSTALL\t$(includedir)/utvideo/utvideo.h\n";
 	@install -m 644 $(UTV_CORE_DIR)/utvideo.h $(DESTDIR)$(includedir)/utvideo
+	@printf " INSTALL\t$(libdir)/pkgconfig/libutvideo.pc\n";
+	@install -m 644 libutvideo.pc $(DESTDIR)$(libdir)/pkgconfig
 	@$(if $(STATICLIB), \
 	@printf " INSTALL\t$(libdir)/libutvideo.a\n";${\n}\
 	@install -m 644 $(STATICLIB) $(DESTDIR)$(libdir)${\n}\
@@ -140,6 +143,8 @@ uninstall:
 	  if [ -d $(includedir)/utvideo ]; then \
 	    printf " NOTE: Not removing $(includedir)/utvideo since it is not empty.\n"; \
 	  fi
+	@printf " RM\t$(libdir)/pkgconfig/libutvideo.pc\n";
+	@rm -f $(libdir)/pkgconfig/libutvideo.pc
 	@$(if $(STATICLIB),\
 	@printf " RM\t$(libdir)/libutvideo.a\n";${\n}\
 	@rm -f $(libdir)/libutvideo.a)
@@ -163,5 +168,7 @@ distclean: clean
 	@rm -f *.log
 	@printf " RM\t*.mak\n";
 	@rm -f *.mak
+	@printf " RM\tlibutvideo.pc\n";
+	@rm -f libutvideo.pc
 
 .PHONY: all static-lib shared-lib clean install uninstall distclean
