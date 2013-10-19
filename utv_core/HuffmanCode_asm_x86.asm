@@ -1,5 +1,5 @@
 ; ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe
-; $Id: HuffmanCode_asm_x86.asm 1085 2013-09-17 12:22:01Z umezawa $
+; $Id: HuffmanCode_asm_x86.asm 1106 2013-10-12 11:39:41Z umezawa $
 
 
 %include "Common_asm_x86.mac"
@@ -184,6 +184,7 @@ global %$procname
 %endmacro
 
 HUFFMAN_DECODE	_i686_HuffmanDecode,                                     0, 1,  0,  0
+HUFFMAN_DECODE	_i686_HuffmanDecodeStep4,                                0, 4,  0,  0
 HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccum,                             1, 1,  0,  0
 HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep2,                        1, 2,  0,  0
 HUFFMAN_DECODE	_i686_HuffmanDecodeAndAccumStep3,                        1, 3,  0,  0

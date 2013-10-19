@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: TunedFunc.h 1098 2013-09-25 13:00:40Z umezawa $ */
+/* $Id: TunedFunc.h 1108 2013-10-13 13:00:27Z umezawa $ */
 
 #pragma once
 
@@ -27,6 +27,7 @@ struct TUNEDFUNC_PREDICT
 	void (*pfnPredictWrongMedianAndCount_align1)(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride, uint32_t *pCountTable);
 	void (*pfnPredictLeftAndCount_align1)(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, uint32_t *pCountTable);
 	void (*pfnRestoreWrongMedian_align1)(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t dwStride);
+	void (*pfnRestoreWrongMedianBlock4)(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t cbWidth, ssize_t scbStride);
 };
 
 struct TUNEDFUNC_HUFFMAN_ENCODE
@@ -39,6 +40,7 @@ struct TUNEDFUNC_HUFFMAN_DECODE
 {
 	DECLARE_TUNEDFUNC_FRAGMENT_HEADER(TUNEDFUNC_HUFFMAN_DECODE);
 	void (*pfnHuffmanDecode)(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbWidth, ssize_t scbStride);
+	void (*pfnHuffmanDecodeStep4)(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbWidth, ssize_t scbStride);
 	void (*pfnHuffmanDecodeAndAccum)(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbWidth, ssize_t scbStride);
 	void (*pfnHuffmanDecodeAndAccumStep2)(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbWidth, ssize_t scbStride);
 	void (*pfnHuffmanDecodeAndAccumStep3)(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pSrcBegin, const HUFFMAN_DECODE_TABLE *pDecodeTable, size_t cbWidth, ssize_t scbStride);
@@ -89,6 +91,15 @@ struct TUNEDFUNC_CONVERT_SHUFFLE
 	void (*pfnConvertULY2ToUYVY)(uint8_t *pDstBegin, uint8_t *pDstEnd, const uint8_t *pYBegin, const uint8_t *pUBegin, const uint8_t *pVBegin);
 };
 
+struct TUNEDFUNC_CORRELATE
+{
+	DECLARE_TUNEDFUNC_FRAGMENT_HEADER(TUNEDFUNC_CORRELATE);
+	void (*pfnEncorrelateInplaceBGRX)(uint8_t *pBegin, uint8_t *pEnd, size_t cbWidth, ssize_t scbStride);
+	void (*pfnEncorrelateInplaceBGRA)(uint8_t *pBegin, uint8_t *pEnd, size_t cbWidth, ssize_t scbStride);
+	void (*pfnEncorrelateInplaceXRGB)(uint8_t *pBegin, uint8_t *pEnd, size_t cbWidth, ssize_t scbStride);
+	void (*pfnEncorrelateInplaceARGB)(uint8_t *pBegin, uint8_t *pEnd, size_t cbWidth, ssize_t scbStride);
+};
+
 struct TUNEDFUNC
 {
 	const TUNEDFUNC_PREDICT *pPredict;
@@ -96,6 +107,7 @@ struct TUNEDFUNC
 	const TUNEDFUNC_HUFFMAN_DECODE *pHuffmanDecode;
 	const TUNEDFUNC_CONVERT_YUVRGB *pConvertYUVRGB;
 	const TUNEDFUNC_CONVERT_SHUFFLE *pConvertShuffle;
+	const TUNEDFUNC_CORRELATE *pCorrelate;
 };
 
 extern TUNEDFUNC tfn;
@@ -104,6 +116,7 @@ extern const TUNEDFUNC_HUFFMAN_ENCODE tfnHuffmanEncodeCPP;
 extern const TUNEDFUNC_HUFFMAN_DECODE tfnHuffmanDecodeCPP;
 extern const TUNEDFUNC_CONVERT_YUVRGB tfnConvertYUVRGBCPP;
 extern const TUNEDFUNC_CONVERT_SHUFFLE tfnConvertShuffleCPP;
+extern const TUNEDFUNC_CORRELATE tfnCorrelateCPP;
 
 void ResolveTunedFunc(const TUNEDFUNC *ptfnRoot, const uint32_t *pdwSupportedFeatures);
 
@@ -127,9 +140,11 @@ public:
 #define PredictWrongMedianAndCount_align1 tfn.pPredict->pfnPredictWrongMedianAndCount_align1
 #define PredictLeftAndCount tfn.pPredict->pfnPredictLeftAndCount_align1
 #define RestoreWrongMedian tfn.pPredict->pfnRestoreWrongMedian_align1
+#define RestoreWrongMedianBlock4 tfn.pPredict->pfnRestoreWrongMedianBlock4
 
 #define HuffmanEncode tfn.pHuffmanEncode->pfnHuffmanEncode
 #define HuffmanDecode tfn.pHuffmanDecode->pfnHuffmanDecode
+#define HuffmanDecodeStep4 tfn.pHuffmanDecode->pfnHuffmanDecodeStep4
 #define HuffmanDecodeAndAccum tfn.pHuffmanDecode->pfnHuffmanDecodeAndAccum
 #define HuffmanDecodeAndAccumStep2 tfn.pHuffmanDecode->pfnHuffmanDecodeAndAccumStep2
 #define HuffmanDecodeAndAccumStep3 tfn.pHuffmanDecode->pfnHuffmanDecodeAndAccumStep3
@@ -170,3 +185,8 @@ public:
 #define ConvertULRAToARGB tfn.pConvertShuffle->pfnConvertULRAToARGB
 #define ConvertULY2ToYUYV tfn.pConvertShuffle->pfnConvertULY2ToYUYV
 #define ConvertULY2ToUYVY tfn.pConvertShuffle->pfnConvertULY2ToUYVY
+
+#define EncorrelateInplaceBGRX tfn.pCorrelate->pfnEncorrelateInplaceBGRX
+#define EncorrelateInplaceBGRA tfn.pCorrelate->pfnEncorrelateInplaceBGRA
+#define EncorrelateInplaceXRGB tfn.pCorrelate->pfnEncorrelateInplaceXRGB
+#define EncorrelateInplaceARGB tfn.pCorrelate->pfnEncorrelateInplaceARGB

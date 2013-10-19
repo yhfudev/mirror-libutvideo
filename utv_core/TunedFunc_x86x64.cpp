@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: TunedFunc_x86x64.cpp 1097 2013-09-25 12:52:08Z umezawa $ */
+/* $Id: TunedFunc_x86x64.cpp 1108 2013-10-13 13:00:27Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -30,6 +30,44 @@
 #define FEATURE1_BMI1     (1 <<  3)
 #define FEATURE1_BMI2     (1 <<  4)
 
+
+#define MA_INVALID            0x00000000
+#define MA_UNKNOWN            0xffffffff
+
+#define MA_INTEL_MEROM        0x00010000
+#define MA_INTEL_PENRYN       0x00010001
+#define MA_INTEL_NEHALEM      0x00010002
+#define MA_INTEL_WESTMERE     0x00010003
+#define MA_INTEL_SANDY_BRIDGE 0x00010004
+#define MA_INTEL_IVY_BRIDGE   0x00010005
+#define MA_INTEL_HASWELL      0x00010006
+//#define MA_INTEL_BROADWELL    0x00010007
+//#define MA_INTEL_SKYLAKE      0x00010008
+
+struct MAFM
+{
+	const char *name;
+	uint32_t ma;
+	uint16_t fm[6];
+};
+
+/*
+ * Reference:
+ *   - http://software.intel.com/en-us/articles/intel-architecture-and-processor-identification-with-cpuid-model-and-family-numbers
+ * and
+ *   - Intel 64 and IA-32 Architectures Optimization Reference Manual, Appendix C
+ */
+static const struct MAFM mafm[] = {
+	{ "Merom",        MA_INTEL_MEROM,        { 0x060f, 0x0616 } },
+	{ "Penryn",       MA_INTEL_PENRYN,       { 0x0617, 0x061d } },
+	{ "Nehalem",      MA_INTEL_NEHALEM,      { 0x061a, 0x061e, 0x061f, 0x062e } },
+	{ "Westmere",     MA_INTEL_WESTMERE,     { 0x0625, 0x062c, 0x062f } },
+	{ "Sandy Bridge", MA_INTEL_SANDY_BRIDGE, { 0x062a, 0x062d } },
+	{ "Ivy Bridge",   MA_INTEL_IVY_BRIDGE,   { 0x063a, 0x063e } },
+	{ "Haswell",      MA_INTEL_HASWELL,      { 0x063c, 0x0645, 0x0646 } },
+};
+
+
 #ifdef __i386__
 const TUNEDFUNC_PREDICT tfnPredictI686 = {
 	NULL,
@@ -38,6 +76,7 @@ const TUNEDFUNC_PREDICT tfnPredictI686 = {
 	cpp_PredictWrongMedianAndCount,
 	cpp_PredictLeftAndCount,
 	i686_RestoreWrongMedian_align1,
+	cpp_RestoreWrongMedianBlock4,
 };
 #endif
 
@@ -52,6 +91,7 @@ const TUNEDFUNC_PREDICT tfnPredictSSE2 = {
 	sse2_PredictWrongMedianAndCount_align1,
 	sse2_PredictLeftAndCount_align1,
 	sse1mmx_RestoreWrongMedian_align1,
+	sse2_RestoreWrongMedianBlock4,
 };
 
 
@@ -66,6 +106,7 @@ const TUNEDFUNC_HUFFMAN_DECODE tfnHuffmanDecodeI686 = {
 	NULL,
 	{ 0, 0 },
 	i686_HuffmanDecode,
+	i686_HuffmanDecodeStep4,
 	i686_HuffmanDecodeAndAccum,
 	i686_HuffmanDecodeAndAccumStep2,
 	i686_HuffmanDecodeAndAccumStep3,
@@ -83,6 +124,7 @@ const TUNEDFUNC_HUFFMAN_DECODE tfnHuffmanDecodeBMI2 = {
 	&tfnHuffmanDecodeI686,
 	{ 0, FEATURE1_BMI2 },
 	bmi2_HuffmanDecode,
+	bmi2_HuffmanDecodeStep4,
 	bmi2_HuffmanDecodeAndAccum,
 	bmi2_HuffmanDecodeAndAccumStep2,
 	bmi2_HuffmanDecodeAndAccumStep3,
@@ -192,6 +234,17 @@ const TUNEDFUNC_CONVERT_SHUFFLE tfnConvertShuffleSSSE3 = {
 	ssse3_ConvertULY2ToUYVY,
 };
 
+
+const TUNEDFUNC_CORRELATE tfnCorrelateSSSE3 = {
+	NULL,
+	{ 0 },
+	ssse3_EncorrelateInplaceBGRX,
+	ssse3_EncorrelateInplaceBGRA,
+	ssse3_EncorrelateInplaceXRGB,
+	ssse3_EncorrelateInplaceARGB,
+};
+
+
 const TUNEDFUNC tfnRoot = {
 	&tfnPredictSSE2,
 	&tfnHuffmanEncodeI686,
@@ -202,6 +255,7 @@ const TUNEDFUNC tfnRoot = {
 #endif
 	&tfnConvertYUVRGBSSE41,
 	&tfnConvertShuffleSSSE3,
+	&tfnCorrelateSSSE3,
 };
 
 uint32_t dwSupportedFeatures[FEATURESIZE];
@@ -247,6 +301,9 @@ public:
 
 		char vendor[16];
 		char procbrand[64];
+		unsigned int family, model;
+		const char *maname;
+		uint32_t ma;
 
 		memset(dwSupportedFeatures, 0, sizeof(dwSupportedFeatures));
 
@@ -294,6 +351,27 @@ public:
 		{
 			cpuid(&cpuid_7_0, 7, 0);
 		}
+
+
+		family = ((cpuid_1.eax >> 20) & 0xff) + ((cpuid_1.eax >> 8) & 0xf);
+		model  = ((cpuid_1.eax >> 12) & 0xf0) | ((cpuid_1.eax >> 4) & 0xf);
+		_RPT2(_CRT_WARN, "CPUID     family=%02XH model=%02XH\n", family, model);
+		for (int i = 0; i < _countof(mafm); i++)
+		{
+			for (int j = 0; j < _countof(mafm[i].fm); j++)
+			{
+				if (mafm[i].fm[j] == ((family << 8) | model))
+				{
+					ma = mafm[i].ma;
+					maname = mafm[i].name;
+					goto ma_found;
+				}
+			}
+		}
+		maname = "Unknown";
+		ma = MA_UNKNOWN;
+ma_found:
+		_RPT2(_CRT_WARN, "CPUID     march=\"%s\" (ID %08X)\n", maname, ma);
 
 
 		if (cpuid_7_0.ebx & (1 << 3))

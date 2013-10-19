@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: TunedFunc.cpp 1089 2013-09-20 18:11:39Z umezawa $ */
+/* $Id: TunedFunc.cpp 1108 2013-10-13 13:00:27Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -17,6 +17,7 @@ const TUNEDFUNC_PREDICT tfnPredictCPP = {
 	cpp_PredictWrongMedianAndCount,
 	cpp_PredictLeftAndCount,
 	cpp_RestoreWrongMedian,
+	cpp_RestoreWrongMedianBlock4,
 };
 
 const TUNEDFUNC_HUFFMAN_ENCODE tfnHuffmanEncodeCPP = {
@@ -29,6 +30,7 @@ const TUNEDFUNC_HUFFMAN_DECODE tfnHuffmanDecodeCPP = {
 	NULL,
 	{ 0 },
 	cpp_HuffmanDecode,
+	cpp_HuffmanDecodeStep4,
 	cpp_HuffmanDecodeAndAccum,
 	cpp_HuffmanDecodeAndAccumStep2,
 	cpp_HuffmanDecodeAndAccumStep3,
@@ -85,12 +87,22 @@ const TUNEDFUNC_CONVERT_SHUFFLE tfnConvertShuffleCPP = {
 	cpp_ConvertULY2ToYUV422<CUYVYColorOrder>,
 };
 
+const TUNEDFUNC_CORRELATE tfnCorrelateCPP = {
+	NULL,
+	{ 0 },
+	cpp_EncorrelateInplaceXRGB<CBGRAColorOrder, false>,
+	cpp_EncorrelateInplaceXRGB<CBGRAColorOrder, true>,
+	cpp_EncorrelateInplaceXRGB<CARGBColorOrder, false>,
+	cpp_EncorrelateInplaceXRGB<CARGBColorOrder, true>,
+};
+
 TUNEDFUNC tfn = {
 	&tfnPredictCPP,
 	&tfnHuffmanEncodeCPP,
 	&tfnHuffmanDecodeCPP,
 	&tfnConvertYUVRGBCPP,
 	&tfnConvertShuffleCPP,
+	&tfnCorrelateCPP,
 };
 
 

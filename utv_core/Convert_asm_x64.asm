@@ -1,5 +1,5 @@
 ; ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe
-; $Id: Convert_asm_x64.asm 1091 2013-09-21 02:54:32Z umezawa $
+; $Id: Convert_asm_x64.asm 1109 2013-10-13 13:17:20Z umezawa $
 
 
 %include "Common_asm_x64.mac"
@@ -574,36 +574,21 @@ global %$procname
 .label3:
 	cmp			rsi, r8
 	jae			.label2
-%if %$bgrx
-	mov			al, [rsi+1]
-%else
-	mov			al, [rsi+2]
-%endif
+
+	mov			al, [rsi+2-%$bgrx]
 	mov			[rdi+rcx], al
 	sub			al, 80h
 
 %if %$havealpha
- %if %$bgrx
-	mov			ah, [rsi+3]
- %else
-	mov			ah, [rsi  ]
- %endif
+	mov			ah, [rsi+%$bgrx*3]
 	mov			[rbp+rcx], ah
 %endif
 
-%if %$bgrx
-	mov			ah, [rsi  ]
-%else
-	mov			al, [rsi+3]
-%endif
+	mov			ah, [rsi+3-%$bgrx*3]
 	sub			ah, al
 	mov			[rbx+rcx], ah
 
-%if %$bgrx
-	mov			ah, [rsi+2]
-%else
-	mov			al, [rsi+1]
-%endif
+	mov			ah, [rsi+1+%$bgrx]
 	sub			ah, al
 	mov			[rdx+rcx], ah
 
@@ -1050,3 +1035,92 @@ global %$procname
 
 CONVERT_ULY2_TO_YUV422	ssse3_ConvertULY2ToYUYV, 1
 CONVERT_ULY2_TO_YUV422	ssse3_ConvertULY2ToUYVY, 0
+
+
+
+align	64
+encorrelate_pshufb_bgrx		dq	0ff05ff05ff01ff01h, 0ff0dff0dff09ff09h
+encorrelate_add_bgrx		dq	00080008000800080h, 00080008000800080h
+encorrelate_dummyalpha_bgrx	dq	0ff000000ff000000h, 0ff000000ff000000h
+
+encorrelate_pshufb_xrgb		dq	006ff06ff02ff02ffh, 00eff0eff0aff0affh
+encorrelate_add_xrgb		dq	08000800080008000h, 08000800080008000h
+encorrelate_dummyalpha_xrgb	dq	0000000ff000000ffh, 0000000ff000000ffh
+
+%macro ENCORRELATE_INPLACE_XRGB 3
+%push
+	MULTI_CONTEXT_XDEFINE procname, %1, bgrx, %2, havealpha, %3
+
+global %$procname
+%$procname:
+	SIMPLE_PROLOGUE 0, pBegin, pEnd, cbWidth, scbStride
+
+%if %$bgrx
+	movdqa		xmm2, [encorrelate_pshufb_bgrx]
+	movdqa		xmm3, [encorrelate_add_bgrx]
+ %if ! %$havealpha
+	movdqa		xmm4, [encorrelate_dummyalpha_bgrx]
+ %endif
+%else
+	movdqa		xmm2, [encorrelate_pshufb_xrgb]
+	movdqa		xmm3, [encorrelate_add_xrgb]
+ %if ! %$havealpha
+	movdqa		xmm4, [encorrelate_dummyalpha_xrgb]
+ %endif
+%endif
+	mov			rsi, [rsp + %$pBegin]
+	mov			rax, [rsp + %$pEnd]
+	mov			rbx, [rsp + %$cbWidth]
+	mov			rcx, [rsp + %$scbStride]
+	sub			rcx, rbx
+	sub			rbx, 16 - 4
+
+.label1:
+	lea			rdx, [rsi+rbx]
+.label0:
+	lddqu		xmm0, [rsi]		; xmm0 = A3 R3 G3 B3 A2 R2 G2 B2 A1 R1 G1 B1 A0 R0 G0 B0 (bgrx)
+	movdqa		xmm1, xmm0
+	pshufb		xmm1, xmm2
+	paddb		xmm0, xmm3
+	paddb		xmm0, xmm1
+%if ! %$havealpha
+	por			xmm0, xmm4
+%endif
+	movdqu		[rsi], xmm0
+
+	add			rsi, 16
+	cmp			rsi, rdx
+	jb			.label0
+
+	add			rdx, 16 - 4
+
+.label3:
+	cmp			rsi, rdx
+	jae			.label2
+
+	movd		xmm0, [rsi]
+	movdqa		xmm1, xmm0
+	pshufb		xmm1, xmm2
+	paddb		xmm0, xmm3
+	paddb		xmm0, xmm1
+%if ! %$havealpha
+	por			xmm0, xmm4
+%endif
+	movd		[rsi], xmm0
+
+	add			rsi, 4
+	jmp			.label3
+
+.label2:
+	add			rsi, rcx
+	cmp			rsi, rax
+	jne			.label1
+
+	SIMPLE_EPILOGUE
+%pop
+%endmacro
+
+ENCORRELATE_INPLACE_XRGB	ssse3_EncorrelateInplaceBGRX, 1, 0
+ENCORRELATE_INPLACE_XRGB	ssse3_EncorrelateInplaceXRGB, 0, 0
+ENCORRELATE_INPLACE_XRGB	ssse3_EncorrelateInplaceBGRA, 1, 1
+ENCORRELATE_INPLACE_XRGB	ssse3_EncorrelateInplaceARGB, 0, 1
