@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: Thread.h 789 2011-10-25 14:08:55Z umezawa $ */
+/* $Id: Thread.h 1120 2013-12-21 07:11:56Z umezawa $ */
 
 #pragma once
 
@@ -25,7 +25,7 @@ public:
 class CThreadManager
 {
 private:
-	static const int MAX_THREAD = 32;
+	static const int MAX_THREAD = 256; /* XXX should be larger than number of bits of DWORD_PTR */
 	static const int MAX_JOB = 256;
 
 private:

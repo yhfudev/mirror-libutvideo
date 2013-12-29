@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: TunedFunc.cpp 1108 2013-10-13 13:00:27Z umezawa $ */
+/* $Id: TunedFunc.cpp 1115 2013-10-17 11:59:05Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -13,7 +13,6 @@
 const TUNEDFUNC_PREDICT tfnPredictCPP = {
 	NULL,
 	{ 0 },
-	cpp_PredictWrongMedianAndCount,
 	cpp_PredictWrongMedianAndCount,
 	cpp_PredictLeftAndCount,
 	cpp_RestoreWrongMedian,
