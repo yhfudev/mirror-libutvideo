@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: Thread.cpp 799 2011-11-07 15:10:36Z umezawa $ */
+/* $Id: Thread.cpp 1122 2013-12-21 08:13:20Z umezawa $ */
 
 #include "stdafx.h"
 #include "Thread.h"
@@ -161,6 +161,8 @@ CThreadManager::CThreadManager(void)
 	pthread_cond_init(&m_ptcJobCond, NULL);
 
 	m_nNumThreads = sysconf(_SC_NPROCESSORS_ONLN);
+	if (m_nNumThreads > MAX_THREAD)
+		m_nNumThreads = MAX_THREAD;
 	for (int i = 0; i < m_nNumThreads; i++)
 	{
 		pthread_create(&m_ptidThread[i], NULL, StaticThreadProc, this);

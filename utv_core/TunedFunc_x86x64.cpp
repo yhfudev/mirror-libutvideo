@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: TunedFunc_x86x64.cpp 1108 2013-10-13 13:00:27Z umezawa $ */
+/* $Id: TunedFunc_x86x64.cpp 1118 2013-12-14 14:00:30Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -73,9 +73,8 @@ const TUNEDFUNC_PREDICT tfnPredictI686 = {
 	NULL,
 	{ 0, 0 },
 	cpp_PredictWrongMedianAndCount,
-	cpp_PredictWrongMedianAndCount,
 	cpp_PredictLeftAndCount,
-	i686_RestoreWrongMedian_align1,
+	i686_RestoreWrongMedian,
 	cpp_RestoreWrongMedianBlock4,
 };
 #endif
@@ -87,10 +86,9 @@ const TUNEDFUNC_PREDICT tfnPredictSSE2 = {
 	NULL,
 #endif
 	{ FEATURE0_SSE2, 0 },
-	sse2_PredictWrongMedianAndCount_align16,
-	sse2_PredictWrongMedianAndCount_align1,
-	sse2_PredictLeftAndCount_align1,
-	sse1mmx_RestoreWrongMedian_align1,
+	sse2_PredictWrongMedianAndCount,
+	sse2_PredictLeftAndCount,
+	sse1mmx_RestoreWrongMedian,
 	sse2_RestoreWrongMedianBlock4,
 };
 
@@ -237,7 +235,7 @@ const TUNEDFUNC_CONVERT_SHUFFLE tfnConvertShuffleSSSE3 = {
 
 const TUNEDFUNC_CORRELATE tfnCorrelateSSSE3 = {
 	NULL,
-	{ 0 },
+	{ FEATURE0_SSSE3, 0 },
 	ssse3_EncorrelateInplaceBGRX,
 	ssse3_EncorrelateInplaceBGRA,
 	ssse3_EncorrelateInplaceXRGB,
