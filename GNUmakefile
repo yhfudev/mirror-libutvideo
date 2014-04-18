@@ -110,6 +110,8 @@ install: all
 	@install -m 644 $(UTV_CORE_DIR)/Codec.h $(DESTDIR)$(includedir)/utvideo
 	@printf " INSTALL\t$(includedir)/utvideo/utvideo.h\n";
 	@install -m 644 $(UTV_CORE_DIR)/utvideo.h $(DESTDIR)$(includedir)/utvideo
+	@printf " INSTALL\t$(includedir)/utvideo/version.h\n";
+	@install -m 644 $(UTV_CORE_DIR)/version.h $(DESTDIR)$(includedir)/utvideo
 	@printf " INSTALL\t$(libdir)/pkgconfig/libutvideo.pc\n";
 	@install -m 644 libutvideo.pc $(DESTDIR)$(libdir)/pkgconfig
 	@$(if $(STATICLIB), \
