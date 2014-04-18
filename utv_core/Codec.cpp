@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: Codec.cpp 1059 2013-06-03 14:45:36Z umezawa $ */
+/* $Id: Codec.cpp 1143 2014-04-06 13:35:12Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -9,6 +9,7 @@
 #include "ULRGCodec.h"
 #include "ULYUV420Codec.h"
 #include "ULYUV422Codec.h"
+#include "UQY2Codec.h"
 
 CCodec::CCodec(void)
 {
@@ -25,7 +26,7 @@ INT_PTR CCodec::About(HWND hwnd)
 
 	wsprintf(buf,
 		"Ut Video Codec Suite, version %s\n"
-		"Copyright (C) 2008-2013  UMEZAWA Takeshi\n\n"
+		"Copyright (C) 2008-2014  UMEZAWA Takeshi\n\n"
 		"Licensed under GNU General Public License version 2 or later.",
 		UTVIDEO_VERSION_STR);
 	MessageBox(hwnd, buf, "Ut Video Codec Suite", MB_OK);
@@ -50,6 +51,7 @@ static const struct CODECLIST codeclist[] = {
 	CODECENTRY(CULYUV422Codec<CBT601Coefficient>), // ULY2
 	CODECENTRY(CULYUV420Codec<CBT709Coefficient>), // ULH0
 	CODECENTRY(CULYUV422Codec<CBT709Coefficient>), // ULH2
+	CODECENTRY(CUQY2Codec),
 };
 
 DLLEXPORT CCodec *CCodec::CreateInstance(utvf_t utvf, const char *pszInterfaceName)

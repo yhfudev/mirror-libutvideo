@@ -1,12 +1,12 @@
 /*  */
-/* $Id: QTCodec.cpp 862 2012-01-23 10:17:30Z umezawa $ */
+/* $Id: QTCodec.cpp 1152 2014-04-15 07:37:21Z umezawa $ */
 
 
 #include "stdafx.h"
 #include "utvideo.h"
 #include "QTCodec.h"
 #include "Codec.h"
-#include "Format.h"
+#include "QuickTimeFormat.h"
 
 pascal ComponentResult QTCodecOpen(CQTCodec *glob, ComponentInstance self)
 {
@@ -69,7 +69,7 @@ pascal ComponentResult QTCodecGetCodecInfo(CQTCodec *glob, CodecInfo *info)
 	*info = **tempCodecInfo;
 	DisposeHandle((Handle)tempCodecInfo);
 
-	glob->codec->GetShortFriendlyName(name, sizeof(name));
+	glob->codec->GetLongFriendlyName(name, sizeof(name));
 	{
 		char *src;
 		unsigned char *dst;

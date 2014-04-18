@@ -1,12 +1,12 @@
 /*  */
-/* $Id: QTDecoder.cpp 863 2012-01-23 14:50:08Z umezawa $ */
+/* $Id: QTDecoder.cpp 1153 2014-04-15 07:44:11Z umezawa $ */
 
 
 #include "stdafx.h"
 #include "utvideo.h"
 #include "QTDecoder.h"
 #include "Codec.h"
-#include "Format.h"
+#include "QuickTimeFormat.h"
 
 extern "C" pascal ComponentResult QTDecoderComponentDispatch(ComponentParameters *params, CQTDecoder *glob);
 

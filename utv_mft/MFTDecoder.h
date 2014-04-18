@@ -1,5 +1,5 @@
 /* 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ */
-/* $Id: MFTDecoder.h 1041 2013-06-01 10:27:56Z umezawa $ */
+/* $Id: MFTDecoder.h 1143 2014-04-06 13:35:12Z umezawa $ */
 
 // MFTDecoder.h : CMFTDecoder の宣言
 
@@ -96,3 +96,4 @@ MFTDECODER_ENTRY_AUTO(FCC('ULY0'), ULY0);
 MFTDECODER_ENTRY_AUTO(FCC('ULY2'), ULY2);
 MFTDECODER_ENTRY_AUTO(FCC('ULH0'), ULH0);
 MFTDECODER_ENTRY_AUTO(FCC('ULH2'), ULH2);
+MFTDECODER_ENTRY_AUTO(FCC('UQY2'), UQY2);

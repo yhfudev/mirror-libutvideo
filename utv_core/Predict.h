@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: Predict.h 1115 2013-10-17 11:59:05Z umezawa $ */
+/* $Id: Predict.h 1145 2014-04-14 12:08:31Z umezawa $ */
 
 #pragma once
 
@@ -16,3 +16,5 @@ extern "C" void sse1mmx_RestoreWrongMedian(uint8_t *pDst, const uint8_t *pSrcBeg
 
 extern "C" void sse2_RestoreWrongMedianBlock4(uint8_t *pDst, const uint8_t *pSrcBegin, const uint8_t *pSrcEnd, size_t cbWidth, ssize_t scbStride);
 #endif
+
+void PredictCylindricalLeftAndCount10(uint16_t *pDst, const uint16_t *pSrcBegin, const uint16_t *pSrcEnd, uint16_t initial, uint32_t *pCountTable);
