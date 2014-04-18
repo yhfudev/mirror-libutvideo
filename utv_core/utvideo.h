@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: utvideo.h 1123 2013-12-21 08:16:54Z umezawa $ */
+/* $Id: utvideo.h 1146 2014-04-14 12:27:18Z umezawa $ */
 
 #pragma once
 
@@ -24,10 +24,7 @@ typedef ptrdiff_t ssize_t;
 #endif
 #endif
 
-
-#define UTVIDEO_VERSION_MASK                      0xffffff00
-#define UTVIDEO_VERSION                           0x0d030100
-#define UTVIDEO_VERSION_STR                       "13.3.1"
+#include "version.h"
 
 /*
  * NOTE:
@@ -116,6 +113,7 @@ typedef uint32_t utvf_t;
 #define UTVF_ULY0 ((utvf_t)'ULY0')
 #define UTVF_ULH2 ((utvf_t)'ULH2')
 #define UTVF_ULH0 ((utvf_t)'ULH0')
+#define UTVF_UQY2 ((utvf_t)'UQY2')
 
 #define UTVF_YUY2 ((utvf_t)'YUY2')
 #define UTVF_YUYV ((utvf_t)'YUYV')
@@ -124,6 +122,7 @@ typedef uint32_t utvf_t;
 #define UTVF_UYNV ((utvf_t)'UYNV')
 #define UTVF_HDYC ((utvf_t)'HDYC')
 #define UTVF_YV12 ((utvf_t)'YV12')
+#define UTVF_v210 ((utvf_t)'v210')
 
 
 #ifdef _DEBUG

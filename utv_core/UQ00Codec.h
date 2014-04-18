@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: UL00Codec.h 1139 2014-03-13 13:41:36Z umezawa $ */
+/* $Id: UQ00Codec.h 1145 2014-04-14 12:08:31Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -9,60 +9,46 @@
 #include "HuffmanCode.h"
 
 
-class CUL00Codec :
+class CUQ00Codec :
 	public CCodecBase
 {
 protected:
-	struct EXTRADATA
-	{
-		uint32_t EncoderVersionAndImplementation;
-		uint32_t fccOriginalFormat;
-		uint32_t cbFrameInfo;
-		uint32_t flags0;
-	};
-
-	static const uint32_t BIE_FLAGS0_DIVIDE_COUNT_MASK     = 0xff000000;
-	static const uint32_t BIE_FLAGS0_DIVIDE_COUNT_SHIFT    = 24;
-
-	static const uint32_t BIE_FLAGS0_COMPRESS_MASK         = 0x00000001;
-	static const uint32_t BIE_FLAGS0_COMPRESS_NONE         = 0x00000000;
-	static const uint32_t BIE_FLAGS0_COMPRESS_HUFFMAN_CODE = 0x00000001;
-
-	static const uint32_t BIE_FLAGS0_ASSUME_INTERLACE      = 0x00000800;
-
-	static const uint32_t BIE_FLAGS0_RESERVED              = 0x00fff7fe;
-
-
-	struct FRAMEINFO
-	{
-		uint32_t dwFlags0;
-	};
-
-	static const uint32_t FI_FLAGS0_INTRAFRAME_PREDICT_MASK         = 0x00000300;
-	static const uint32_t FI_FLAGS0_INTRAFRAME_PREDICT_NONE         = 0x00000000;
-	static const uint32_t FI_FLAGS0_INTRAFRAME_PREDICT_LEFT         = 0x00000100;
-	static const uint32_t FI_FLAGS0_INTRAFRAME_PREDICT_GRADIENT     = 0x00000200;
-	static const uint32_t FI_FLAGS0_INTRAFRAME_PREDICT_WRONG_MEDIAN = 0x00000300;
-
-	static const uint32_t FI_FLAGS0_RESERVED                        = 0xfffffcff;
-
-
 	struct ENCODERCONF
 	{
-		uint32_t dwFlags0;
+		uint8_t ecReserved[4];
 	};
 
-	static const uint32_t EC_FLAGS0_DIVIDE_COUNT_MASK               = 0x000000ff;
+	struct STREAMINFO
+	{
+		union
+		{
+			uint32_t siEncoderVersionAndImplementation;
+			struct
+			{
+				uint8_t siEncoderImplementation;
+				uint8_t siEncoderVersion[3];
+			};
+		};
+		uint32_t siOriginalFormat; /* in case of "original" implementation, UTVF_* values are stored in "readable order" */
+	};
 
-	static const uint32_t EC_FLAGS0_INTRAFRAME_PREDICT_MASK         = 0x00000300;
-	static const uint32_t EC_FLAGS0_INTRAFRAME_PREDICT_RESERVED     = 0x00000000;
-	static const uint32_t EC_FLAGS0_INTRAFRAME_PREDICT_LEFT         = 0x00000100;
-	static const uint32_t EC_FLAGS0_INTRAFRAME_PREDICT_WRONG_MEDIAN = 0x00000300;
+	/* placeholder structure */
+	struct FRAMEINFO
+	{
+		uint8_t fiEncodingMode;
+		uint8_t fiReserved[3];
+	};
 
-	static const uint32_t EC_FLAGS0_ASSUME_INTERLACE                = 0x00000800;
-	static const uint32_t EC_FLAGS0_DIVIDE_COUNT_IS_NUM_PROCESSORS  = 0x00001000;
+	struct FRAMEINFO_MODE0
+	{
+		uint8_t fiEncodingMode; /* == 0 */
+		uint8_t fiPredictionType;
+		uint8_t fiDivideCountMinusOne;
+		uint8_t fiReserved; /* == 0 */
+	};
 
-	static const uint32_t EC_FLAGS0_RESERVED                        = 0xffffe400;
+	static const uint8_t PREDICT_CYLINDRICAL_LEFT   = 1;
+	static const uint8_t PREDICT_CYLINDRICAL_MEDIAN = 3;
 
 protected:
 	ENCODERCONF m_ec;
@@ -74,38 +60,37 @@ protected:
 	void *m_pOutput;
 	uint32_t m_dwNumStripes;
 	uint32_t m_dwDivideCount;
-	bool m_bInterlace;
 	size_t m_cbRawStripeSize;
 	size_t m_cbPlaneSize[4];
 	size_t m_cbPlaneWidth[4];
 	size_t m_cbPlaneStripeSize[4];
 	size_t m_cbPlanePredictStride[4];
-	uint32_t m_dwPlaneStripeBegin[256];
-	uint32_t m_dwPlaneStripeEnd[256];
-	uint32_t m_dwRawStripeBegin[256];
-	uint32_t m_dwRawStripeEnd[256];
+	uint32_t m_dwStripeBegin[256];
+	uint32_t m_dwStripeEnd[256];
 
 	CThreadManager *m_ptm;
 	CFrameBuffer *m_pCurFrame;
 	CFrameBuffer *m_pMedianPredicted;
 	struct COUNTS
 	{
-		uint32_t dwCount[4][256];
+		uint32_t dwCount[4][1024];
 	} *m_counts;
 	/* const */ uint8_t *m_pCodeLengthTable[4];
-	HUFFMAN_ENCODE_TABLE m_het[4];
+	HUFFMAN_ENCODE_TABLE10 m_het[4];
+	uint32_t *m_pdwOffsetTable[4];
+	uint8_t *m_pEncodedBits[4];
+	uint16_t m_syInitialPredict[4];
 
 	CFrameBuffer *m_pRestoredFrame;
 	CFrameBuffer *m_pDecodedFrame;
 	FRAMEINFO m_fi;
-	HUFFMAN_DECODE_TABLE m_hdt[4];
-	const uint8_t *m_pDecodeCode[4][256];
+	HUFFMAN_DECODE_TABLE10 m_hdt[4];
 
-	EXTRADATA m_ed;
+	STREAMINFO m_si;
 
 protected:
-	CUL00Codec(const char *pszTinyName, const char *pszInterfaceName);
-	virtual ~CUL00Codec(void) {}
+	CUQ00Codec(const char *pszTinyName, const char *pszInterfaceName);
+	virtual ~CUQ00Codec(void) {}
 
 public:
 	virtual void GetLongFriendlyName(char *pszName, size_t cchName);
@@ -163,15 +148,15 @@ private:
 	class CThreadJob : public ::CThreadJob
 	{
 	public:
-		typedef void (CUL00Codec::*JobProcType)(uint32_t nBandIndex);
+		typedef void (CUQ00Codec::*JobProcType)(uint32_t nBandIndex);
 
 	private:
-		CUL00Codec *m_pCodec;
+		CUQ00Codec *m_pCodec;
 		JobProcType m_pfnJobProc;
 		uint32_t m_nBandIndex;
 
 	public:
-		CThreadJob(CUL00Codec *pCodec, JobProcType pfnJobProc, uint32_t nBandIndex)
+		CThreadJob(CUQ00Codec *pCodec, JobProcType pfnJobProc, uint32_t nBandIndex)
 		{
 			m_pCodec = pCodec;
 			m_pfnJobProc = pfnJobProc;

@@ -342,6 +342,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CodecBase.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Convert.cpp"
 				>
 			</File>
@@ -770,6 +774,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\UQ00Codec.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UQY2Codec.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\utv_core.cpp"
 				>
 			</File>
@@ -785,6 +797,10 @@
 			</File>
 			<File
 				RelativePath=".\Codec.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CodecBase.h"
 				>
 			</File>
 			<File
@@ -880,11 +896,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\UQ00Codec.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UQY2Codec.h"
+				>
+			</File>
+			<File
 				RelativePath=".\utv_core.h"
 				>
 			</File>
 			<File
 				RelativePath=".\utvideo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\version.h"
 				>
 			</File>
 		</Filter>

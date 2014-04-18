@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: TunedFunc_x86x64.cpp 1118 2013-12-14 14:00:30Z umezawa $ */
+/* $Id: TunedFunc_x86x64.cpp 1144 2014-04-07 11:57:02Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -139,7 +139,7 @@ const TUNEDFUNC_HUFFMAN_DECODE tfnHuffmanDecodeBMI2 = {
 
 const TUNEDFUNC_CONVERT_YUVRGB tfnConvertYUVRGBSSE2 = {
 	&tfnConvertYUVRGBCPP,
-	{ 0, 0 },
+	{ FEATURE0_SSE2, 0 },
 	{
 		sse2_ConvertULY2ToBGR,
 		sse2_ConvertULY2ToBGRX,

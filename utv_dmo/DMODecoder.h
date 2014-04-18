@@ -1,5 +1,5 @@
 /* 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ */
-/* $Id: DMODecoder.h 1041 2013-06-01 10:27:56Z umezawa $ */
+/* $Id: DMODecoder.h 1143 2014-04-06 13:35:12Z umezawa $ */
 
 // DMODecoder.h : CDMODecoder の宣言
 
@@ -97,3 +97,4 @@ DMODECODER_ENTRY_AUTO(FCC('ULY0'), ULY0);
 DMODECODER_ENTRY_AUTO(FCC('ULY2'), ULY2);
 DMODECODER_ENTRY_AUTO(FCC('ULH0'), ULH0);
 DMODECODER_ENTRY_AUTO(FCC('ULH2'), ULH2);
+DMODECODER_ENTRY_AUTO(FCC('UQY2'), UQY2);

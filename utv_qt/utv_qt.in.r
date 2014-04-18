@@ -1,7 +1,7 @@
 /*  */
-/* $Id: utv_qt.in.r 1044 2013-06-01 10:53:09Z umezawa $ */
+/* $Id: utv_qt.in.r 1151 2014-04-15 07:28:31Z umezawa $ */
 
-#define SUBTYPE_FMTN "UtVideo " SUBTYPE_INFO " (" SUBTYPE_STR ")"
+#define SUBTYPE_FMTN "UtVideo " SUBTYPE_INFO
 
 resource 'strn' (SUBTYPE_RID) {
 	SUBTYPE_FMTN " QT"
