@@ -420,12 +420,27 @@ STATICLIB=$STATICLIB
 RC=$RC
 EOF
 
+# This messy block was made necessary by changes in how
+# Ut Video generates its version info.
+echo "#include \"utv_core/version.h\"">>version.c
+echo "#include <stdio.h>">>version.c
+echo "main() {">>version.c
+echo "printf(\"%s\\n\", UTVIDEO_VERSION_STR);">>version.c
+echo "}">>version.c
+
+sed -i 's/    /\n/g' version.c
+
+$CC -o version$EXE version.c
+
+UTVIDEO_VERSION_MASTER=`echo $(./version$EXE)`
+#end of messy version generating block
+
 if [ "$static" = "yes" -a "$shared" = "no" ] ; then
         echo 'default: $(STATICLIB)' >> config.mak
 fi
 
 if [ "$shared" = "yes" ] ; then
-    API="$(grep "UTVIDEO_VERSION_STR" utv_core/utvideo.h | cut -f2 -d "\"")"
+    API=$UTVIDEO_VERSION_MASTER
     if [ "$SYS" = "MINGW" ] ; then
         echo "SONAME=libutvideo-${API}.dll" >> config.mak
         echo 'SOFLAGS=-Wl,--out-implib,$(IMPLIBNAME) -Wl,--enable-auto-image-base' >> config.mak
@@ -458,7 +473,7 @@ includedir=$includedir
 
 Name: libutvideo
 Description: Ut Video Codec Suite
-Version: $(grep UTVIDEO_VERSION_STR utv_core/utvideo.h | cut -f2 -d "\"")
+Version: $UTVIDEO_VERSION_MASTER
 Libs: -L$libdir -lutvideo -lstdc++
 Cflags: -I$includedir
 EOF
@@ -478,6 +493,8 @@ echo >> config.log
 cat conftest.log >> config.log
 cat conftest.log
 rm conftest.log
+rm version.c
+rm version$EXE
 
 echo
 echo "You can run 'make' now."

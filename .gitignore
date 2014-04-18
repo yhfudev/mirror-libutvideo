@@ -21,3 +21,5 @@ config.h
 config.mak
 config.log
 *.log
+version
+version.c
