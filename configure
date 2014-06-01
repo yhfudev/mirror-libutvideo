@@ -441,7 +441,7 @@ sed -i 's/    /\n/g' version.c
 
 $CC -o version$EXE version.c
 
-UTVIDEO_VERSION_MASTER=`echo $(./version$EXE)`
+UTVIDEO_VERSION_MASTER=`echo $(./version$EXE | sed 's/\r//g')`
 #end of messy version generating block
 
 if [ "$static" = "yes" -a "$shared" = "no" ] ; then
