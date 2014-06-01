@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: Predict.cpp 1145 2014-04-14 12:08:31Z umezawa $ */
+/* $Id: Predict.cpp 1165 2014-05-17 11:05:09Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -128,12 +128,12 @@ void cpp_RestoreWrongMedianBlock4(uint8_t *pDst, const uint8_t *pSrcBegin, const
 }
 
 
-void PredictCylindricalLeftAndCount10(uint16_t *pDst, const uint16_t *pSrcBegin, const uint16_t *pSrcEnd, uint16_t initial, uint32_t *pCountTable)
+template<int B> void cpp_PredictCylindricalLeftAndCount(typename CSymbolBits<B>::symbol_t *pDst, const typename CSymbolBits<B>::symbol_t *pSrcBegin, const typename CSymbolBits<B>::symbol_t *pSrcEnd, typename CSymbolBits<B>::symbol_t initial, uint32_t *pCountTable)
 {
-	const uint16_t *p = pSrcBegin;
-	uint16_t *q = pDst;
+	const typename CSymbolBits<B>::symbol_t *p = pSrcBegin;
+	typename CSymbolBits<B>::symbol_t *q = pDst;
 
-	*q = (*p - initial) & 0x3ff;
+	*q = (*p - initial) & CSymbolBits<B>::maskval;
 	pCountTable[*q]++;
 	p++;
 	q++;
@@ -141,7 +141,9 @@ void PredictCylindricalLeftAndCount10(uint16_t *pDst, const uint16_t *pSrcBegin,
 	// c‚è‚ÌƒsƒNƒZƒ‹‚ª predict left ‚Ì–{”Ô
 	for (; p < pSrcEnd; p++, q++)
 	{
-		*q = (*p - *(p-1)) & 0x3ff;
+		*q = (*p - *(p-1)) & CSymbolBits<B>::maskval;
 		pCountTable[*q]++;
 	}
 }
+
+template void cpp_PredictCylindricalLeftAndCount<10>(CSymbolBits<10>::symbol_t *pDst, const CSymbolBits<10>::symbol_t *pSrcBegin, const CSymbolBits<10>::symbol_t *pSrcEnd, CSymbolBits<10>::symbol_t initial, uint32_t *pCountTable);
