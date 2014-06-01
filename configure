@@ -237,6 +237,9 @@ STRIP="${STRIP-${cross_prefix}strip}"
 ASM="nasm"
 RC=""
 
+# Add check for Clang vs. GCC later, but for right now, just assume GCC
+STDCXX=-lstdc++
+
 if [ -z "$host" -a -z "$cross_prefix" ]; then    
     host=`./config.guess`
 else
@@ -328,8 +331,14 @@ LDFLAGS="$LDFLAGS"
 
 if [ "$static" = "no" ] ; then
     STATICLIB=""
+    STDCXX_SHARED="$STDCXX"
 else
     STATICLIB='$(UTV_CORE_DIR)/libutvideo.a'
+    if [ "$shared" = "no" ] ; then
+        STDCXX_STATIC="$STDCXX"
+    else
+        STDCXX_SHARED="$STDCXX"
+    fi
 fi
 
 if [ "$pic" = "yes" ] ; then
@@ -474,7 +483,8 @@ includedir=$includedir
 Name: libutvideo
 Description: Ut Video Codec Suite
 Version: $UTVIDEO_VERSION_MASTER
-Libs: -L$libdir -lutvideo -lstdc++
+Libs: -L$libdir -lutvideo $STDCXX_STATIC
+Libs.private: $STDCXX_SHARED
 Cflags: -I$includedir
 EOF
 
