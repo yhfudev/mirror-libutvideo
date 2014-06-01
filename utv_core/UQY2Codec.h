@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: UQY2Codec.h 1156 2014-04-15 09:30:35Z umezawa $ */
+/* $Id: UQY2Codec.h 1174 2014-05-24 12:12:27Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -35,7 +35,7 @@ protected:
 	virtual const char *GetColorFormatName(void) { return "YUV422"; }
 	virtual int GetRealBitCount(void) { return 30; }
 	virtual int GetNumPlanes(void) { return 3; }
-	virtual int GetMacroPixelWidth(void) { return /*2*/ 48; }
+	virtual int GetMacroPixelWidth(void) { return 2; }
 	virtual int GetMacroPixelHeight(void) { return 1; }
 
 	virtual void CalcPlaneSizes(unsigned int width, unsigned int height);

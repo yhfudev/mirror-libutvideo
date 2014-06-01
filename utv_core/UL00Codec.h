@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: UL00Codec.h 1139 2014-03-13 13:41:36Z umezawa $ */
+/* $Id: UL00Codec.h 1167 2014-05-20 11:33:52Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -92,13 +92,13 @@ protected:
 	{
 		uint32_t dwCount[4][256];
 	} *m_counts;
-	/* const */ uint8_t *m_pCodeLengthTable[4];
-	HUFFMAN_ENCODE_TABLE m_het[4];
+	/* const */ HUFFMAN_CODELEN_TABLE<8> *m_pCodeLengthTable[4];
+	HUFFMAN_ENCODE_TABLE<8> m_het[4];
 
 	CFrameBuffer *m_pRestoredFrame;
 	CFrameBuffer *m_pDecodedFrame;
 	FRAMEINFO m_fi;
-	HUFFMAN_DECODE_TABLE m_hdt[4];
+	HUFFMAN_DECODE_TABLE<8> m_hdt[4];
 	const uint8_t *m_pDecodeCode[4][256];
 
 	EXTRADATA m_ed;
