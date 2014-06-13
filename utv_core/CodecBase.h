@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: CodecBase.h 1137 2014-03-09 07:50:57Z umezawa $ */
+/* $Id: CodecBase.h 1182 2014-05-29 12:49:01Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -26,7 +26,11 @@ public:
 	virtual void GetShortFriendlyName(wchar_t *pszName, size_t cchName);
 	virtual void GetLongFriendlyName(char *pszName, size_t cchName) = 0;
 	virtual void GetLongFriendlyName(wchar_t *pszName, size_t cchName);
+	virtual int SetState(const void *pState, size_t cb);
 
 protected:
+	int LoadConfig(void);
+	int SaveConfig(void);
+	virtual int InternalSetState(const void *pState, size_t cb) = 0;
 	int CalcRawFrameMetric(utvf_t rawfmt, unsigned int width, unsigned int height, size_t cbGrossWidth);
 };

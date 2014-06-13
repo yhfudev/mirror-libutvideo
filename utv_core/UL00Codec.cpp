@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: UL00Codec.cpp 1163 2014-05-10 13:42:32Z umezawa $ */
+/* $Id: UL00Codec.cpp 1184 2014-06-08 10:35:04Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -28,81 +28,10 @@ void CUL00Codec::GetLongFriendlyName(char *pszName, size_t cchName)
 	pszName[cchName - 1] = '\0';
 }
 
-int CUL00Codec::LoadConfig(void)
-{
-#ifdef _WIN32
-	HKEY hkUtVideo;
-	DWORD dwSaveConfig;
-	DWORD cb;
-	DWORD dwType;
-	ENCODERCONF ec;
-	char buf[16];
-
-	if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\Ut Video Codec Suite", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkUtVideo, NULL) != ERROR_SUCCESS)
-		return -1;
-
-	cb = sizeof(DWORD);
-	if (RegQueryValueEx(hkUtVideo, "SaveConfig", NULL, &dwType, (uint8_t *)&dwSaveConfig, &cb) != ERROR_SUCCESS)
-		goto notloaded;
-	if (!dwSaveConfig)
-		goto notloaded;
-
-	wsprintf(buf, "Config%s", GetTinyName());
-	cb = sizeof(ENCODERCONF);
-	if (RegQueryValueEx(hkUtVideo, buf, NULL, &dwType, (uint8_t *)&ec, &cb) != ERROR_SUCCESS)
-		goto notloaded;
-	InternalSetState(&ec, cb);
-
-	RegCloseKey(hkUtVideo);
-	return 0;
-
-notloaded:
-	RegCloseKey(hkUtVideo);
-	return -1;
-#endif
-#if defined(__APPLE__) || defined(__unix__)
-	return 0;
-#endif
-}
-
-int CUL00Codec::SaveConfig(void)
-{
-#ifdef _WIN32
-	HKEY hkUtVideo;
-	DWORD dwSaveConfig;
-	DWORD cb;
-	DWORD dwType;
-	char buf[16];
-
-	if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\Ut Video Codec Suite", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkUtVideo, NULL) != ERROR_SUCCESS)
-		return -1;
-
-	cb = sizeof(DWORD);
-	if (RegQueryValueEx(hkUtVideo, "SaveConfig", NULL, &dwType, (uint8_t *)&dwSaveConfig, &cb) != ERROR_SUCCESS)
-		goto notsaved;
-	if (!dwSaveConfig)
-		goto notsaved;
-
-	wsprintf(buf, "Config%s", GetTinyName());
-	if (RegSetValueEx(hkUtVideo, buf, 0, REG_BINARY, (const uint8_t *)&m_ec, sizeof(ENCODERCONF)) != ERROR_SUCCESS)
-		goto notsaved;
-
-	RegCloseKey(hkUtVideo);
-	return 0;
-
-notsaved:
-	RegCloseKey(hkUtVideo);
-	return -1;
-#endif
-#if defined(__APPLE__) || defined (__unix__)
-	return 0;
-#endif
-}
-
 #ifdef _WIN32
 INT_PTR CUL00Codec::Configure(HWND hwnd)
 {
-	DialogBoxParam(hModule, MAKEINTRESOURCE(IDD_CONFIG_DIALOG), hwnd, DialogProc, (LPARAM)this);
+	DialogBoxParam(hModule, MAKEINTRESOURCE(IDD_UL00_CONFIG), hwnd, DialogProc, (LPARAM)this);
 	return 0;
 }
 
@@ -203,36 +132,6 @@ int CUL00Codec::GetState(void *pState, size_t cb)
 
 	memcpy(pState, &m_ec, sizeof(ENCODERCONF));
 	return 0;
-}
-
-int CUL00Codec::SetState(const void *pState, size_t cb)
-{
-#ifdef _WIN32
-	HKEY hkUtVideo;
-	DWORD dwIgnoreSetConfig;
-	DWORD cbRegData;
-	DWORD dwType;
-
-	if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\Ut Video Codec Suite", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkUtVideo, NULL) != ERROR_SUCCESS)
-		goto doset_noclose;
-
-	cbRegData = sizeof(DWORD);
-	if (RegQueryValueEx(hkUtVideo, "IgnoreSetConfig", NULL, &dwType, (uint8_t *)&dwIgnoreSetConfig, &cbRegData) != ERROR_SUCCESS)
-		goto doset;
-	if (!dwIgnoreSetConfig)
-		goto doset;
-
-	RegCloseKey(hkUtVideo);
-	return 0;
-
-doset:
-	RegCloseKey(hkUtVideo);
-doset_noclose:
-	return InternalSetState(pState, cb);
-#endif
-#if defined(__APPLE__) || defined (__unix__)
-	return InternalSetState(pState, cb);
-#endif
 }
 
 int CUL00Codec::InternalSetState(const void *pState, size_t cb)

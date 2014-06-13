@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: UL00Codec.h 1167 2014-05-20 11:33:52Z umezawa $ */
+/* $Id: UL00Codec.h 1182 2014-05-29 12:49:01Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -122,7 +122,6 @@ public:
 
 	virtual size_t GetStateSize(void);
 	virtual int GetState(void *pState, size_t cb);
-	virtual int SetState(const void *pState, size_t cb);
 
 	virtual int EncodeBegin(utvf_t infmt, unsigned int width, unsigned int height, size_t cbGrossWidth);
 	virtual size_t EncodeFrame(void *pOutput, bool *pbKeyFrame, const void *pInput);
@@ -139,9 +138,7 @@ public:
 	virtual int DecodeQuery(utvf_t outfmt, unsigned int width, unsigned int height, size_t cbGrossWidth, const void *pExtraData, size_t cbExtraData);
 
 protected:
-	int LoadConfig(void);
-	int SaveConfig(void);
-	int InternalSetState(const void *pState, size_t cb);
+	virtual int InternalSetState(const void *pState, size_t cb);
 	int CalcFrameMetric(utvf_t rawfmt, unsigned int width, unsigned int height, size_t cbGrossWidth, const void *pExtraData, size_t cbExtraData);
 
 	virtual const char *GetColorFormatName(void) = 0;

@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: GlobalConfig.cpp 737 2011-09-03 08:09:45Z umezawa $ */
+/* $Id: GlobalConfig.cpp 1184 2014-06-08 10:35:04Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -16,7 +16,7 @@ static void OnOK(HWND hWnd);
 
 __declspec(dllexport) INT_PTR GlobalConfigDialog(HWND hWnd)
 {
-	return DialogBox(hModule, MAKEINTRESOURCE(IDD_GLOBAL_CONFIG_DIALOG), hWnd, GlobalConfigDialogProc);
+	return DialogBox(hModule, MAKEINTRESOURCE(IDD_GLOBAL_CONFIG), hWnd, GlobalConfigDialogProc);
 }
 
 INT_PTR CALLBACK GlobalConfigDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
