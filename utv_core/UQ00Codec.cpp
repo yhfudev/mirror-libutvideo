@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: UQ00Codec.cpp 1167 2014-05-20 11:33:52Z umezawa $ */
+/* $Id: UQ00Codec.cpp 1187 2014-06-08 11:53:29Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -28,24 +28,96 @@ void CUQ00Codec::GetLongFriendlyName(char *pszName, size_t cchName)
 	pszName[cchName - 1] = '\0';
 }
 
-int CUQ00Codec::LoadConfig(void)
-{
-	return 0;
-}
-
-int CUQ00Codec::SaveConfig(void)
-{
-	return 0;
-}
-
 #ifdef _WIN32
 INT_PTR CUQ00Codec::Configure(HWND hwnd)
 {
-	char buf[128];
-
-	GetLongFriendlyName(buf, sizeof(buf));
-	MessageBox(hwnd, "Configuration is not implemented yet.", buf, MB_OK);
+	DialogBoxParam(hModule, MAKEINTRESOURCE(IDD_UQ00_CONFIG), hwnd, DialogProc, (LPARAM)this);
 	return 0;
+}
+
+INT_PTR CALLBACK CUQ00Codec::DialogProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	CUQ00Codec *pThis = (CUQ00Codec *)GetWindowLongPtr(hwnd, DWLP_USER);
+	char buf[256];
+	int	n;
+
+	switch(uMsg)
+	{
+	case WM_INITDIALOG:
+		SetWindowLongPtr(hwnd, DWLP_USER, lParam);
+		pThis = (CUQ00Codec *)lParam;
+		pThis->GetLongFriendlyName(buf, _countof(buf));
+		SetWindowText(hwnd, buf);
+		wsprintf(buf, "%d", pThis->m_ec.ecDivideCountMinusOne + 1);
+		SetDlgItemText(hwnd, IDC_DIVIDE_COUNT_EDIT, buf);
+#if 0
+		switch (pThis->m_ec.dwFlags0 & EC_FLAGS0_INTRAFRAME_PREDICT_MASK)
+		{
+		default:
+			_ASSERT(false);
+			/* FALLTHROUGH */
+		case EC_FLAGS0_INTRAFRAME_PREDICT_LEFT:
+			CheckDlgButton(hwnd, IDC_INTRAFRAME_PREDICT_LEFT_RADIO, BST_CHECKED);
+			break;
+		case EC_FLAGS0_INTRAFRAME_PREDICT_WRONG_MEDIAN:
+			CheckDlgButton(hwnd, IDC_INTRAFRAME_PREDICT_WRONG_MEDIAN_RADIO, BST_CHECKED);
+			break;
+		}
+#endif
+		if (pThis->m_ec.ecFlags & EC_FLAGS_DIVIDE_COUNT_IS_NUM_PROCESSORS)
+		{
+			CheckDlgButton(hwnd, IDC_DIVIDE_COUNT_IS_NUM_PROCESSORS, BST_CHECKED);
+			EnableDlgItem(hwnd, IDC_DIVIDE_COUNT_EDIT, FALSE);
+		}
+		return TRUE;
+	case WM_COMMAND:
+		switch(LOWORD(wParam))
+		{
+		case IDOK:
+			memset(&pThis->m_ec, 0, sizeof(ENCODERCONF));
+			if (IsDlgButtonChecked(hwnd, IDC_DIVIDE_COUNT_IS_NUM_PROCESSORS))
+			{
+				pThis->m_ec.ecFlags |= EC_FLAGS_DIVIDE_COUNT_IS_NUM_PROCESSORS;
+				pThis->m_ec.ecDivideCountMinusOne = CThreadManager::GetNumProcessors() - 1;
+			}
+			else
+			{
+				GetDlgItemText(hwnd, IDC_DIVIDE_COUNT_EDIT, buf, sizeof(buf));
+				n = atoi(buf);
+				if (n < 1 || n > 256)
+				{
+					MessageBox(hwnd, "1 <= DIVIDE_COUNT <= 256", "ERR", MB_ICONERROR);
+					return TRUE;
+				}
+				pThis->m_ec.ecDivideCountMinusOne = n - 1;
+			}
+#if 0
+			if (IsDlgButtonChecked(hwnd, IDC_INTRAFRAME_PREDICT_LEFT_RADIO))
+				pThis->m_ec.dwFlags0 |= EC_FLAGS0_INTRAFRAME_PREDICT_LEFT;
+			else if (IsDlgButtonChecked(hwnd, IDC_INTRAFRAME_PREDICT_WRONG_MEDIAN_RADIO))
+				pThis->m_ec.dwFlags0 |= EC_FLAGS0_INTRAFRAME_PREDICT_WRONG_MEDIAN;
+#endif
+			pThis->SaveConfig();
+			/* FALLTHROUGH */
+		case IDCANCEL:
+			EndDialog(hwnd, 0);
+			return TRUE;
+		case IDC_DIVIDE_COUNT_IS_NUM_PROCESSORS:
+			if (HIWORD(wParam) == BN_CLICKED)
+			{
+				EnableDlgItem(hwnd, IDC_DIVIDE_COUNT_EDIT, !IsDlgButtonChecked(hwnd, IDC_DIVIDE_COUNT_IS_NUM_PROCESSORS));
+				if (IsDlgButtonChecked(hwnd, IDC_DIVIDE_COUNT_IS_NUM_PROCESSORS))
+				{
+					wsprintf(buf, "%d", CThreadManager::GetNumProcessors());
+					SetDlgItemText(hwnd, IDC_DIVIDE_COUNT_EDIT, buf);
+				}
+			}
+			break;
+		}
+		break;
+	}
+
+	return FALSE;
 }
 #endif
 
@@ -63,13 +135,28 @@ int CUQ00Codec::GetState(void *pState, size_t cb)
 	return 0;
 }
 
-int CUQ00Codec::SetState(const void *pState, size_t cb)
-{
-	return 0;
-}
-
 int CUQ00Codec::InternalSetState(const void *pState, size_t cb)
 {
+	ENCODERCONF ec;
+
+	memset(&ec, 0, sizeof(ENCODERCONF));
+	memcpy(&ec, pState, min(sizeof(ENCODERCONF), cb));
+
+	if (ec.ecPreferredEncodingMode != 0)
+		return -1;
+	if (ec.ecReserved != 0)
+		return -1;
+	/* ecDivideCountMinusOne ‚Í‘S‚Ä‚Ì’l‚ª—LŒø‚È‚Ì‚Åƒ`ƒFƒbƒN‚µ‚È‚¢ */
+	if ((ec.ecFlags & EC_FLAGS_RESERVED) != 0)
+		return -1;
+
+	memcpy(&m_ec, &ec, sizeof(ENCODERCONF));
+
+	if (m_ec.ecFlags & EC_FLAGS_DIVIDE_COUNT_IS_NUM_PROCESSORS)
+	{
+		m_ec.ecDivideCountMinusOne = CThreadManager::GetNumProcessors() - 1;
+	}
+
 	return 0;
 }
 
@@ -96,6 +183,7 @@ size_t CUQ00Codec::EncodeFrame(void *pOutput, bool *pbKeyFrame, const void *pInp
 
 	fi.fiEncodingMode = 0;
 	fi0.fiPredictionType = PREDICT_CYLINDRICAL_LEFT;
+	fi0.fiDivideCountMinusOne = m_ec.ecDivideCountMinusOne;
 
 	p = (uint8_t *)pOutput;
 
@@ -144,21 +232,22 @@ int CUQ00Codec::CalcFrameMetric(utvf_t rawfmt, unsigned int width, unsigned int 
 {
 	const STREAMINFO *p = (const STREAMINFO *)pExtraData;
 
-	m_dwDivideCount = 1;
-
 	CalcRawFrameMetric(rawfmt, width, height, cbGrossWidth);
 	CalcPlaneSizes(width, height);
 
 	m_dwNumStripes = height / GetMacroPixelHeight();
 	m_cbRawStripeSize = m_cbRawGrossWidth * GetMacroPixelHeight();
 
+	return 0;
+}
+
+void CUQ00Codec::CalcStripeMetric(void)
+{
 	for (uint32_t nBandIndex = 0; nBandIndex < m_dwDivideCount; nBandIndex++)
 	{
 		m_dwStripeBegin[nBandIndex] = m_dwNumStripes *  nBandIndex      / m_dwDivideCount;
 		m_dwStripeEnd[nBandIndex]   = m_dwNumStripes * (nBandIndex + 1) / m_dwDivideCount;
 	}
-
-	return 0;
 }
 
 int CUQ00Codec::EncodeBegin(utvf_t infmt, unsigned int width, unsigned int height, size_t cbGrossWidth)
@@ -178,6 +267,8 @@ int CUQ00Codec::EncodeBegin(utvf_t infmt, unsigned int width, unsigned int heigh
 	ret = CalcFrameMetric(infmt, width, height, cbGrossWidth, &si, sizeof(si));
 	if (ret != 0)
 		return ret;
+	m_dwDivideCount = m_ec.ecDivideCountMinusOne + 1;
+	CalcStripeMetric();
 
 	m_pCurFrame = new CFrameBuffer();
 	for (int i = 0; i < GetNumPlanes(); i++)
@@ -314,6 +405,14 @@ size_t CUQ00Codec::DecodeFrame(void *pOutput, const void *pInput, bool bKeyFrame
 
 	if (fi->fiEncodingMode == 0)
 		p += sizeof(FRAMEINFO_MODE0);
+	else
+		return -1;
+
+	if (fi0->fiPredictionType != PREDICT_CYLINDRICAL_LEFT)
+		return -1;
+
+	m_dwDivideCount = fi0->fiDivideCountMinusOne + 1;
+	CalcStripeMetric();
 
 	for (int nPlaneIndex = 0; nPlaneIndex < GetNumPlanes(); nPlaneIndex++)
 	{

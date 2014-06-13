@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: UQ00Codec.h 1167 2014-05-20 11:33:52Z umezawa $ */
+/* $Id: UQ00Codec.h 1186 2014-06-08 11:52:37Z umezawa $ */
 
 #pragma once
 #include "Codec.h"
@@ -15,8 +15,14 @@ class CUQ00Codec :
 protected:
 	struct ENCODERCONF
 	{
-		uint8_t ecReserved[4];
+		uint8_t ecPreferredEncodingMode; /* == 0 */
+		uint8_t ecReserved; /* == 0 */
+		uint8_t ecDivideCountMinusOne;
+		uint8_t ecFlags;
 	};
+
+	static const uint8_t EC_FLAGS_DIVIDE_COUNT_IS_NUM_PROCESSORS = 0x01;
+	static const uint8_t EC_FLAGS_RESERVED                       = 0xfe;
 
 	struct STREAMINFO
 	{
@@ -48,7 +54,10 @@ protected:
 	};
 
 	static const uint8_t PREDICT_CYLINDRICAL_LEFT   = 1;
-	static const uint8_t PREDICT_CYLINDRICAL_MEDIAN = 3;
+	//static const uint8_t PREDICT_CYLINDRICAL_MEDIAN = 3;
+	//static const uint8_t PREDICT_ABOVE              = 4;
+	//static const uint8_t PREDICT_PLANAR_LEFT        = 5;
+	//static const uint8_t PREDICT_PLANAR_MEDIAN      = 7;
 
 protected:
 	ENCODERCONF m_ec;
@@ -107,7 +116,6 @@ public:
 
 	virtual size_t GetStateSize(void);
 	virtual int GetState(void *pState, size_t cb);
-	virtual int SetState(const void *pState, size_t cb);
 
 	virtual int EncodeBegin(utvf_t infmt, unsigned int width, unsigned int height, size_t cbGrossWidth);
 	virtual size_t EncodeFrame(void *pOutput, bool *pbKeyFrame, const void *pInput);
@@ -124,10 +132,9 @@ public:
 	virtual int DecodeQuery(utvf_t outfmt, unsigned int width, unsigned int height, size_t cbGrossWidth, const void *pExtraData, size_t cbExtraData);
 
 protected:
-	int LoadConfig(void);
-	int SaveConfig(void);
-	int InternalSetState(const void *pState, size_t cb);
+	virtual int InternalSetState(const void *pState, size_t cb);
 	int CalcFrameMetric(utvf_t rawfmt, unsigned int width, unsigned int height, size_t cbGrossWidth, const void *pExtraData, size_t cbExtraData);
+	void CalcStripeMetric(void);
 
 	virtual const char *GetColorFormatName(void) = 0;
 	virtual int GetRealBitCount(void) = 0;

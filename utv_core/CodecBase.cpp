@@ -1,5 +1,5 @@
 /* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
-/* $Id: CodecBase.cpp 1150 2014-04-15 07:27:31Z umezawa $ */
+/* $Id: CodecBase.cpp 1182 2014-05-29 12:49:01Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -43,6 +43,110 @@ void CCodecBase::GetLongFriendlyName(wchar_t *pszName, size_t cchName)
 	GetLongFriendlyName(buf, min(cchName, _countof(buf)));
 	mbstowcs(pszName, buf, cchName);
 	pszName[cchName - 1] = L'\0';
+}
+
+int CCodecBase::LoadConfig(void)
+{
+#ifdef _WIN32
+	HKEY hkUtVideo;
+	DWORD dwSaveConfig;
+	DWORD cb;
+	DWORD dwType;
+	char buf[16];
+
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\Ut Video Codec Suite", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkUtVideo, NULL) != ERROR_SUCCESS)
+		return -1;
+
+	cb = sizeof(DWORD);
+	if (RegQueryValueEx(hkUtVideo, "SaveConfig", NULL, &dwType, (uint8_t *)&dwSaveConfig, &cb) != ERROR_SUCCESS)
+		goto notloaded;
+	if (!dwSaveConfig)
+		goto notloaded;
+
+	wsprintf(buf, "Config%s", GetTinyName());
+	cb = (DWORD)GetStateSize();
+	_ASSERT(cb <= sizeof(buf));
+	if (RegQueryValueEx(hkUtVideo, buf, NULL, &dwType, (BYTE *)buf, &cb) != ERROR_SUCCESS)
+		goto notloaded;
+	InternalSetState(buf, cb);
+
+	RegCloseKey(hkUtVideo);
+	return 0;
+
+notloaded:
+	RegCloseKey(hkUtVideo);
+	return -1;
+#endif
+#if defined(__APPLE__) || defined(__unix__)
+	return 0;
+#endif
+}
+
+int CCodecBase::SaveConfig(void)
+{
+#ifdef _WIN32
+	HKEY hkUtVideo;
+	DWORD dwSaveConfig;
+	DWORD cb;
+	DWORD dwType;
+	char buf[16];
+
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\Ut Video Codec Suite", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkUtVideo, NULL) != ERROR_SUCCESS)
+		return -1;
+
+	cb = sizeof(DWORD);
+	if (RegQueryValueEx(hkUtVideo, "SaveConfig", NULL, &dwType, (uint8_t *)&dwSaveConfig, &cb) != ERROR_SUCCESS)
+		goto notsaved;
+	if (!dwSaveConfig)
+		goto notsaved;
+
+	wsprintf(buf, "Config%s", GetTinyName());
+	cb = (DWORD)GetStateSize();
+	_ASSERT(cb <= sizeof(buf));
+	GetState(buf, cb);
+	if (RegSetValueEx(hkUtVideo, buf, 0, REG_BINARY, (const BYTE *)buf, cb) != ERROR_SUCCESS)
+		goto notsaved;
+
+	RegCloseKey(hkUtVideo);
+	return 0;
+
+notsaved:
+	RegCloseKey(hkUtVideo);
+	return -1;
+#endif
+#if defined(__APPLE__) || defined (__unix__)
+	return 0;
+#endif
+}
+
+int CCodecBase::SetState(const void *pState, size_t cb)
+{
+#ifdef _WIN32
+	HKEY hkUtVideo;
+	DWORD dwIgnoreSetConfig;
+	DWORD cbRegData;
+	DWORD dwType;
+
+	if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\Ut Video Codec Suite", 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkUtVideo, NULL) != ERROR_SUCCESS)
+		goto doset_noclose;
+
+	cbRegData = sizeof(DWORD);
+	if (RegQueryValueEx(hkUtVideo, "IgnoreSetConfig", NULL, &dwType, (uint8_t *)&dwIgnoreSetConfig, &cbRegData) != ERROR_SUCCESS)
+		goto doset;
+	if (!dwIgnoreSetConfig)
+		goto doset;
+
+	RegCloseKey(hkUtVideo);
+	return 0;
+
+doset:
+	RegCloseKey(hkUtVideo);
+doset_noclose:
+	return InternalSetState(pState, cb);
+#endif
+#if defined(__APPLE__) || defined (__unix__)
+	return InternalSetState(pState, cb);
+#endif
 }
 
 int CCodecBase::CalcRawFrameMetric(utvf_t rawfmt, unsigned int width, unsigned int height, size_t cbGrossWidth)
