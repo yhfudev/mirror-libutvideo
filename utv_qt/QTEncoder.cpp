@@ -1,6 +1,5 @@
-/*  */
-/* $Id: QTEncoder.cpp 1153 2014-04-15 07:44:11Z umezawa $ */
-
+/* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
+/* $Id: QTEncoder.cpp 1214 2015-01-03 13:18:39Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -21,9 +20,15 @@ extern "C" pascal ComponentResult QTEncoderComponentDispatch(ComponentParameters
 
 #define GET_DELEGATE_COMPONENT()	(storage->delegateComponent)
 
+#ifdef _WIN32
+#include <Components.k.h>
+#include <ImageCodec.k.h>
+#include <ComponentDispatchHelper.c>
+#else
 #include <CoreServices/Components.k.h>
 #include <QuickTime/ImageCodec.k.h>
 #include <QuickTime/ComponentDispatchHelper.c>
+#endif
 
 //FILE *fp = NULL;
 
@@ -61,12 +66,12 @@ extern "C" pascal ComponentResult QTEncoderComponentDispatchStub(ComponentParame
 
 pascal ComponentResult QTEncoderOpen(CQTEncoder *glob, ComponentInstance self)
 {
-	OSErr err;
-	
+	ComponentResult err;
+
 	glob = (CQTEncoder *)NewPtrClear(sizeof(CQTEncoder));
 	if (glob == NULL)
 		return memFullErr;
-	
+
 	err = QTCodecOpen(glob, self);
 	if (err != noErr)
 	{

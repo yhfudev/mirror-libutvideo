@@ -1,6 +1,5 @@
-/*  */
-/* $Id: QTDecoder.cpp 1153 2014-04-15 07:44:11Z umezawa $ */
-
+/* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
+/* $Id: QTDecoder.cpp 1214 2015-01-03 13:18:39Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -21,13 +20,19 @@ extern "C" pascal ComponentResult QTDecoderComponentDispatch(ComponentParameters
 
 #define GET_DELEGATE_COMPONENT()	(storage->delegateComponent)
 
+#ifdef _WIN32
+#include <Components.k.h>
+#include <ImageCodec.k.h>
+#include <ComponentDispatchHelper.c>
+#else
 #include <CoreServices/Components.k.h>
 #include <QuickTime/ImageCodec.k.h>
 #include <QuickTime/ComponentDispatchHelper.c>
+#endif
 
 pascal ComponentResult QTDecoderOpen(CQTDecoder *glob, ComponentInstance self)
 {
-	OSErr err;
+	ComponentResult err;
 
 	glob = (CQTDecoder *)NewPtrClear(sizeof(CQTDecoder));
 	if (glob == NULL)
@@ -120,8 +125,6 @@ pascal ComponentResult QTDecoderBeginBand(CQTDecoder *glob, CodecDecompressParam
 {
 	CMutexLock lock(glob->mutex);
 
-	int i;
-	long c;
 	Handle imgDescExt;
 	size_t imgDescExtSize;
 	size_t extDataOffset;

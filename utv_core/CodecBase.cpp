@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: CodecBase.cpp 1193 2014-09-28 09:35:45Z umezawa $ */
+/* $Id: CodecBase.cpp 1212 2015-01-03 07:54:46Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -185,8 +185,10 @@ int CCodecBase::CalcRawFrameMetric(utvf_t rawfmt, unsigned int width, unsigned i
 		case UTVF_YUY2:
 		case UTVF_YUYV:
 		case UTVF_YUNV:
+		case UTVF_yuvs:
 		case UTVF_UYVY:
 		case UTVF_UYNV:
+		case UTVF_2vuy:
 		case UTVF_HDYC:
 			m_cbRawNetWidth = width * 2;
 			break;

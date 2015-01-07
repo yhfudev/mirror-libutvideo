@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: TunedFunc_x86x64.cpp 1144 2014-04-07 11:57:02Z umezawa $ */
+/* $Id: TunedFunc_x86x64.cpp 1200 2014-12-21 00:57:37Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -41,7 +41,7 @@
 #define MA_INTEL_SANDY_BRIDGE 0x00010004
 #define MA_INTEL_IVY_BRIDGE   0x00010005
 #define MA_INTEL_HASWELL      0x00010006
-//#define MA_INTEL_BROADWELL    0x00010007
+#define MA_INTEL_BROADWELL    0x00010007
 //#define MA_INTEL_SKYLAKE      0x00010008
 
 struct MAFM
@@ -64,7 +64,8 @@ static const struct MAFM mafm[] = {
 	{ "Westmere",     MA_INTEL_WESTMERE,     { 0x0625, 0x062c, 0x062f } },
 	{ "Sandy Bridge", MA_INTEL_SANDY_BRIDGE, { 0x062a, 0x062d } },
 	{ "Ivy Bridge",   MA_INTEL_IVY_BRIDGE,   { 0x063a, 0x063e } },
-	{ "Haswell",      MA_INTEL_HASWELL,      { 0x063c, 0x0645, 0x0646 } },
+	{ "Haswell",      MA_INTEL_HASWELL,      { 0x063c, 0x0645, 0x0646, 0x063f } },
+	{ "Broadwell",    MA_INTEL_BROADWELL,    { 0x063d } },
 };
 
 
@@ -262,30 +263,6 @@ uint32_t dwSupportedFeatures[FEATURESIZE];
 class CTunedFuncInitializer
 {
 public:
-	static inline void cpuid(cpuid_result *result, uint32_t leaf, uint32_t subleaf)
-	{
-		::cpuid(result, leaf, subleaf);
-#ifdef _DEBUG
-		char buf[16];
-		if (leaf >= 0x80000000)
-			sprintf(buf, "ex%d", leaf - 0x80000000);
-		else if (leaf == 7)
-			sprintf(buf, "7.%d", subleaf);
-		else
-			sprintf(buf, "%d", leaf);
-		_RPT5(_CRT_WARN, "CPUID.%-3s EAX=%08X EBX=%08X ECX=%08X EDX=%08X\n", buf,
-			result->eax, result->ebx, result->ecx, result->edx);
-#endif
-	}
-
-	static inline void xgetbv(xgetbv_result *result, uint32_t idx)
-	{
-		::xgetbv(result, idx);
-#ifdef _DEBUG
-		_RPT2(_CRT_WARN, "XGETBV.%-2d EAX=%08X EDX=%08X\n", result->eax, result->edx);
-#endif
-	}
-
 	CTunedFuncInitializer()
 	{
 		cpuid_result cpuid_0   = { 0, 0, 0, 0 };

@@ -1,5 +1,5 @@
-/*  */
-/* $Id: utv_qt.in.r 1151 2014-04-15 07:28:31Z umezawa $ */
+/* ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe */
+/* $Id: utv_qt.in.r 1211 2015-01-03 06:06:36Z umezawa $ */
 
 #define SUBTYPE_FMTN "UtVideo " SUBTYPE_INFO
 
@@ -12,7 +12,7 @@ resource 'stri' (SUBTYPE_RID) {
 };
 
 resource 'thng' (SUBTYPE_RID) {
-	decompressorComponentType,			// Type                 
+	decompressorComponentType,			// Type
 	SUBTYPE_VAL,						// SubType
 	'Umzw',								// Manufacturer
 	0,									// - use componentHasMultiplePlatforms
@@ -30,8 +30,20 @@ resource 'thng' (SUBTYPE_RID) {
 		codecInfoDoes32,
 		'dlle',
 		256,
-		platformIA32NativeEntryPoint,
-	};
+		platformTarget,
+	},
+	'thnr', SUBTYPE_RID;
+};
+
+resource 'cpix' (SUBTYPE_RID) {
+	SUBTYPE_DEC
+};
+
+resource 'thnr' (SUBTYPE_RID) {
+	{
+		'cpix', 1, 0,
+		'cpix', SUBTYPE_RID, 0,
+	}
 };
 
 resource 'stri' (SUBTYPE_RID + 256) {
@@ -39,7 +51,7 @@ resource 'stri' (SUBTYPE_RID + 256) {
 };
 
 resource 'thng' (SUBTYPE_RID + 256) {
-	compressorComponentType,			// Type                 
+	compressorComponentType,			// Type
 	SUBTYPE_VAL,						// SubType
 	'Umzw',								// Manufacturer
 	0,									// - use componentHasMultiplePlatforms
@@ -57,10 +69,21 @@ resource 'thng' (SUBTYPE_RID + 256) {
 		codecInfoDoes32,
 		'dlle',
 		257,
-		platformIA32NativeEntryPoint,
-	};
+		platformTarget,
+	},
+	'thnr', SUBTYPE_RID + 256;
 };
 
+resource 'cpix' (SUBTYPE_RID + 256) {
+	SUBTYPE_ENC
+};
+
+resource 'thnr' (SUBTYPE_RID + 256) {
+	{
+		'cpix', 1, 0,
+		'cpix', SUBTYPE_RID + 256, 0,
+	}
+};
 
 #undef SUBTYPE_FMTN
 
@@ -68,3 +91,5 @@ resource 'thng' (SUBTYPE_RID + 256) {
 #undef SUBTYPE_VAL
 #undef SUBTYPE_RID
 #undef SUBTYPE_INFO
+#undef SUBTYPE_ENC
+#undef SUBTYPE_DEC

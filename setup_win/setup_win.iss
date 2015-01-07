@@ -1,5 +1,5 @@
 ; ï∂éöÉRÅ[ÉhÇÕÇrÇiÇhÇr â¸çsÉRÅ[ÉhÇÕÇbÇqÇkÇe
-; $Id: setup_win.iss 1147 2014-04-14 13:26:26Z umezawa $
+; $Id: setup_win.iss 1217 2015-01-04 07:38:49Z umezawa $
 
 #include "../utv_core/version.h"
 
@@ -7,7 +7,7 @@
 AppName=Ut Video Codec Suite
 AppId=utvideo
 AppVersion="{#UTVIDEO_VERSION_MAJOR}.{#UTVIDEO_VERSION_MINOR}.{#UTVIDEO_VERSION_BUGFIX}"
-AppCopyright=Copyright (c) 2008-2014 UMEZAWA Takeshi
+AppCopyright=Copyright (c) 2008-2015 UMEZAWA Takeshi
 AppPublisher=UMEZAWA Takeshi
 AppPublisherURL=http://umezawa.dyndns.info/
 UninstallDisplayName=Ut Video Codec Suite
@@ -24,11 +24,18 @@ InfoAfterFile=info.en.rtf
 Name: "en"; MessagesFile: "compiler:Default.isl";
 Name: "ja"; MessagesFile: "compiler:Languages\Japanese.isl"; InfoBeforeFile: "before.ja.rtf"; InfoAfterFile: "info.ja.rtf"
 
+[Types]
+
+[Components]
+Name: "main"; Description: "Main Files";           Types: full compact custom; Flags: fixed;
+Name: "qt";   Description: "QuickTime Components"; Types: full;
+
 [Files]
 Source: "..\Release\utv_core.dll";     DestDir: "{sys}"; Flags: ignoreversion 32bit;
 Source: "..\Release\utv_vcm.dll";      DestDir: "{sys}"; Flags: ignoreversion 32bit;
 Source: "..\Release\utv_dmo.dll";      DestDir: "{sys}"; Flags: ignoreversion 32bit regserver;
 Source: "..\Release\utv_mft.dll";      DestDir: "{sys}"; Flags: ignoreversion 32bit regserver;                            MinVersion: 0, 6.0
+Source: "..\Release\utv_qt.qtx";       DestDir: "{pf32}\QuickTime\QTComponents"; Flags: ignoreversion 32bit; Components: qt;
 Source: "..\x64\Release\utv_core.dll"; DestDir: "{sys}"; Flags: ignoreversion 64bit;           Check: Is64BitInstallMode
 Source: "..\x64\Release\utv_vcm.dll";  DestDir: "{sys}"; Flags: ignoreversion 64bit;           Check: Is64BitInstallMode
 Source: "..\x64\Release\utv_dmo.dll";  DestDir: "{sys}"; Flags: ignoreversion 64bit regserver; Check: Is64BitInstallMode
