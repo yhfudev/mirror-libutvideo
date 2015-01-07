@@ -1,5 +1,5 @@
-/*  */
-/* $Id: QTDecoder.h 862 2012-01-23 10:17:30Z umezawa $ */
+/* 文字コードはＳＪＩＳ 改行コードはＣＲＬＦ */
+/* $Id: QTDecoder.h 1208 2014-12-29 01:38:56Z umezawa $ */
 
 #pragma once
 

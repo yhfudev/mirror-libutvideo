@@ -1,5 +1,5 @@
-/*  */
-/* $Id: QTDecoderDispatch.h 853 2012-01-15 13:23:39Z umezawa $ */
+/* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
+/* $Id: QTDecoderDispatch.h 1208 2014-12-29 01:38:56Z umezawa $ */
 
 ComponentSelectorOffset(8)
 	ComponentRangeCount(3)

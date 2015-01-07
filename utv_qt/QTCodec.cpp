@@ -1,6 +1,5 @@
-/*  */
-/* $Id: QTCodec.cpp 1152 2014-04-15 07:37:21Z umezawa $ */
-
+/* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
+/* $Id: QTCodec.cpp 1208 2014-12-29 01:38:56Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"

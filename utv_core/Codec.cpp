@@ -1,5 +1,5 @@
 /* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: Codec.cpp 1143 2014-04-06 13:35:12Z umezawa $ */
+/* $Id: Codec.cpp 1210 2015-01-02 03:38:47Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -26,7 +26,7 @@ INT_PTR CCodec::About(HWND hwnd)
 
 	wsprintf(buf,
 		"Ut Video Codec Suite, version %s\n"
-		"Copyright (C) 2008-2014  UMEZAWA Takeshi\n\n"
+		"Copyright (C) 2008-2015  UMEZAWA Takeshi\n\n"
 		"Licensed under GNU General Public License version 2 or later.",
 		UTVIDEO_VERSION_STR);
 	MessageBox(hwnd, buf, "Ut Video Codec Suite", MB_OK);

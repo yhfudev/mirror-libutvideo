@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: QuickTimeFormat.cpp 1152 2014-04-15 07:37:21Z umezawa $ */
+/* $Id: QuickTimeFormat.cpp 1204 2014-12-27 06:22:30Z umezawa $ */
 
 #include "stdafx.h"
 #include "utvideo.h"
@@ -10,7 +10,7 @@ static inline bool is_fourcc(uint32_t x)
 	return (x >= '    ' /* four SP */ && x <= 0x7e7e7e7e);
 }
 
-DLLEXPORT int UtVideoFormatToQuickTimeFormat(OSType *pixelFormat, utvf_t utvf)
+int UtVideoFormatToQuickTimeFormat(OSType *pixelFormat, utvf_t utvf)
 {
 	switch (utvf)
 	{
@@ -30,10 +30,8 @@ DLLEXPORT int UtVideoFormatToQuickTimeFormat(OSType *pixelFormat, utvf_t utvf)
 	return 0;
 }
 
-DLLEXPORT int QuickTimeFormatToUtVideoFormat(utvf_t *utvf, OSType pixelFormat)
+int QuickTimeFormatToUtVideoFormat(utvf_t *utvf, OSType pixelFormat)
 {
-	OSType ostypetmp;
-
 	switch (pixelFormat)
 	{
 	case k24RGBPixelFormat:

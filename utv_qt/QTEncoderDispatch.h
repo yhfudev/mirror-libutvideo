@@ -1,5 +1,5 @@
-/*  */
-/* $Id: QTEncoderDispatch.h 866 2012-04-18 13:26:00Z umezawa $ */
+/* •¶šƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
+/* $Id: QTEncoderDispatch.h 1208 2014-12-29 01:38:56Z umezawa $ */
 
 ComponentSelectorOffset(8)
 	ComponentRangeCount(1)
