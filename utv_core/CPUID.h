@@ -1,5 +1,5 @@
 /* •¶ŽšƒR[ƒh‚Í‚r‚i‚h‚r ‰üsƒR[ƒh‚Í‚b‚q‚k‚e */
-/* $Id: CPUID.h 1200 2014-12-21 00:57:37Z umezawa $ */
+/* $Id: CPUID.h 1232 2015-02-23 12:37:58Z umezawa $ */
 
 #pragma once
 
@@ -60,7 +60,7 @@ static inline void xgetbv(xgetbv_result *result, uint32_t idx)
 #elif defined(__GNUC__)
 	__asm__ __volatile__
 	(
-		"xgetbv"
+		".byte 0x0f, 0x01, 0xd0" //"xgetbv"
 		:
 		"=a"(result->eax),
 		"=d"(result->edx)
@@ -72,6 +72,6 @@ static inline void xgetbv(xgetbv_result *result, uint32_t idx)
 #endif
 
 #ifdef _DEBUG
-	_RPT2(_CRT_WARN, "XGETBV.%-2d EAX=%08X EDX=%08X\n", result->eax, result->edx);
+	_RPT3(_CRT_WARN, "XGETBV.%-2d EAX=%08X EDX=%08X\n", idx, result->eax, result->edx);
 #endif
 }
